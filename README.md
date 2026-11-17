@@ -4,13 +4,13 @@
 
 # privacy-hygiene
 
-A native Rust PII detector and redactor that executes a compiled ternary model. Its character embeddings, window kernels, and readout weights detect hyphenated US SSNs and separated North American phone numbers. The executable embeds its model and needs no Python, NumPy, weights download, or network access.
+A standalone Rust PII detector and redactor that executes an embedded, packed ternary model. It detects hyphenated US SSNs and separated North American phone numbers. No Python, NumPy, model download, or network access is required.
 
-This is a training-free circuit experiment, not a complete anonymization tool. It does not detect email, cards, IBANs, names, or addresses. The original seven-family Python rules detector and recorded [OpenAI Privacy Filter comparison](docs/results.md) remain available for comparison.
+This is a training-free circuit experiment with limited coverage. It does not detect email, cards, IBANs, names, or addresses. It is not a complete anonymization tool. Long or hostile inputs have no tested performance or memory guarantee.
 
-## Run the native ternary detector
+## Build and run
 
-Install Rust with Cargo, then run from the repository root.
+Install stable Rust with Cargo, then run from the repository root.
 
 ```bash
 cargo build --release --locked
@@ -19,139 +19,37 @@ cargo install --path . --locked
 printf '123-45-6789' | privacy-hygiene
 ```
 
-The CLI reads UTF-8 stdin and emits JSON with `spans` and `redacted`. Span offsets count Unicode code points, not UTF-8 bytes. Redaction masks the union of spans, including spaces, with `█`. Original CRLF and lone CR characters outside spans remain unchanged. Invalid input or model data exits nonzero on stderr without printing stdin. Use `--help`, `--version`, or `--weights PATH` to load an alternate native compiler artifact.
+The CLI reads UTF-8 stdin and emits JSON with `spans` and `redacted`. Each span contains `start`, `end`, and `label`. Offsets count Unicode code points, not UTF-8 bytes, and use half-open intervals. Redaction masks the union of spans, including spaces, with `█`. CRLF and lone CR characters outside spans remain unchanged.
 
-The model contains 4,380 trits packed into 876 weight bytes. The complete artifact also includes thresholds, head metadata, and Python's Unicode classification ranges. This number excludes the executable and its runtime memory. See [the ternary architecture and native format](docs/ternary.md).
+Invalid input or model data exits nonzero on stderr without printing stdin. Use `--help`, `--version`, or `--weights PATH` to load another artifact in the fixed native format.
 
-To verify both implementations, build the release binary first, then run:
+The model contains 4,380 trits packed into 876 weight bytes. The complete artifact also includes thresholds, head metadata, and Unicode classification ranges. This excludes the executable and runtime memory. See [the architecture and binary format](docs/ternary.md).
+
+## Verify
 
 ```bash
 cargo fmt --check
-cargo clippy --all-targets -- -D warnings
+cargo clippy --locked --all-targets -- -D warnings
 cargo test --locked
-uv run --extra ternary python -m unittest discover -s tests -v
+cargo build --release --locked
+cargo doc --locked --no-deps
 ```
-
-## Run the original rules detector
-
-Use Python 3.10 or later.
-
-```bash
-printf 'Name: Nora Chen. Mail nora@example.test!' | python3 detector.py
-python3 -m unittest discover -s tests -v
-python3 -m experiments.evaluate --output results/rules-optimized.json
-```
-
-The CLI reads stdin and returns JSON containing `spans` and `redacted`. Each span has `start`, `end`, and `label`. Offsets are half-open Unicode code-point positions in the original Python string. Redaction replaces covered characters, including spaces, with `█`. It preserves character length and masks the union of overlapping spans.
-
-For repeated inference, keep the detector imported. Interpreter startup and JSON output can dominate short CLI requests.
-
-```python
-from detector import detect, redact
-
-text = "Name: Nora Chen."
-spans = detect(text)
-masked = redact(text, spans)
-```
-
-## Compile or run the Python ternary backend
-
-The optional backend requires NumPy. It supports SSNs and separated North American phone numbers only. It does not detect email, cards, IBANs, names, or addresses.
-
-```bash
-uv run --extra ternary python -m experiments.compile_ternary --native-output models/weights.bin
-printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary python -m experiments.ternary
-uv run --extra ternary python -m unittest discover -s tests -v
-```
-
-[`experiments/compile_ternary.py`](experiments/compile_ternary.py) creates deterministic [`models/weights.npz`](models/weights.npz) with five trits per byte. [`experiments/ternary.py`](experiments/ternary.py) executes character embeddings, fixed-width kernels, and threshold/readout gates. It performs no training or regex matching. See [the architecture and evaluation commands](docs/ternary.md) for scope and limitations. The recorded rule and Privacy Filter results below remain unchanged.
-
-## Supported rules
-
-| Category | Coverage |
-| --- | --- |
-| Email | ASCII local parts and dotted domains |
-| Phone | Separated North American numbers |
-| SSN | Hyphenated US numbers with syntax exclusions |
-| Card | 13 to 19 digits with a valid Luhn checksum |
-| IBAN | Uppercase GB, DE, FR, ES, NL, and IT formats with length and mod-97 checks |
-| Name and address | Narrow, case-sensitive forms after explicit field cues |
-
-Checksums validate mathematical form, not assignment, ownership, or privacy. The rules miss common contextual and international formats. Long or hostile inputs have no tested performance or memory guarantee.
-
-## Run Privacy Filter
-
-Reproduce the recorded run with Linux, Python 3.12, and an isolated environment. Set `OPF_SOURCE` to a clone of [openai/privacy-filter](https://github.com/openai/privacy-filter) at revision `f7f00ca7fb869683eb732c010299d901457f19c3`. The path below is the reference checkout used for the recorded run.
-
-```bash
-OPF_SOURCE="$HOME/work/oss/privacy-filter"
-
-git -C "$OPF_SOURCE" rev-parse HEAD
-uv venv --python 3.12 .venv-baseline
-uv pip install --python .venv-baseline/bin/python -r experiments/requirements-baseline.txt
-uv pip install --python .venv-baseline/bin/python --no-deps -e "$OPF_SOURCE"
-
-.venv-baseline/bin/python -m experiments.run_baseline data/synthetic.jsonl
-.venv-baseline/bin/python -m experiments.evaluate \
-  --predictions results/privacy-filter.jsonl \
-  --output results/privacy-filter-scores.json
-.venv-baseline/bin/python -m experiments.measure_size --baseline-source "$OPF_SOURCE"
-```
-
-The runner downloads the pinned checkpoint into ignored `checkpoints/`, then uses the official CPU API with bfloat16 weights and default Viterbi calibration. It aborts on tokenizer round-trip warnings or inconsistent repeated predictions. It performs no training or corpus-specific calibration.
-
-## Run the optimized CPU adapter
-
-The optional adapter caches expert tensors as FP32 and groups tokens by expert. Attention and residual activations remain bfloat16. It requires more RAM and depends on internals of the pinned OPF revision. The default baseline command above uses the unmodified official implementation.
-
-```bash
-.venv-baseline/bin/python -m experiments.run_baseline data/synthetic.jsonl \
-  --grouped-cpu --threads 4 \
-  --output results/privacy-filter-grouped-rerun.jsonl
-.venv-baseline/bin/python -m experiments.evaluate \
-  --predictions results/privacy-filter-grouped-rerun.jsonl \
-  --output results/privacy-filter-grouped-rerun-scores.json
-.venv-baseline/bin/python -m unittest discover -s tests/opf -v
-```
-
-## Reproduce the optimization measurements
-
-Run the official baseline first. These scripts compare outputs, alternate or rotate configurations, and save timing samples and profiles. The model benchmarks require full-corpus span equality before accepting an optimized configuration.
-
-```bash
-.venv-baseline/bin/python -m experiments.benchmark_rules
-.venv-baseline/bin/python -m experiments.benchmark_baseline
-.venv-baseline/bin/python -m experiments.tune_grouped_threads
-```
-
-The preserved detector is [results/detector-before.py](results/detector-before.py). No output memoization, training, expert pruning, or threshold fitting is used. See [inference optimization](docs/results.md#inference-optimization) for measured gains and their limits.
 
 ## Project files
 
-Run experiment modules from the repository root. The Rust application lives under `src/`, compiled model artifacts under `models/`, and the Python compiler, reference runtime, and experiment tooling under `experiments/`. The standalone rules detector stays at the root.
-
-| File | Purpose |
+| Path | Purpose |
 | --- | --- |
-| [src/](src/) | Native packed ternary inference and JSON CLI |
-| [detector.py](detector.py) | Rule matching and character masking |
-| [models/](models/) | Compiled NPZ and native binary model artifacts |
-| [experiments/ternary.py](experiments/ternary.py) | Python numerical reference runtime |
-| [experiments/compile_ternary.py](experiments/compile_ternary.py) | Deterministic ternary model compiler |
-| [experiments/evaluate.py](experiments/evaluate.py) | Corpus validation, span scoring, and character coverage |
-| [experiments/run_baseline.py](experiments/run_baseline.py) | Official model runner and shared prediction format |
-| [experiments/optimized_opf.py](experiments/optimized_opf.py) | Optional grouped CPU adapter |
-| [data/synthetic.jsonl](data/synthetic.jsonl) | The fixed, labeled corpus |
-| [docs/results.md](docs/results.md) | Measurements, methodology, boundaries, and limitations |
-| [results/](results/) | Raw predictions, scores, profiles, environment records, and source hashes |
+| [src/](src/) | Packed ternary inference, redaction, and JSON CLI |
+| [models/weights.bin](models/weights.bin) | Embedded native ternary model |
+| [tests/](tests/) | Native CLI behavior checks |
+| [docs/ternary.md](docs/ternary.md) | Circuit architecture and binary format |
 
-Downloaded model weights and virtual environments are excluded from Git. The small compiled artifacts in `models/` are checked in.
+The Python compiler, reference runtime, rules detector, and baseline experiments are no longer part of this repository's current tree. Earlier revisions remain available in Git history. The checked-in binary artifact is the model source used by the Rust build; this tree does not provide a model compiler.
 
 ## Contribute
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and dataset requirements. Report security problems through the private channel in [SECURITY.md](SECURITY.md).
-
-The [public-source readiness record](docs/open-source-readiness.md) lists audit scope and remaining publication steps.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and checks. Report security problems through the private channel in [SECURITY.md](SECURITY.md).
 
 ## License
 
-This project's original code, compiled circuit artifacts, documentation, and synthetic fixtures are licensed under [Apache-2.0](LICENSE). Third-party packages and the separately downloaded OpenAI Privacy Filter checkpoint retain their own licenses. See [NOTICE](NOTICE).
+The code, compiled circuit artifact, and documentation are licensed under [Apache-2.0](LICENSE). See [NOTICE](NOTICE).

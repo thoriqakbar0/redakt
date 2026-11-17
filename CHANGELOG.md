@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Keep only the standalone Rust detector and native ternary model; remove Python tooling, NPZ weights, rules and baseline experiments, datasets, and recorded results. Replace Python-dependent checks with native Rust CLI tests.
+
 - Add the project logo in SVG and transparent PNG formats and display it in the README.
 - Prepare public-source licensing, contributor and security guidance, cross-platform CI, and dependency updates.
 - Compare decompressed model payloads across platforms while preserving byte-identical recompilation checks within one environment.
