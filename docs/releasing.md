@@ -1,6 +1,6 @@
 # Publish a version
 
-Cargo and GitHub Releases are separate publication steps. Ordinary pushes do not publish packages or binaries. The **Prepare release** workflow checks all five binary archives on pull requests and creates a draft release only when manually dispatched.
+Cargo and GitHub Releases are separate publication steps. Ordinary pushes and pull requests do not run the distribution workflow or publish packages or binaries. The **Prepare release** workflow checks all five binary archives and creates a draft release only when manually dispatched.
 
 ## Prepare the source
 
