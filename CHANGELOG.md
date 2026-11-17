@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Make GitHub Actions manual-only and use documented local checks as the default PR verification.
 - Keep only the standalone Rust detector and native ternary model; remove Python tooling, NPZ weights, rules and baseline experiments, datasets, and recorded results. Replace Python-dependent checks with native Rust CLI tests.
 
 - Add the project logo in SVG and transparent PNG formats and display it in the README.

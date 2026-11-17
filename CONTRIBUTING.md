@@ -14,6 +14,8 @@ cargo build --release --locked
 cargo doc --locked --no-deps
 ```
 
+Local checks are the default verification for pull requests. Include their results in the PR description. GitHub Actions runs only when manually requested through the CI workflow's **Run workflow** button. Pushes and pull requests do not start it. The optional workflow retains the Linux, macOS, and Windows matrix. Local checks prove only the platform and versions you ran.
+
 The native model in `models/weights.bin` embeds Unicode 13.0.0 classification tables. The Rust build embeds this artifact directly. No Python environment or model compiler is required or included.
 
 ## Submit changes
