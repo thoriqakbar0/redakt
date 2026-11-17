@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add the project logo in SVG and transparent PNG formats and display it in the README.
 - Add a native Rust executable that embeds and executes the compiled ternary SSN and phone model, with Unicode code-point spans, model validation, and Python parity checks.
 - Keep the Rust application in `src/`, compiled artifacts in `models/`, and the Python reference runtime and compiler in `experiments/`; run them with `python -m experiments.ternary` and `python -m experiments.compile_ternary`.
 - Document real-world rule failures on public specifications and blog pages, including card false positives and missed names and addresses.
