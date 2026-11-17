@@ -6,20 +6,20 @@ This backend covers two of the seven rule families. It detects hyphenated US SSN
 
 ## Compile and run
 
-Run these commands from the repository root with Python 3.10 or later. NumPy is required only for compilation and Python inference. The Rust executable embeds `ternary/weights.bin` and runs without Python or NumPy.
+Run these commands from the repository root with Python 3.10 or later. NumPy is required only for compilation and Python inference. The Rust executable embeds `models/weights.bin` and runs without Python or NumPy.
 
 ```bash
-uv run --extra ternary python -m ternary.compile --native-output ternary/weights.bin
+uv run --extra ternary python -m experiments.compile_ternary --native-output models/weights.bin
 cargo build --release --locked
 printf '123-45-6789' | target/release/privacy-hygiene
-printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary python -m ternary
+printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary python -m experiments.ternary
 uv run --extra ternary python -m unittest discover -s tests -v
 ```
 
 The CLI emits the same `spans` and `redacted` fields as the rules detector. Offsets count Python Unicode characters, not UTF-8 bytes. Imported inference caches the default model across calls.
 
 ```python
-from ternary import detect
+from experiments.ternary import detect
 from detector import redact
 
 text = "Call +1 (212) 555-0123."
@@ -27,7 +27,7 @@ spans = detect(text)
 masked = redact(text, spans)
 ```
 
-`python -m ternary.compile --output /tmp/weights.npz` builds another archive. `python -m ternary --weights /tmp/weights.npz` loads that archive for stdin inference. The archive is a compiler artifact, not a general interchange format for arbitrary models.
+`python -m experiments.compile_ternary --output /tmp/weights.npz` builds another archive. `python -m experiments.ternary --weights /tmp/weights.npz` loads that archive for stdin inference. The archive is a compiler artifact, not a general interchange format for arbitrary models.
 
 ## Numerical architecture
 
@@ -45,12 +45,12 @@ At each possible start position, inference multiplies a character-feature window
 
 The Python runtime reuses the original `Span` class and redaction function. It does not call the rules detector for inference. It processes at most 4,096 start positions per numerical batch, with neighboring characters included across batch boundaries. Input text, returned spans, and candidate bookkeeping still require memory proportional to the input.
 
-The tensors contain 4,380 trits. Packing five base-three digits per byte uses 876 bytes before archive overhead and compression. The checked-in `ternary/weights.npz` is 2,015 bytes, including shapes, format version, one-dimensional thresholds, lengths, and labels. This size excludes Python, NumPy, source code, and interpreter memory. It is not an end-to-end deployment size.
+The tensors contain 4,380 trits. Packing five base-three digits per byte uses 876 bytes before archive overhead and compression. The checked-in `models/weights.npz` is 2,015 bytes, including shapes, format version, one-dimensional thresholds, lengths, and labels. This size excludes Python, NumPy, source code, and interpreter memory. It is not an end-to-end deployment size.
 
 ## Reproduce the evaluation
 
 ```bash
-uv run --extra ternary python -m ternary --corpus data/synthetic.jsonl > /tmp/ternary-predictions.jsonl
+uv run --extra ternary python -m experiments.ternary --corpus data/synthetic.jsonl > /tmp/ternary-predictions.jsonl
 python3 -m experiments.evaluate --predictions /tmp/ternary-predictions.jsonl --output /tmp/ternary-scores.json
 ```
 

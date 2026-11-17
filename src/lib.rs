@@ -75,7 +75,7 @@ impl<'a> Reader<'a> {
 
 impl Detector {
     pub fn embedded() -> Result<Self, String> {
-        Self::from_bytes(include_bytes!("../ternary/weights.bin"))
+        Self::from_bytes(include_bytes!("../models/weights.bin"))
     }
 
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, String> {

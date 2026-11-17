@@ -9,7 +9,7 @@ import zipfile
 
 import numpy as np
 
-from . import (
+from .ternary import (
     DEFAULT_WEIGHTS, FEATURES, FORMAT_VERSION, NONWORD, UNICODE_WORD, pack_trits,
 )
 

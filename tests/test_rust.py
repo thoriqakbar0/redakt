@@ -16,11 +16,11 @@ except ImportError:
 
 if np is not None:
     from detector import redact
-    from ternary import Detector, unpack_trits
-    from ternary.compile import compile_tensors, compile_weights, native_weights
+    from experiments.ternary import Detector, unpack_trits
+    from experiments.compile_ternary import compile_tensors, compile_weights, native_weights
 
 BINARY = Path("target/release/privacy-hygiene" + (".exe" if os.name == "nt" else "")).resolve()
-MODEL = Path("ternary/weights.bin")
+MODEL = Path("models/weights.bin")
 
 
 @unittest.skipUnless(BINARY.exists() and np is not None,
