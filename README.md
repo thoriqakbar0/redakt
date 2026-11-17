@@ -33,12 +33,12 @@ masked = redact(text, spans)
 The optional backend requires NumPy. It supports SSNs and separated North American phone numbers only. It does not detect email, cards, IBANs, names, or addresses.
 
 ```bash
-uv run --extra ternary python compile.py
-printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary python ternary.py
+uv run --extra ternary python -m ternary.compile
+printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary python -m ternary
 uv run --extra ternary python -m unittest discover -s tests -v
 ```
 
-[`compile.py`](compile.py) creates deterministic [`weights.npz`](weights.npz) with five trits per byte. [`ternary.py`](ternary.py) executes character embeddings, fixed-width kernels, and threshold/readout gates. It performs no training or regex matching. See [the architecture and evaluation commands](docs/ternary.md) for scope and limitations. The recorded rule and Privacy Filter results below remain unchanged.
+[`ternary/compile.py`](ternary/compile.py) creates deterministic [`ternary/weights.npz`](ternary/weights.npz) with five trits per byte. [`ternary/__init__.py`](ternary/__init__.py) executes character embeddings, fixed-width kernels, and threshold/readout gates. It performs no training or regex matching. See [the architecture and evaluation commands](docs/ternary.md) for scope and limitations. The recorded rule and Privacy Filter results below remain unchanged.
 
 ## Supported rules
 
@@ -102,11 +102,12 @@ The preserved detector is [results/detector-before.py](results/detector-before.p
 
 ## Project files
 
-Run experiment modules from the repository root. The standalone detector stays at the root; tooling and optional model dependencies live under `experiments/`.
+Run experiment modules from the repository root. The standalone detector stays at the root; the optional compiled backend lives under `ternary/`, and experiment tooling and optional model dependencies live under `experiments/`.
 
 | File | Purpose |
 | --- | --- |
 | [detector.py](detector.py) | Rule matching and character masking |
+| [ternary/](ternary/) | Optional numerical detector, compiler, and packed weights |
 | [experiments/evaluate.py](experiments/evaluate.py) | Corpus validation, span scoring, and character coverage |
 | [experiments/run_baseline.py](experiments/run_baseline.py) | Official model runner and shared prediction format |
 | [experiments/optimized_opf.py](experiments/optimized_opf.py) | Optional grouped CPU adapter |
@@ -114,4 +115,4 @@ Run experiment modules from the repository root. The standalone detector stays a
 | [docs/results.md](docs/results.md) | Measurements, methodology, boundaries, and limitations |
 | [results/](results/) | Raw predictions, scores, profiles, environment records, and source hashes |
 
-Model weights and virtual environments are excluded from Git.
+Downloaded model weights and virtual environments are excluded from Git. The small compiled archive in `ternary/` is checked in.
