@@ -3,7 +3,7 @@ name = "privacy-hygiene"
 version = "0.0.1"
 edition = "2021"
 description = "Native compiled ternary-gated PII rules detector"
-publish = false
+include = ["/src/**", "/models/weights.bin", "/assets/logo.svg", "/Cargo.lock", "/README.md", "/LICENSE", "/NOTICE"]
 license = "Apache-2.0"
 repository = "https://github.com/thoriqakbar0/privacy-hygiene"
 
