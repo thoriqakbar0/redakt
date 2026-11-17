@@ -1,42 +1,49 @@
-# Compiled ternary SSN and phone circuits
+# Compiled recurrent PII matcher
 
-The standalone Rust executable embeds `models/weights.bin`. It runs fixed numerical circuits without training, regex matching, or model downloads. It covers hyphenated US SSNs and separated North American phone numbers only. It does not provide learned contextual generalization.
+The native executable implements the same seven categories as the independent Python rules detector preserved in the reproduction source. It uses an ordered recurrent rule machine with ternary gates. It is not a learned neural detector or a dense tensor network, and adds no contextual understanding beyond those rules.
 
-Build with `cargo build --release --locked` and pipe UTF-8 text to `target/release/privacy-hygiene`. The CLI emits JSON spans and redacted text. `--weights PATH` accepts another artifact in the same fixed format.
+## Architecture
 
-## Numerical architecture
+The former model used fixed 19-character windows for SSNs and phones. That shape cannot express unbounded email lengths or the repetitions and captures used by names and addresses. Version 2 instead stores packed character-class masks, an ordered instruction graph, seven category entries, capture metadata, Unicode classification ranges, and sparse weighted checksum transitions.
 
-The model contains three multidimensional weight tensors. Every entry is in `{-1, 0, +1}`.
+Each character gate compares a ternary mask weight against a threshold. Branch priority, input positions, capture tags, and search cursors are host bookkeeping. Negative assertion polarity and boundary differences also use ternary threshold decisions. Luhn and mod-97 state transitions are compiled into sparse weighted tables, rather than calling runtime arithmetic validators. Inference makes no regex-engine calls.
 
-| Tensor | Shape | Purpose |
-| --- | --- | --- |
-| Character embedding | 130 × 12 | ASCII character classes and Unicode word/nonword categories |
-| Window kernels | 12 × 19 × 12 | Seven syntax heads and five SSN exclusion gates |
-| Readout | 7 × 12 | Accept syntax heads and subtract SSN veto gates |
+The graph uses accept, character, ordered split, capture, assertion, and anchor instructions. An explicit backtracking stack handles variable-length repetition without one call frame per character. Compiler-derived required masks skip categories when a necessary character class is absent. This retains the original patterns' potential pathological search costs. There is no tested worst-case time or memory guarantee for hostile input.
 
-The seven syntax heads encode one SSN layout and six phone layout families. Separator character classes combine space, dot, and hyphen alternatives. The phone heads cover bare or parenthesized area codes, with no country prefix, `+1`, or `+1` followed by one separator. Area and exchange codes begin with digits 2 through 9.
+## Matching contract
 
-At each possible start position, inference multiplies a character-feature window by the compiled kernels. Integer thresholds turn scores into Boolean gates. The readout accepts syntax gates and subtracts SSN exclusions for `000`, `666`, and `9xx` area groups, `00` middle groups, and `0000` final groups. Negative kernel weights enforce Unicode word boundaries; SSN boundaries also reject adjacent hyphens. These decisions use numerical gates rather than regex matching. The runtime encodes character categories and selects leftmost, longest, nonoverlapping matches separately for each label.
+Each category searches independently. Ordered branches preserve greedy and lazy regex choices rather than selecting a global longest match. Names and addresses return their value capture, but advance the cursor beyond the full match including its cue.
 
-The Rust runtime precomputes nonzero kernel terms and executes integer embedding, threshold, and readout operations. The public `redact` function validates supplied spans before masking their union. Input and span storage require memory proportional to input length.
+Card and IBAN checksum validation happens after a syntax match commits. A rejected checksum does not retry a shorter candidate or search inside the rejected match. This preserves original failures such as a greedy IBAN candidate consuming an uppercase suffix and then failing its checksum or length.
 
-The tensors contain 4,380 trits packed into 876 bytes. Artifact metadata, the executable, and runtime memory are additional. No speed or production-accuracy claim is made.
+Offsets are half-open Unicode code-point positions in the original UTF-8 input. Redaction validates every span, masks their union with `█`, preserves character count, and leaves unrelated CRLF and lone CR characters unchanged.
 
-## Native artifact format
+The artifact uses Python 3.10's Unicode 13.0.0 alphanumeric and whitespace tables, with underscore included in word characters. Rust uses these embedded ranges rather than its own Unicode classification. The end anchor also accepts the position before a final newline, following the original regex policy.
 
-All integers use little-endian order. The fixed circuit format contains these fields in order.
+An independent rules detector running under newer Python Unicode tables can classify newly added characters differently. Recompile with that interpreter when comparing such inputs. Classification agreement was checked for every character in the recorded benchmark corpus.
 
-| Field | Encoding |
+## Native format
+
+All header integers use little-endian order. The artifact starts with four bytes `PHYT`, a u16 version of 2, and a u32 JSON payload length. The length must exactly match the remaining bytes. Version 1 artifacts are rejected and need recompilation.
+
+The JSON object has these fields.
+
+| Field | Content |
 | --- | --- |
-| Magic and version | Four bytes `PHYT`, then u16 version 1 |
-| Dimensions | Six u16 values, embedding rows and columns, kernel count and width, readout rows and columns |
-| Unicode version | u8 byte length and ASCII version string |
-| Alphanumeric ranges | u32 count, then inclusive non-ASCII start and end pairs of u32 values |
-| Embedding, kernels, readout | Row-major flattened tensors concatenated and packed into 876 bytes |
-| Thresholds | Twelve signed i16 values |
-| Head lengths | Seven positive i16 values |
-| Labels | Seven bytes, 0 for SSN and 1 for phone |
+| `unicode_version` | Classification-table version |
+| `word_ranges`, `space_ranges` | Sorted inclusive non-ASCII scalar ranges |
+| `masks`, `word_mask` | Packed ternary character masks and boundary-mask index |
+| `instructions` | Ordered four-integer matching instructions |
+| `heads` | Category labels, entry indices, capture/checksum mode, required masks |
+| `luhn`, `iban` | Sparse transition rows and packed acceptance vectors |
+| `countries` | Country-character mask indices and required compact lengths |
 
-Each packed byte stores five base-three digits, least significant digit first. A digit of 2 represents -1. The loader rejects bytes above 242, nonzero padding, unsupported dimensions, invalid ranges, invalid lengths or labels, truncation, and trailing data. Custom weights still cannot return spans beyond the input. This format supports the fixed circuit, not arbitrary network architectures.
+Five base-three digits fit in each packed byte, least significant digit first. Digits 0 and 1 represent their weights; digit 2 represents -1. Packed values above 242 and nonzero padding are invalid. The loader validates dimensions, indices, Unicode ranges, weights, head metadata, zero-width cycles, recursive assertions, and assertion nesting before execution. The fixed limits include 2,000,000 artifact bytes, 10,000 instructions, 512 masks, and 64 assertion levels.
 
-The checked-in artifact embeds Unicode 13.0.0 alphanumeric ranges originally generated with Python 3.10. Rust uses those ranges for boundary behavior rather than its own Unicode classification. The compiler and Python reference runtime are available only in Git history; this tree builds from the checked-in binary and does not regenerate it.
+The current artifact contains 78 character masks, 468 instructions, 703 alphanumeric ranges, and eight whitespace ranges. It is 57,721 bytes. Its SHA-256 is `80eb9d586204777b508b3cfe991f30fc8ab620acc990765084161d8f5ba9d247`. The earlier 876-byte weight figure described the superseded two-category circuit.
+
+Loading expands masks and creates runtime structures. Input text, character codes, backtracking state, spans, and redaction also consume RAM. The measured executable is 830,384 bytes with the model embedded. Neither figure is a RAM estimate. See [the matched measurements](fair-benchmark.md).
+
+## Compiler and reproduction source
+
+The default tree remains Rust-only. The compiler, Python reference, original rules, source fixtures, and complete benchmark reproduction are retained in the separate reproduction source linked from [the benchmark guide](fair-benchmark.md). That compiler parses regex definitions at compilation time and emits the checked-in native format; it is not needed by Cargo or native inference.
