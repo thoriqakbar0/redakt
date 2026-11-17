@@ -7,6 +7,7 @@ Users pipe text into the CLI and receive spans and redacted text.
 - Detect the seven supported categories.
 - Preserve Unicode code-point offsets and untouched whitespace.
 - Display help and the current version.
+- Opt into supplemental contextual recognition with `--contextual`.
 
 ## How to get to it (user POV)
 
@@ -17,6 +18,8 @@ Run `privacy-hygiene` with UTF-8 stdin. Use `--help` or `--version` for command 
 Preconditions. Run Launch and Doctor in the parent skill.
 
 Run the parent's Drive commands. Require the fox and CRLF to remain unchanged and the SSN span to start at 2 and end at 13. Run `"$binary" --help >"$evidence/help.txt"` and confirm that it lists `--weights` and `--jsonl`. The parent's full test suite checks supported layouts, exclusions, and the frozen 289-document oracle.
+
+Run `printf '🦊 DOB: 2000-02-29\r\n' | "$binary" --contextual >"$evidence/contextual.json"`. Require `jq -e '. == {spans:[{start:7,end:17,label:"date"}],redacted:"🦊 DOB: ██████████\r\n"}' "$evidence/contextual.json"` to succeed. Confirm that help lists `--contextual`. Run `cargo test --locked --test contextual` to check contextual offsets, value boundaries, exclusions, and flag combinations.
 
 ## Gotchas
 

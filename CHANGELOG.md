@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add opt-in contextual masking for additional cued names and addresses, labelled secrets, bank account numbers, and birth dates while preserving default detector output.
+- Reduce matcher stack operations by keeping sequential instructions in the active execution state and stacking only alternative branches.
 - Explain the ternary matcher in the README and simplify CLI installation, the redaction example, and the test command.
 - Fix intermittent CLI test failures when invalid arguments close stdin before the test finishes writing.
 - Add a project verification skill with CLI journeys, retained evidence, and Intel and Apple silicon cross-compilation checks.

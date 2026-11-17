@@ -1,0 +1,78 @@
+{
+  "baseline_revision": "43ec192",
+  "trials_seconds": {
+    "baseline": [
+      0.5515296869998565,
+      0.48796566000055464,
+      0.6229885409993585,
+      0.5280918829994334,
+      0.47071306699945126
+    ],
+    "optimized": [
+      0.3989983609999399,
+      0.34868928299965773,
+      0.3743438290002814,
+      0.4103977600007056,
+      0.33854841100037447
+    ],
+    "contextual": [
+      0.4135399300002973,
+      0.5210587970004781,
+      0.384164330999738,
+      0.4726821579997704,
+      0.448027505999562
+    ]
+  },
+  "trials_cpu_seconds": {
+    "baseline": [
+      0.5203799999999998,
+      0.4652880000000001,
+      0.5906899999999997,
+      0.5089410000000004,
+      0.461692
+    ],
+    "optimized": [
+      0.38052399999999975,
+      0.2994999999999992,
+      0.3384119999999996,
+      0.37545099999999965,
+      0.33279199999999987
+    ],
+    "contextual": [
+      0.38817,
+      0.4902409999999999,
+      0.3498870000000004,
+      0.4533180000000001,
+      0.4254300000000003
+    ]
+  },
+  "documents_per_trial": 10,
+  "spans_per_trial": 50000,
+  "errors": 0,
+  "input_bytes": 1180280,
+  "input_sha256": "1e45be0f986a96c3a2f2ae4fa3cb982e885210b1a95455774762e519da53c1aa",
+  "output_sha256": "9171faf0d946017422e8154ddc5896cef91faa9f1fc0829dcbf18ccf1a9de6ac",
+  "summary": {
+    "baseline": {
+      "median_seconds": 0.5280918829994334,
+      "min_seconds": 0.47071306699945126,
+      "max_seconds": 0.6229885409993585,
+      "median_cpu_seconds": 0.5089410000000004
+    },
+    "optimized": {
+      "median_seconds": 0.3743438290002814,
+      "min_seconds": 0.33854841100037447,
+      "max_seconds": 0.4103977600007056,
+      "median_cpu_seconds": 0.3384119999999996
+    },
+    "contextual": {
+      "median_seconds": 0.448027505999562,
+      "min_seconds": 0.384164330999738,
+      "max_seconds": 0.5210587970004781,
+      "median_cpu_seconds": 0.4254300000000003
+    }
+  },
+  "host": "Intel Xeon E5-2697 v2 Linux shared VM",
+  "method": "One warmup and five measured CLI invocations per variant, rotating and reversing order, release builds, exact stdout validation after timing.",
+  "limiter": "Baseline perf samples locate 26.7% in Detector::run, 7.5% in Detector::detect and 9.6% combined in malloc/free/realloc. CPU time tracks wall time on a single-threaded worker."
+}
