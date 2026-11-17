@@ -1,10 +1,5 @@
 privacy-hygiene
 Copyright 2026 privacy-hygiene contributors
 
-The optional experiments/optimized_opf.py adapter integrates with OpenAI
-Privacy Filter. That separately installed project and its model checkpoint
-retain their upstream licenses and notices. They are not distributed here.
-See https://github.com/openai/privacy-filter for upstream licensing.
-
-The artifacts in models/ are compiled from this repository's circuit
-definitions. They are not OpenAI Privacy Filter model weights.
+The artifact in models/weights.bin contains compiled ternary circuit weights.
+It is not an OpenAI Privacy Filter checkpoint.
