@@ -4,60 +4,63 @@
 
 # privacy-hygiene
 
-A standalone Rust PII detector and redactor that executes an embedded compiled matcher with ternary gates. It covers email, separated North American phones, hyphenated US SSNs, Luhn-valid cards, six supported uppercase IBAN formats, and cue-based names and addresses. No Python, NumPy, model download, or network access is required.
+A standalone Rust PII detector powered by an embedded ternary-gated rule machine. Detect and redact emails, phones, US SSNs, cards, supported IBANs, and cue-based names and addresses with one CLI binary. No model download or network access is needed after installation.
 
-This is a training-free rule-machine experiment, not a learned contextual detector or a complete anonymization tool. It preserves the original rules' narrow formats and known failures. Long or hostile inputs have no tested performance or memory guarantee.
+## How the ternary matcher works
 
-## Install the native ternary detector
+The matcher uses weights in `{-1, 0, +1}` to make threshold decisions over character classes and boundaries. Five ternary weights fit in each packed byte. The binary embeds the compiled model in [models/weights.bin](models/weights.bin).
 
-Cargo packaging and the prebuilt release workflow are prepared. Registry installation and release downloads require a maintainer to publish a version first.
+The model stores character masks, an ordered instruction graph, capture metadata, Unicode tables, and sparse checksum transitions. The Rust runtime executes that graph to find spans and redact text. It makes no regex-engine calls during inference. Luhn and IBAN checks use compiled transition tables.
 
-After publication to crates.io, install with Rust and Cargo:
+This is a training-free rule-machine experiment. Its ternary weights encode compiled rules, not learned contextual understanding. Names and addresses still need explicit cues, and narrow formats can miss personal data. It is not a complete anonymization tool. Hostile inputs have no tested worst-case time or memory guarantee.
 
-```bash
-cargo install privacy-hygiene --locked
-```
+See [the ternary architecture and model format](docs/ternary.md) for the execution details.
 
-For installation without Rust, download the archive for your platform and `SHA256SUMS` from [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). The workflow prepares these targets:
+## Install the CLI
 
-| Platform | Archive target |
-| --- | --- |
-| Linux x86_64 | `x86_64-unknown-linux-gnu` |
-| Linux ARM64 | `aarch64-unknown-linux-gnu` |
-| macOS Intel | `x86_64-apple-darwin` |
-| macOS Apple silicon | `aarch64-apple-darwin` |
-| Windows x86_64 | `x86_64-pc-windows-msvc` |
-
-Linux binaries are built on Ubuntu 24.04 and require glibc 2.39 or newer. They do not support musl-based distributions such as Alpine. macOS binaries are built on macOS 15. Windows binaries use the MSVC runtime.
-
-Verify the archive before extracting it. On Linux, run `sha256sum --ignore-missing --check SHA256SUMS`. On macOS, run `shasum -a 256 <archive>` and compare the result with `SHA256SUMS`. On Windows, use `Get-FileHash <archive> -Algorithm SHA256` in PowerShell. Then extract the archive and put `privacy-hygiene`, or `privacy-hygiene.exe` on Windows, in a directory on your `PATH`.
-
-Each archive includes the executable, README, license, and notice. The executable embeds its model and needs no separate download.
-
-### Install from source
-
-Install stable Rust with Cargo, then run from the repository root.
+With [Rust and Cargo](https://rustup.rs/) installed, run this from any directory. No clone is needed.
 
 ```bash
-cargo build --release --locked
-printf 'Name: Nora Chen. Mail nora@example.test!' | target/release/privacy-hygiene
-cargo install --path . --locked
-printf '123-45-6789' | privacy-hygiene
+cargo install --git https://github.com/thoriqakbar0/privacy-hygiene.git --locked
 ```
 
-Maintainers can follow [the release procedure](docs/releasing.md) to publish Cargo packages and prebuilt binaries.
+Prefer a prebuilt binary? Check [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). No release is published yet. Once available, download the archive for your platform, verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
 
-To build Intel and Apple silicon macOS executables from Linux, follow [the macOS cross-compilation guide](docs/cross-compiling-macos.md). Executing and testing those binaries requires macOS.
+There is no installable detector skill in this repository yet. Use the CLI directly from your terminal or agent.
 
-The CLI reads UTF-8 stdin and emits JSON with `spans` and `redacted`. Each span contains `start`, `end`, and `label`. Offsets are half-open Unicode code-point positions, not UTF-8 bytes. Redaction masks the union of spans, including spaces, with `█`. CRLF and lone CR characters outside spans remain unchanged.
+## Try it
 
-Invalid input or model data exits nonzero on stderr without printing stdin. Use `--help`, `--version`, or `--weights PATH` to load another native artifact. Version 2 replaces the former fixed-window format. Version 1 weights require recompilation.
+Paste this into your terminal after installation.
 
-Use `--jsonl` to keep the model loaded across documents. Each input line has exactly `id` and `text`; each response contains `id`, `spans`, and `redacted` and is flushed immediately. Blank lines are ignored. A later invalid record exits nonzero after any earlier complete responses.
+```bash
+printf 'Email: nora@example.test' | privacy-hygiene
+```
+
+Expected JSON, with key order allowed to differ:
+
+```json
+{"redacted":"Email: █████████████████","spans":[{"start":7,"end":24,"label":"email"}]}
+```
+
+To check a UTF-8 text file, run:
+
+```bash
+privacy-hygiene < sample.txt
+```
+
+The CLI writes JSON to stdout and errors to stderr. Each result contains `spans` and `redacted`. Span offsets count Unicode code points, starting at zero, with an exclusive end. Redaction masks matched characters, including spaces, with `█`.
+
+### Process multiple documents
+
+Use `--jsonl` to keep the model loaded. Each input line must contain exactly `id` and `text`. Each response contains `id`, `spans`, and `redacted` and is flushed immediately.
 
 ```bash
 printf '%s\n' '{"id":"one","text":"Name: Nora Chen."}' '{"id":"two","text":"a@example.test"}' | privacy-hygiene --jsonl
 ```
+
+Blank lines are ignored. An invalid record stops processing with a nonzero exit after any earlier complete responses.
+
+Run `privacy-hygiene --help` for usage or `privacy-hygiene --version` to check the installed version. Use `--weights PATH` to load another native artifact. Version 1 weights require recompilation for the current version 2 format.
 
 ## Coverage and measurements
 
@@ -67,17 +70,17 @@ The native model is 57,721 bytes. The measured Linux executable is 830,384 bytes
 
 A matched five-trial CPU comparison verified exact native/rules outputs. Native RAM was lower, while native/rules timing ranges overlapped on both short and long documents. See [the benchmark findings and raw evidence](docs/fair-benchmark.md) and [the architecture and format](docs/ternary.md).
 
-## Verify
+## Run the tests
+
+For contributors, run from a checkout with Rust and Cargo installed:
 
 ```bash
-cargo fmt --check
-cargo clippy --locked --all-targets -- -D warnings
 cargo test --locked
-cargo build --release --locked
-cargo doc --locked --no-deps
 ```
 
-Rust tests cover all seven categories, a frozen 289-document independent rules oracle, long matches, checksum selection, Unicode offsets and whitespace, persistent JSONL, altered weights, and malformed models. Local verification remains the default. The optional cross-platform GitHub Actions workflow is manual-only.
+The tests cover all seven categories, 289 frozen rules-oracle cases, Unicode offsets, JSONL, and malformed models. See [CONTRIBUTING.md](CONTRIBUTING.md#run-checks) for the full checks. GitHub Actions is manual-only.
+
+To build macOS executables from Linux, follow [the macOS cross-compilation guide](docs/cross-compiling-macos.md). Executing and testing those binaries requires macOS.
 
 ## Project files
 
@@ -89,7 +92,7 @@ Rust tests cover all seven categories, a frozen 289-document independent rules o
 | [docs/ternary.md](docs/ternary.md) | Architecture, matching contract, and native format |
 | [docs/fair-benchmark.md](docs/fair-benchmark.md) | Matched comparison and external reproduction source |
 
-This tree remains Rust-only. The Python compiler, independent rules detector, reference runtime, and benchmark reproduction tools are retained on a separate reproduction branch linked from the documentation. Cargo does not need them to build or test the checked-in artifact.
+The default tree contains the Rust runtime and compiled ternary model. The compiler, independent rules detector, reference runtime, and benchmark tools are retained on the [reproduction branch](docs/fair-benchmark.md). Cargo builds and tests the checked-in model directly.
 
 ## Contribute
 
