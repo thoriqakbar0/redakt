@@ -1,0 +1,66 @@
+USDT:2026-11-17 12:03:40 27181:27181 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-17 12:03:42 27181:27181 SyncActivityProfilerHandler.cpp:46] profiler_stop
+1 bf16/1: 17.2819s, 0 changed probe documents
+1 bf16/2: 10.6483s, 0 changed probe documents
+1 bf16/4: 7.9744s, 0 changed probe documents
+1 fp32/1: 13.8738s, 0 changed probe documents
+1 fp32/2: 9.2019s, 0 changed probe documents
+1 fp32/4: 6.5428s, 0 changed probe documents
+2 bf16/2: 12.2181s, 0 changed probe documents
+2 bf16/4: 8.5002s, 0 changed probe documents
+2 fp32/1: 13.3458s, 0 changed probe documents
+2 fp32/2: 10.6554s, 0 changed probe documents
+2 fp32/4: 6.8328s, 0 changed probe documents
+Traceback (most recent call last):
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/benchmark_baseline.py", line 98, in <module>
+    original = [
+    ^^^^^^
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/benchmark_baseline.py", line 59, in main
+    samples = {f'{dtype}/{threads}': [] for dtype in variants for threads in [1, 2, 4]}
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/benchmark_baseline.py", line 19, in predict
+    result = model.redact(row['text'])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/work/oss/privacy-filter/opf/_api.py", line 258, in redact
+    prediction = predict_text(runtime, text, decoder=decoder)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/.venv-baseline/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 158, in inference_mode
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/work/oss/privacy-filter/opf/_core/runtime.py", line 295, in predict_text
+    logits = runtime.model(window_tokens, attention_mask=attention_mask)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/.venv-baseline/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1787, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/.venv-baseline/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1798, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/work/oss/privacy-filter/opf/_model/model.py", line 970, in forward
+    x = block(x, attention_mask=attention_mask)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/.venv-baseline/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1787, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/.venv-baseline/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1798, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/work/oss/privacy-filter/opf/_model/model.py", line 914, in forward
+    x = self.mlp(x)
+        ^^^^^^^^^^^
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/.venv-baseline/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1787, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/.venv-baseline/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1798, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/work/oss/privacy-filter/opf/_model/model.py", line 886, in forward
+    t = _moe_chunk(t, expert_indices, expert_weights)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/work/oss/privacy-filter/opf/_model/model.py", line 833, in _moe_chunk
+    mlp1_bias = self.mlp1_bias[expert_indices_chunk, ...]
+                ^^^^^^^^^^^^^^
+  File "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/.venv-baseline/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1963, in __getattr__
+    def __getattr__(self, name: str) -> Union[Tensor, "Module"]:
+
+KeyboardInterrupt

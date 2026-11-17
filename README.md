@@ -1,11 +1,105 @@
 # privacy-hygiene
 
-An experiment in tiny, training-free PII detection and redaction, compared against [OpenAI Privacy Filter](https://huggingface.co/openai/privacy-filter).
+A 4,091-byte, training-free PII detector and redactor, evaluated against the real [OpenAI Privacy Filter](https://huggingface.co/openai/privacy-filter) checkpoint.
 
-The experiment asks how far explicit patterns, checksums, and contextual rules can go without learned weights. It does not assume accuracy equivalent to Privacy Filter or complete anonymization.
+The detector uses deterministic Python rules and checksums, with no weights or third-party dependencies. [codehygiene](https://github.com/brianbell-x/codehygiene) inspired the small, explicit-program approach, but uses a different mechanism: its compiler produces ternary neural weights. This prototype uses ordinary rules. Privacy Filter is a pretrained neural classifier; this experiment runs its frozen weights without further training.
 
-## Status
+This is an experiment, not a complete anonymization tool. Read the [results and limitations](docs/results.md) before interpreting the comparison.
 
-Project initialized. Detector implementation and measured comparison are pending.
+## Run the detector
 
-The comparison will use synthetic text with labeled sensitive spans. It will report structured identifiers separately from contextual entities, count missed PII and unnecessary redactions, and record artifact sizes and runtime conditions.
+Use Python 3.10 or later.
+
+```bash
+printf 'Name: Nora Chen. Mail nora@example.test!' | python3 detector.py
+python3 -m unittest discover -s tests -v
+python3 -m experiments.evaluate --output results/rules-optimized.json
+```
+
+The CLI reads stdin and returns JSON containing `spans` and `redacted`. Each span has `start`, `end`, and `label`. Offsets are half-open Unicode code-point positions in the original Python string. Redaction replaces covered characters, including spaces, with `█`. It preserves character length and masks the union of overlapping spans.
+
+For repeated inference, keep the detector imported. Interpreter startup and JSON output can dominate short CLI requests.
+
+```python
+from detector import detect, redact
+
+text = "Name: Nora Chen."
+spans = detect(text)
+masked = redact(text, spans)
+```
+
+## Supported rules
+
+| Category | Coverage |
+| --- | --- |
+| Email | ASCII local parts and dotted domains |
+| Phone | Separated North American numbers |
+| SSN | Hyphenated US numbers with syntax exclusions |
+| Card | 13 to 19 digits with a valid Luhn checksum |
+| IBAN | Uppercase GB, DE, FR, ES, NL, and IT formats with length and mod-97 checks |
+| Name and address | Narrow, case-sensitive forms after explicit field cues |
+
+Checksums validate mathematical form, not assignment, ownership, or privacy. The rules miss common contextual and international formats. Long or hostile inputs have no tested performance or memory guarantee.
+
+## Run Privacy Filter
+
+Reproduce the recorded run with Linux, Python 3.12, and an isolated environment. Set `OPF_SOURCE` to a clone of [openai/privacy-filter](https://github.com/openai/privacy-filter) at revision `f7f00ca7fb869683eb732c010299d901457f19c3`. The path below is the reference checkout used for the recorded run.
+
+```bash
+OPF_SOURCE=/root/work/oss/privacy-filter
+
+git -C "$OPF_SOURCE" rev-parse HEAD
+uv venv --python 3.12 .venv-baseline
+uv pip install --python .venv-baseline/bin/python -r experiments/requirements-baseline.txt
+uv pip install --python .venv-baseline/bin/python --no-deps -e "$OPF_SOURCE"
+
+.venv-baseline/bin/python -m experiments.run_baseline data/synthetic.jsonl
+.venv-baseline/bin/python -m experiments.evaluate \
+  --predictions results/privacy-filter.jsonl \
+  --output results/privacy-filter-scores.json
+.venv-baseline/bin/python -m experiments.measure_size --baseline-source "$OPF_SOURCE"
+```
+
+The runner downloads the pinned checkpoint into ignored `checkpoints/`, then uses the official CPU API with bfloat16 weights and default Viterbi calibration. It aborts on tokenizer round-trip warnings or inconsistent repeated predictions. It performs no training or corpus-specific calibration.
+
+## Run the optimized CPU adapter
+
+The optional adapter caches expert tensors as FP32 and groups tokens by expert. Attention and residual activations remain bfloat16. It requires more RAM and depends on internals of the pinned OPF revision. The default baseline command above uses the unmodified official implementation.
+
+```bash
+.venv-baseline/bin/python -m experiments.run_baseline data/synthetic.jsonl \
+  --grouped-cpu --threads 4 \
+  --output results/privacy-filter-grouped-rerun.jsonl
+.venv-baseline/bin/python -m experiments.evaluate \
+  --predictions results/privacy-filter-grouped-rerun.jsonl \
+  --output results/privacy-filter-grouped-rerun-scores.json
+.venv-baseline/bin/python -m unittest discover -s tests/opf -v
+```
+
+## Reproduce the optimization measurements
+
+Run the official baseline first. These scripts compare outputs, alternate or rotate configurations, and save timing samples and profiles. The model benchmarks require full-corpus span equality before accepting an optimized configuration.
+
+```bash
+.venv-baseline/bin/python -m experiments.benchmark_rules
+.venv-baseline/bin/python -m experiments.benchmark_baseline
+.venv-baseline/bin/python -m experiments.tune_grouped_threads
+```
+
+The preserved detector is [results/detector-before.py](results/detector-before.py). No output memoization, training, expert pruning, or threshold fitting is used. See [inference optimization](docs/results.md#inference-optimization) for measured gains and their limits.
+
+## Project files
+
+Run experiment modules from the repository root. The standalone detector stays at the root; tooling and optional model dependencies live under `experiments/`.
+
+| File | Purpose |
+| --- | --- |
+| [detector.py](detector.py) | Rule matching and character masking |
+| [experiments/evaluate.py](experiments/evaluate.py) | Corpus validation, span scoring, and character coverage |
+| [experiments/run_baseline.py](experiments/run_baseline.py) | Official model runner and shared prediction format |
+| [experiments/optimized_opf.py](experiments/optimized_opf.py) | Optional grouped CPU adapter |
+| [data/synthetic.jsonl](data/synthetic.jsonl) | The fixed, labeled corpus |
+| [docs/results.md](docs/results.md) | Measurements, methodology, boundaries, and limitations |
+| [results/](results/) | Raw predictions, scores, profiles, environment records, and source hashes |
+
+Model weights and virtual environments are excluded from Git.

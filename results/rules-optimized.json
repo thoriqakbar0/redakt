@@ -1,0 +1,1186 @@
+{
+  "dataset_sha256": "9b6ddec0bad424e3cbe8917495d4ef2f54bfd21104b38da43311dc193ffc91a9",
+  "detector": "rules",
+  "metrics": {
+    "all": {
+      "documents": 64,
+      "gold_spans": 50,
+      "predicted_spans": 37,
+      "exact_matches": 33,
+      "typed_exact_matches": 33,
+      "typed_gold_spans": 50,
+      "typed_predicted_spans": 37,
+      "sensitive_characters": 786,
+      "missed_sensitive_characters": 256,
+      "unnecessary_redacted_characters": 47,
+      "nonsensitive_characters": 1088,
+      "exact_documents": 44,
+      "span_precision": 0.8918918918918919,
+      "span_recall": 0.66,
+      "typed_span_precision": 0.8918918918918919,
+      "typed_span_recall": 0.66,
+      "missed_sensitive_character_rate": 0.3256997455470738,
+      "unnecessary_redaction_rate": 0.043198529411764705
+    },
+    "structured": {
+      "documents": 27,
+      "gold_spans": 29,
+      "predicted_spans": 23,
+      "exact_matches": 23,
+      "typed_exact_matches": 23,
+      "typed_gold_spans": 29,
+      "typed_predicted_spans": 23,
+      "sensitive_characters": 481,
+      "missed_sensitive_characters": 99,
+      "unnecessary_redacted_characters": 0,
+      "nonsensitive_characters": 226,
+      "exact_documents": 21,
+      "span_precision": 1.0,
+      "span_recall": 0.7931034482758621,
+      "typed_span_precision": 1.0,
+      "typed_span_recall": 0.7931034482758621,
+      "missed_sensitive_character_rate": 0.20582120582120583,
+      "unnecessary_redaction_rate": 0.0
+    },
+    "contextual": {
+      "documents": 21,
+      "gold_spans": 21,
+      "predicted_spans": 11,
+      "exact_matches": 10,
+      "typed_exact_matches": 10,
+      "typed_gold_spans": 21,
+      "typed_predicted_spans": 11,
+      "sensitive_characters": 305,
+      "missed_sensitive_characters": 157,
+      "unnecessary_redacted_characters": 0,
+      "nonsensitive_characters": 228,
+      "exact_documents": 10,
+      "span_precision": 0.9090909090909091,
+      "span_recall": 0.47619047619047616,
+      "typed_span_precision": 0.9090909090909091,
+      "typed_span_recall": 0.47619047619047616,
+      "missed_sensitive_character_rate": 0.5147540983606558,
+      "unnecessary_redaction_rate": 0.0
+    },
+    "negative": {
+      "documents": 16,
+      "gold_spans": 0,
+      "predicted_spans": 3,
+      "exact_matches": 0,
+      "typed_exact_matches": 0,
+      "typed_gold_spans": 0,
+      "typed_predicted_spans": 3,
+      "sensitive_characters": 0,
+      "missed_sensitive_characters": 0,
+      "unnecessary_redacted_characters": 47,
+      "nonsensitive_characters": 634,
+      "exact_documents": 13,
+      "span_precision": 0.0,
+      "span_recall": null,
+      "typed_span_precision": 0.0,
+      "typed_span_recall": null,
+      "missed_sensitive_character_rate": null,
+      "unnecessary_redaction_rate": 0.07413249211356467
+    }
+  },
+  "per_label": {
+    "account_number": {
+      "gold_spans": 13,
+      "predicted_spans": 11,
+      "exact_matches": 11,
+      "precision": 1.0,
+      "recall": 0.8461538461538461
+    },
+    "address": {
+      "gold_spans": 8,
+      "predicted_spans": 5,
+      "exact_matches": 4,
+      "precision": 0.8,
+      "recall": 0.5
+    },
+    "email": {
+      "gold_spans": 9,
+      "predicted_spans": 8,
+      "exact_matches": 7,
+      "precision": 0.875,
+      "recall": 0.7777777777777778
+    },
+    "name": {
+      "gold_spans": 13,
+      "predicted_spans": 8,
+      "exact_matches": 6,
+      "precision": 0.75,
+      "recall": 0.46153846153846156
+    },
+    "phone": {
+      "gold_spans": 7,
+      "predicted_spans": 5,
+      "exact_matches": 5,
+      "precision": 1.0,
+      "recall": 0.7142857142857143
+    }
+  },
+  "documents": [
+    {
+      "id": "s001",
+      "group": "structured",
+      "text": "Contact nora.chen@example.test today.",
+      "spans": [
+        {
+          "start": 8,
+          "end": 30,
+          "label": "email"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 8,
+          "end": 30,
+          "label": "email"
+        }
+      ],
+      "redacted": "Contact ██████████████████████ today."
+    },
+    {
+      "id": "s002",
+      "group": "structured",
+      "text": "(a+b@example.test), please.",
+      "spans": [
+        {
+          "start": 1,
+          "end": 17,
+          "label": "email"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 1,
+          "end": 17,
+          "label": "email"
+        }
+      ],
+      "redacted": "(████████████████), please."
+    },
+    {
+      "id": "s003",
+      "group": "structured",
+      "text": "Mail help@sub.example.test.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 26,
+          "label": "email"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 26,
+          "label": "email"
+        }
+      ],
+      "redacted": "Mail █████████████████████."
+    },
+    {
+      "id": "s004",
+      "group": "structured",
+      "text": "Two: a@example.test; b@example.test.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 19,
+          "label": "email"
+        },
+        {
+          "start": 21,
+          "end": 35,
+          "label": "email"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 19,
+          "label": "email"
+        },
+        {
+          "start": 21,
+          "end": 35,
+          "label": "email"
+        }
+      ],
+      "redacted": "Two: ██████████████; ██████████████."
+    },
+    {
+      "id": "s005",
+      "group": "structured",
+      "text": "Unicode prefix 🦊 zoe@example.test!",
+      "spans": [
+        {
+          "start": 17,
+          "end": 33,
+          "label": "email"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 17,
+          "end": 33,
+          "label": "email"
+        }
+      ],
+      "redacted": "Unicode prefix 🦊 ████████████████!"
+    },
+    {
+      "id": "s006",
+      "group": "structured",
+      "text": "Call 212-555-0147.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 17,
+          "label": "phone"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 17,
+          "label": "phone"
+        }
+      ],
+      "redacted": "Call ████████████."
+    },
+    {
+      "id": "s007",
+      "group": "structured",
+      "text": "Telephone (415) 555-0198 now.",
+      "spans": [
+        {
+          "start": 10,
+          "end": 24,
+          "label": "phone"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 10,
+          "end": 24,
+          "label": "phone"
+        }
+      ],
+      "redacted": "Telephone ██████████████ now."
+    },
+    {
+      "id": "s008",
+      "group": "structured",
+      "text": "Mobile +1 202 555 0174.",
+      "spans": [
+        {
+          "start": 7,
+          "end": 22,
+          "label": "phone"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 7,
+          "end": 22,
+          "label": "phone"
+        }
+      ],
+      "redacted": "Mobile ███████████████."
+    },
+    {
+      "id": "s009",
+      "group": "structured",
+      "text": "Home 303.555.0128.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 17,
+          "label": "phone"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 17,
+          "label": "phone"
+        }
+      ],
+      "redacted": "Home ████████████."
+    },
+    {
+      "id": "s010",
+      "group": "structured",
+      "text": "Phone +44 7700 900123.",
+      "spans": [
+        {
+          "start": 6,
+          "end": 21,
+          "label": "phone"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Phone +44 7700 900123."
+    },
+    {
+      "id": "s011",
+      "group": "structured",
+      "text": "Phone 2125550147.",
+      "spans": [
+        {
+          "start": 6,
+          "end": 16,
+          "label": "phone"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Phone 2125550147."
+    },
+    {
+      "id": "s012",
+      "group": "structured",
+      "text": "SSN 219-09-9999.",
+      "spans": [
+        {
+          "start": 4,
+          "end": 15,
+          "label": "ssn"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 4,
+          "end": 15,
+          "label": "ssn"
+        }
+      ],
+      "redacted": "SSN ███████████."
+    },
+    {
+      "id": "s013",
+      "group": "structured",
+      "text": "Identifier (123-45-6789).",
+      "spans": [
+        {
+          "start": 12,
+          "end": 23,
+          "label": "ssn"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 12,
+          "end": 23,
+          "label": "ssn"
+        }
+      ],
+      "redacted": "Identifier (███████████)."
+    },
+    {
+      "id": "s014",
+      "group": "structured",
+      "text": "SSN 078-05-1120\n",
+      "spans": [
+        {
+          "start": 4,
+          "end": 15,
+          "label": "ssn"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 4,
+          "end": 15,
+          "label": "ssn"
+        }
+      ],
+      "redacted": "SSN ███████████\n"
+    },
+    {
+      "id": "s015",
+      "group": "structured",
+      "text": "SSN without separators 123456789.",
+      "spans": [
+        {
+          "start": 23,
+          "end": 32,
+          "label": "ssn"
+        }
+      ],
+      "predicted": [],
+      "redacted": "SSN without separators 123456789."
+    },
+    {
+      "id": "s016",
+      "group": "structured",
+      "text": "Card 4111 1111 1111 1111.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 24,
+          "label": "card"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 24,
+          "label": "card"
+        }
+      ],
+      "redacted": "Card ███████████████████."
+    },
+    {
+      "id": "s017",
+      "group": "structured",
+      "text": "Card 5555-5555-5555-4444.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 24,
+          "label": "card"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 24,
+          "label": "card"
+        }
+      ],
+      "redacted": "Card ███████████████████."
+    },
+    {
+      "id": "s018",
+      "group": "structured",
+      "text": "Card 378282246310005.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 20,
+          "label": "card"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 20,
+          "label": "card"
+        }
+      ],
+      "redacted": "Card ███████████████."
+    },
+    {
+      "id": "s019",
+      "group": "structured",
+      "text": "Card (6011111111111117).",
+      "spans": [
+        {
+          "start": 6,
+          "end": 22,
+          "label": "card"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 6,
+          "end": 22,
+          "label": "card"
+        }
+      ],
+      "redacted": "Card (████████████████)."
+    },
+    {
+      "id": "s020",
+      "group": "structured",
+      "text": "IBAN GB82 WEST 1234 5698 7654 32.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 32,
+          "label": "iban"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 32,
+          "label": "iban"
+        }
+      ],
+      "redacted": "IBAN ███████████████████████████."
+    },
+    {
+      "id": "s021",
+      "group": "structured",
+      "text": "IBAN DE89370400440532013000.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 27,
+          "label": "iban"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 27,
+          "label": "iban"
+        }
+      ],
+      "redacted": "IBAN ██████████████████████."
+    },
+    {
+      "id": "s022",
+      "group": "structured",
+      "text": "IBAN FR1420041010050500013M02606.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 32,
+          "label": "iban"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 32,
+          "label": "iban"
+        }
+      ],
+      "redacted": "IBAN ███████████████████████████."
+    },
+    {
+      "id": "s023",
+      "group": "structured",
+      "text": "IBAN NL91ABNA0417164300.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 23,
+          "label": "iban"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 5,
+          "end": 23,
+          "label": "iban"
+        }
+      ],
+      "redacted": "IBAN ██████████████████."
+    },
+    {
+      "id": "s024",
+      "group": "structured",
+      "text": "IBAN gb82west12345698765432.",
+      "spans": [
+        {
+          "start": 5,
+          "end": 27,
+          "label": "iban"
+        }
+      ],
+      "predicted": [],
+      "redacted": "IBAN gb82west12345698765432."
+    },
+    {
+      "id": "s025",
+      "group": "structured",
+      "text": "Email müller@example.test.",
+      "spans": [
+        {
+          "start": 6,
+          "end": 25,
+          "label": "email"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Email müller@example.test."
+    },
+    {
+      "id": "s026",
+      "group": "structured",
+      "text": "Email \"nora chen\"@example.test.",
+      "spans": [
+        {
+          "start": 6,
+          "end": 30,
+          "label": "email"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Email \"nora chen\"@example.test."
+    },
+    {
+      "id": "s027",
+      "group": "structured",
+      "text": "first@example.test\n212-555-0147",
+      "spans": [
+        {
+          "start": 0,
+          "end": 18,
+          "label": "email"
+        },
+        {
+          "start": 19,
+          "end": 31,
+          "label": "phone"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 0,
+          "end": 18,
+          "label": "email"
+        },
+        {
+          "start": 19,
+          "end": 31,
+          "label": "phone"
+        }
+      ],
+      "redacted": "██████████████████\n████████████"
+    },
+    {
+      "id": "s028",
+      "group": "contextual",
+      "text": "Name: Nora Chen.",
+      "spans": [
+        {
+          "start": 6,
+          "end": 15,
+          "label": "name"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 6,
+          "end": 15,
+          "label": "name"
+        }
+      ],
+      "redacted": "Name: █████████."
+    },
+    {
+      "id": "s029",
+      "group": "contextual",
+      "text": "Patient Amelia Rivers arrived.",
+      "spans": [
+        {
+          "start": 8,
+          "end": 21,
+          "label": "name"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 8,
+          "end": 21,
+          "label": "name"
+        }
+      ],
+      "redacted": "Patient █████████████ arrived."
+    },
+    {
+      "id": "s030",
+      "group": "contextual",
+      "text": "Customer: Omar Farouk.",
+      "spans": [
+        {
+          "start": 10,
+          "end": 21,
+          "label": "name"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 10,
+          "end": 21,
+          "label": "name"
+        }
+      ],
+      "redacted": "Customer: ███████████."
+    },
+    {
+      "id": "s031",
+      "group": "contextual",
+      "text": "My name is Alice Baker.",
+      "spans": [
+        {
+          "start": 11,
+          "end": 22,
+          "label": "name"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 11,
+          "end": 22,
+          "label": "name"
+        }
+      ],
+      "redacted": "My name is ███████████."
+    },
+    {
+      "id": "s032",
+      "group": "contextual",
+      "text": "Nora Chen called yesterday.",
+      "spans": [
+        {
+          "start": 0,
+          "end": 9,
+          "label": "name"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Nora Chen called yesterday."
+    },
+    {
+      "id": "s033",
+      "group": "contextual",
+      "text": "Please ask Omar Farouk to call.",
+      "spans": [
+        {
+          "start": 11,
+          "end": 22,
+          "label": "name"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Please ask Omar Farouk to call."
+    },
+    {
+      "id": "s034",
+      "group": "contextual",
+      "text": "Name: Élodie Moreau.",
+      "spans": [
+        {
+          "start": 6,
+          "end": 19,
+          "label": "name"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Name: Élodie Moreau."
+    },
+    {
+      "id": "s035",
+      "group": "contextual",
+      "text": "Name: Li Wei.",
+      "spans": [
+        {
+          "start": 6,
+          "end": 12,
+          "label": "name"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 6,
+          "end": 12,
+          "label": "name"
+        }
+      ],
+      "redacted": "Name: ██████."
+    },
+    {
+      "id": "s036",
+      "group": "contextual",
+      "text": "患者は山田太郎です。",
+      "spans": [
+        {
+          "start": 3,
+          "end": 7,
+          "label": "name"
+        }
+      ],
+      "predicted": [],
+      "redacted": "患者は山田太郎です。"
+    },
+    {
+      "id": "s037",
+      "group": "contextual",
+      "text": "Name: Anne-Marie Smith.",
+      "spans": [
+        {
+          "start": 6,
+          "end": 22,
+          "label": "name"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 6,
+          "end": 22,
+          "label": "name"
+        }
+      ],
+      "redacted": "Name: ████████████████."
+    },
+    {
+      "id": "s038",
+      "group": "contextual",
+      "text": "Patient: John O'Neil.",
+      "spans": [
+        {
+          "start": 9,
+          "end": 20,
+          "label": "name"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Patient: John O'Neil."
+    },
+    {
+      "id": "s039",
+      "group": "contextual",
+      "text": "Name: nora chen.",
+      "spans": [
+        {
+          "start": 6,
+          "end": 15,
+          "label": "name"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Name: nora chen."
+    },
+    {
+      "id": "s040",
+      "group": "contextual",
+      "text": "Address: 123 Maple Street.",
+      "spans": [
+        {
+          "start": 9,
+          "end": 25,
+          "label": "address"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 9,
+          "end": 25,
+          "label": "address"
+        }
+      ],
+      "redacted": "Address: ████████████████."
+    },
+    {
+      "id": "s041",
+      "group": "contextual",
+      "text": "Ship to 48 Cedar Road.",
+      "spans": [
+        {
+          "start": 8,
+          "end": 21,
+          "label": "address"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 8,
+          "end": 21,
+          "label": "address"
+        }
+      ],
+      "redacted": "Ship to █████████████."
+    },
+    {
+      "id": "s042",
+      "group": "contextual",
+      "text": "Lives at 7 Oak Lane, Boston, MA 02108.",
+      "spans": [
+        {
+          "start": 9,
+          "end": 37,
+          "label": "address"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 9,
+          "end": 37,
+          "label": "address"
+        }
+      ],
+      "redacted": "Lives at ████████████████████████████."
+    },
+    {
+      "id": "s043",
+      "group": "contextual",
+      "text": "Home is 123 Maple Street.",
+      "spans": [
+        {
+          "start": 8,
+          "end": 24,
+          "label": "address"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Home is 123 Maple Street."
+    },
+    {
+      "id": "s044",
+      "group": "contextual",
+      "text": "Address: Flat 3, 20 High Street, London SW1A 1AA.",
+      "spans": [
+        {
+          "start": 9,
+          "end": 48,
+          "label": "address"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Address: Flat 3, 20 High Street, London SW1A 1AA."
+    },
+    {
+      "id": "s045",
+      "group": "contextual",
+      "text": "Adresse: 8 rue des Lilas, Paris.",
+      "spans": [
+        {
+          "start": 9,
+          "end": 31,
+          "label": "address"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Adresse: 8 rue des Lilas, Paris."
+    },
+    {
+      "id": "s046",
+      "group": "contextual",
+      "text": "Address: 22 Birch Ave; leave parcel.",
+      "spans": [
+        {
+          "start": 9,
+          "end": 21,
+          "label": "address"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 9,
+          "end": 21,
+          "label": "address"
+        }
+      ],
+      "redacted": "Address: ████████████; leave parcel."
+    },
+    {
+      "id": "s047",
+      "group": "contextual",
+      "text": "Address: 42 Elm Street, Apt 5.",
+      "spans": [
+        {
+          "start": 9,
+          "end": 29,
+          "label": "address"
+        }
+      ],
+      "predicted": [
+        {
+          "start": 9,
+          "end": 22,
+          "label": "address"
+        }
+      ],
+      "redacted": "Address: █████████████, Apt 5."
+    },
+    {
+      "id": "s048",
+      "group": "contextual",
+      "text": "Name: Maria del Carmen.",
+      "spans": [
+        {
+          "start": 6,
+          "end": 22,
+          "label": "name"
+        }
+      ],
+      "predicted": [],
+      "redacted": "Name: Maria del Carmen."
+    },
+    {
+      "id": "s049",
+      "group": "negative",
+      "text": "Version 123-00-6789 is invalid.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "Version 123-00-6789 is invalid."
+    },
+    {
+      "id": "s050",
+      "group": "negative",
+      "text": "Invalid SSN 000-12-1234 and 666-12-1234.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "Invalid SSN 000-12-1234 and 666-12-1234."
+    },
+    {
+      "id": "s051",
+      "group": "negative",
+      "text": "Invalid card checksum 4111 1111 1111 1112.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "Invalid card checksum 4111 1111 1111 1112."
+    },
+    {
+      "id": "s052",
+      "group": "negative",
+      "text": "Invalid IBAN GB83 WEST 1234 5698 7654 32.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "Invalid IBAN GB83 WEST 1234 5698 7654 32."
+    },
+    {
+      "id": "s053",
+      "group": "negative",
+      "text": "Order 0000000000000000.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "Order 0000000000000000."
+    },
+    {
+      "id": "s054",
+      "group": "negative",
+      "text": "Use example.test and user@localhost.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "Use example.test and user@localhost."
+    },
+    {
+      "id": "s055",
+      "group": "negative",
+      "text": "The release is 2026-11-17.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "The release is 2026-11-17."
+    },
+    {
+      "id": "s056",
+      "group": "negative",
+      "text": "A temperature of 212.555 is a measurement.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "A temperature of 212.555 is a measurement."
+    },
+    {
+      "id": "s057",
+      "group": "negative",
+      "text": "Name: Maple Street is a song title.",
+      "spans": [],
+      "predicted": [
+        {
+          "start": 6,
+          "end": 18,
+          "label": "name"
+        }
+      ],
+      "redacted": "Name: ████████████ is a song title."
+    },
+    {
+      "id": "s058",
+      "group": "negative",
+      "text": "Customer: Example Company sells widgets.",
+      "spans": [],
+      "predicted": [
+        {
+          "start": 10,
+          "end": 25,
+          "label": "name"
+        }
+      ],
+      "redacted": "Customer: ███████████████ sells widgets."
+    },
+    {
+      "id": "s059",
+      "group": "negative",
+      "text": "The address space is 64 bits.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "The address space is 64 bits."
+    },
+    {
+      "id": "s060",
+      "group": "negative",
+      "text": "Public help mailbox support@example.test is intentionally not private.",
+      "spans": [],
+      "predicted": [
+        {
+          "start": 20,
+          "end": 40,
+          "label": "email"
+        }
+      ],
+      "redacted": "Public help mailbox ████████████████████ is intentionally not private."
+    },
+    {
+      "id": "s061",
+      "group": "negative",
+      "text": "Catalog code X123-45-6789Y is not a person identifier.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "Catalog code X123-45-6789Y is not a person identifier."
+    },
+    {
+      "id": "s062",
+      "group": "negative",
+      "text": "Serial 14111111111111111112 is not a payment card.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "Serial 14111111111111111112 is not a payment card."
+    },
+    {
+      "id": "s063",
+      "group": "negative",
+      "text": "Call function(415) then return 555-0198.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "Call function(415) then return 555-0198."
+    },
+    {
+      "id": "s064",
+      "group": "negative",
+      "text": "No private content here. 🦊 café 東京.",
+      "spans": [],
+      "predicted": [],
+      "redacted": "No private content here. 🦊 café 東京."
+    }
+  ],
+  "environment": {
+    "python": "3.12.16 (main, Nov 11 2026, 00:15:59) [Clang 23.1.3 ]",
+    "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+    "cpu_count": 32,
+    "load_average": [
+      6.13720703125,
+      5.86328125,
+      5.71484375
+    ]
+  },
+  "artifact": {
+    "detector_source_bytes": 4091,
+    "learned_weight_bytes": 0,
+    "python_executable_bytes": 31003064,
+    "runtime_note": "Executable excludes shared libraries and stdlib."
+  },
+  "runtime": {
+    "seconds": [
+      0.002244891998998355,
+      0.0013833609991706908,
+      0.0012236490001669154,
+      0.0011994009983027354,
+      0.0011793270023190416
+    ],
+    "median_seconds": 0.0012236490001669154,
+    "min_seconds": 0.0011793270023190416,
+    "max_seconds": 0.002244891998998355,
+    "repeats": 5,
+    "characters_processed": 9370,
+    "scope": "warm detect plus character-mask redaction; no I/O or startup"
+  }
+}

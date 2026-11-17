@@ -1,0 +1,34 @@
+Tue Nov 17 11:50:19 2026    results/rules-profile.pstats
+
+         85125 function calls (76468 primitive calls) in 0.144 seconds
+
+   Ordered by: cumulative time
+   List reduced from 710 to 24 due to restriction <24>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     33/1    0.003    0.000    0.144    0.144 {built-in method builtins.exec}
+        1    0.000    0.000    0.144    0.144 evaluate.py:1(<module>)
+        1    0.001    0.001    0.101    0.101 evaluate.py:168(main)
+     38/8    0.000    0.000    0.057    0.007 <frozen importlib._bootstrap>:1349(_find_and_load)
+     38/8    0.000    0.000    0.057    0.007 <frozen importlib._bootstrap>:1304(_find_and_load_unlocked)
+     36/8    0.000    0.000    0.054    0.007 <frozen importlib._bootstrap>:911(_load_unlocked)
+     22/8    0.000    0.000    0.053    0.007 <frozen importlib._bootstrap_external>:993(exec_module)
+        1    0.002    0.002    0.045    0.045 evaluate.py:146(benchmark)
+    75/16    0.000    0.000    0.045    0.003 <frozen importlib._bootstrap>:480(_call_with_frames_removed)
+      448    0.009    0.000    0.038    0.000 detector.py:66(detect)
+     3172    0.006    0.000    0.023    0.000 {method 'extend' of 'list' objects}
+        2    0.000    0.000    0.018    0.009 __init__.py:183(dumps)
+        2    0.002    0.001    0.018    0.009 encoder.py:183(encode)
+       30    0.000    0.000    0.017    0.001 __init__.py:280(_compile)
+       29    0.000    0.000    0.016    0.001 __init__.py:226(compile)
+     4142    0.002    0.000    0.016    0.000 encoder.py:414(_iterencode)
+       20    0.000    0.000    0.016    0.001 _compiler.py:745(compile)
+        1    0.000    0.000    0.014    0.014 platform.py:1220(platform)
+        1    0.000    0.000    0.014    0.014 platform.py:862(__iter__)
+        1    0.000    0.000    0.014    0.014 functools.py:982(__get__)
+        1    0.000    0.000    0.014    0.014 platform.py:858(processor)
+        1    0.000    0.000    0.014    0.014 platform.py:797(get)
+        1    0.000    0.000    0.014    0.014 platform.py:819(from_subprocess)
+10061/4142    0.008    0.000    0.014    0.000 encoder.py:334(_iterencode_dict)
+
+

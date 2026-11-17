@@ -1,0 +1,244 @@
+{
+  "claim": "Local rules detect-plus-redact latency improves with identical outputs.",
+  "acceptance": "Nonoverlapping measured ranges, unchanged outputs, zero errors.",
+  "environment": {
+    "python": "3.12.16 (main, Nov 11 2026, 00:15:59) [Clang 23.1.3 ]",
+    "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+    "cpu_count": 32,
+    "load_average_start": [
+      6.12060546875,
+      5.53857421875,
+      5.59130859375
+    ]
+  },
+  "repeats": 7,
+  "order": "Alternating reference/optimized, reversed within every second pair",
+  "scope": "API includes detection and masking, excludes imports and I/O. CLI includes fresh interpreter, imports, stdin, JSON output, and subprocess transport; OS cache warm.",
+  "dataset_sha256": "9b6ddec0bad424e3cbe8917495d4ef2f54bfd21104b38da43311dc193ffc91a9",
+  "reference_sha256": "a55063483c58102827bb82cd69c42c9dc566cd16cf6c093e8d7cbaf1c99c3145",
+  "optimized_sha256": "f29be211597b0801a232ee6e1a7c0a8bf724695c4bc157631ced410c11bc6160",
+  "source_bytes": {
+    "reference": 3400,
+    "optimized": 4091
+  },
+  "random_interval_cases_verified": 1980,
+  "random_concatenated_text_cases_verified": 256,
+  "api": {
+    "fixture": {
+      "documents_per_pass": 64,
+      "characters_per_pass": 1874,
+      "iterations_per_sample": 100,
+      "errors": 0,
+      "consumed_output_checksum_per_sample": 191100,
+      "reference": {
+        "seconds": [
+          0.0019369025900232372,
+          0.0027229743500356562,
+          0.0023112390599999344,
+          0.00255440606000775,
+          0.002252466360005201,
+          0.0022694532099558273,
+          0.002022353140055202
+        ],
+        "median_seconds": 0.0022694532099558273,
+        "min_seconds": 0.0019369025900232372,
+        "max_seconds": 0.0027229743500356562
+      },
+      "optimized": {
+        "seconds": [
+          0.0011867066400009208,
+          0.0011773839500528994,
+          0.0018817346099967835,
+          0.0013845001599838724,
+          0.001256294720005826,
+          0.0013193710300402018,
+          0.0011729801799810957
+        ],
+        "median_seconds": 0.001256294720005826,
+        "min_seconds": 0.0011729801799810957,
+        "max_seconds": 0.0018817346099967835
+      }
+    },
+    "mixed_document": {
+      "documents_per_pass": 1,
+      "characters_per_pass": 193700,
+      "iterations_per_sample": 2,
+      "errors": 0,
+      "consumed_output_checksum_per_sample": 394800,
+      "reference": {
+        "seconds": [
+          0.15574337400175864,
+          0.14648164499885752,
+          0.15675962000022992,
+          0.14238172299883445,
+          0.1554669270008162,
+          0.17432967049899162,
+          0.1562659254996106
+        ],
+        "median_seconds": 0.15574337400175864,
+        "min_seconds": 0.14238172299883445,
+        "max_seconds": 0.17432967049899162
+      },
+      "optimized": {
+        "seconds": [
+          0.09567111450087395,
+          0.09424308449888485,
+          0.10762261250056326,
+          0.10444948550139088,
+          0.10435549499743502,
+          0.09140443800060893,
+          0.10134983000170905
+        ],
+        "median_seconds": 0.10134983000170905,
+        "min_seconds": 0.09140443800060893,
+        "max_seconds": 0.10762261250056326
+      }
+    },
+    "clean_document": {
+      "documents_per_pass": 1,
+      "characters_per_pass": 275000,
+      "iterations_per_sample": 2,
+      "errors": 0,
+      "consumed_output_checksum_per_sample": 550000,
+      "reference": {
+        "seconds": [
+          0.10628310999891255,
+          0.11130890650019865,
+          0.09880215250086621,
+          0.09645418750005774,
+          0.09352255650082952,
+          0.09111620049952762,
+          0.0968346619993099
+        ],
+        "median_seconds": 0.0968346619993099,
+        "min_seconds": 0.09111620049952762,
+        "max_seconds": 0.11130890650019865
+      },
+      "optimized": {
+        "seconds": [
+          0.005180702999496134,
+          0.004188454997347435,
+          0.004306954502681037,
+          0.004122548001760151,
+          0.003570815999410115,
+          0.003496240999083966,
+          0.0038674850002280436
+        ],
+        "median_seconds": 0.004122548001760151,
+        "min_seconds": 0.003496240999083966,
+        "max_seconds": 0.005180702999496134
+      }
+    }
+  },
+  "cli": {
+    "fixture": {
+      "characters": 1937,
+      "errors": 0,
+      "json_output_characters": 3730,
+      "reference": {
+        "seconds": [
+          0.13301366200175835,
+          0.09856392900110222,
+          0.09536193500389345,
+          0.10296506700251484,
+          0.0917727910054964,
+          0.09598350500164088,
+          0.09841302700078813
+        ],
+        "median_seconds": 0.09841302700078813,
+        "min_seconds": 0.0917727910054964,
+        "max_seconds": 0.13301366200175835
+      },
+      "optimized": {
+        "seconds": [
+          0.10286938899662346,
+          0.09182642499945359,
+          0.10273373599920888,
+          0.1010110010029166,
+          0.0950578600022709,
+          0.09569718200509669,
+          0.09727290300361346
+        ],
+        "median_seconds": 0.09727290300361346,
+        "min_seconds": 0.09182642499945359,
+        "max_seconds": 0.10286938899662346
+      }
+    },
+    "mixed_document": {
+      "characters": 193700,
+      "errors": 0,
+      "json_output_characters": 387331,
+      "reference": {
+        "seconds": [
+          0.26264339800400194,
+          0.3021568769981968,
+          0.27582274899759796,
+          0.2873927300024661,
+          0.33089104799728375,
+          0.27707685800123727,
+          0.2788427000050433
+        ],
+        "median_seconds": 0.2788427000050433,
+        "min_seconds": 0.26264339800400194,
+        "max_seconds": 0.33089104799728375
+      },
+      "optimized": {
+        "seconds": [
+          0.2444153809992713,
+          0.2200297219969798,
+          0.23217702999681933,
+          0.28068375599832507,
+          0.2390011469979072,
+          0.2213193960051285,
+          0.21303311100200517
+        ],
+        "median_seconds": 0.23217702999681933,
+        "min_seconds": 0.21303311100200517,
+        "max_seconds": 0.28068375599832507
+      }
+    },
+    "clean_document": {
+      "characters": 275000,
+      "errors": 0,
+      "json_output_characters": 275030,
+      "reference": {
+        "seconds": [
+          0.20485022600041702,
+          0.23734185400098795,
+          0.22521457700349856,
+          0.21318985399557278,
+          0.22818392199405935,
+          0.20313314600207377,
+          0.24575091899896506
+        ],
+        "median_seconds": 0.22521457700349856,
+        "min_seconds": 0.20313314600207377,
+        "max_seconds": 0.24575091899896506
+      },
+      "optimized": {
+        "seconds": [
+          0.11221786700480152,
+          0.1031109989999095,
+          0.11327952099964023,
+          0.11372166199726053,
+          0.12758070300333202,
+          0.11202377099834848,
+          0.10915165999904275
+        ],
+        "median_seconds": 0.11221786700480152,
+        "min_seconds": 0.1031109989999095,
+        "max_seconds": 0.12758070300333202
+      }
+    }
+  },
+  "profiles_excluded_from_timing": {
+    "reference": "         585386 function calls in 0.442 seconds\n\n   Ordered by: cumulative time\n   List reduced from 32 to 16 due to restriction <16>\n\n   ncalls  tottime  percall  cumtime  percall filename:lineno(function)\n        3    0.004    0.001    0.441    0.147 benchmark_rules.py:36(run_api)\n       66    0.003    0.000    0.228    0.003 detector-before.py:66(detect)\n      571    0.095    0.000    0.212    0.000 {method 'join' of 'str' objects}\n       66    0.004    0.000    0.210    0.003 detector-before.py:85(redact)\n      462    0.002    0.000    0.196    0.000 {method 'extend' of 'list' objects}\n   470640    0.107    0.000    0.107    0.000 detector-before.py:91(<genexpr>)\n      940    0.052    0.000    0.084    0.000 detector-before.py:73(<genexpr>)\n     1814    0.073    0.000    0.076    0.000 detector-before.py:69(<genexpr>)\n     1445    0.031    0.000    0.034    0.000 detector-before.py:79(<genexpr>)\n       66    0.011    0.000    0.025    0.000 {built-in method builtins.sorted}\n      505    0.003    0.000    0.017    0.000 detector-before.py:55(iban_valid)\n    38920    0.015    0.000    0.015    0.000 <string>:2(__lt__)\n      808    0.010    0.000    0.013    0.000 detector-before.py:44(luhn)\n    11716    0.006    0.000    0.010    0.000 detector-before.py:60(<genexpr>)\n     3737    0.007    0.000    0.007    0.000 {method 'update' of 'set' objects}\n     3737    0.005    0.000    0.005    0.000 <string>:2(__init__)\n\n\n",
+    "optimized": "         86990 function calls in 0.154 seconds\n\n   Ordered by: cumulative time\n   List reduced from 34 to 16 due to restriction <16>\n\n   ncalls  tottime  percall  cumtime  percall filename:lineno(function)\n        3    0.000    0.000    0.154    0.051 benchmark_rules.py:36(run_api)\n       66    0.001    0.000    0.137    0.002 detector.py:69(detect)\n      164    0.001    0.000    0.128    0.001 {method 'extend' of 'list' objects}\n      888    0.030    0.000    0.060    0.000 detector.py:84(<genexpr>)\n     1680    0.045    0.000    0.048    0.000 detector.py:79(<genexpr>)\n     1333    0.016    0.000    0.018    0.000 detector.py:95(<genexpr>)\n       66    0.009    0.000    0.017    0.000 detector.py:101(redact)\n      505    0.002    0.000    0.015    0.000 detector.py:58(iban_valid)\n      808    0.010    0.000    0.013    0.000 detector.py:47(luhn)\n      571    0.004    0.000    0.013    0.000 {method 'join' of 'str' objects}\n    11716    0.006    0.000    0.009    0.000 detector.py:63(<genexpr>)\n     3737    0.005    0.000    0.005    0.000 <string>:2(__init__)\n      132    0.002    0.000    0.004    0.000 {built-in method builtins.sorted}\n       66    0.003    0.000    0.003    0.000 {method 'search' of 're.Pattern' objects}\n     7474    0.003    0.000    0.003    0.000 {built-in method builtins.max}\n    13938    0.002    0.000    0.002    0.000 {method 'isdigit' of 'str' objects}\n\n\n"
+  },
+  "load_average_end": [
+    6.19287109375,
+    5.57861328125,
+    5.603515625
+  ],
+  "limitations": "Shared VM, synthetic repeated documents, no production throughput claim. No output memoization. CLI startup may obscure small inference wins."
+}
