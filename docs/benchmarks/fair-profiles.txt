@@ -1,0 +1,38 @@
+Diagnostic profiles, excluded from all benchmark timings.
+
+Native perf sample on 40 JSONL documents, 5,407,390 input characters.
+The four scalability documents were repeated ten times. All 40 full span/redaction outputs were checked against the original rules.
+1,013 task-clock samples, zero lost samples. Binary build ID f4fc031ebc119da47a205a1ed6ed5b72de53737c.
+This matches the build ID of the executable used for the final benchmark. Kernel symbols were unavailable, so this diagnostic identifies userspace hotspots, not a complete kernel breakdown.
+
+39.29% Detector::run
+12.24% Detector::detect
+5.63% malloc
+3.65% cfree
+
+Rules cProfile on the same four scalability documents repeated three times, using the benchmark CPython 3.12.16 environment. Output checksum 1,633,326.
+
+         472651 function calls in 0.587 seconds
+
+   Ordered by: cumulative time
+   List reduced from 31 to 14 due to restriction <14>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       12    0.001    0.000    0.545    0.045 detector.py:69(detect)
+       51    0.003    0.000    0.523    0.010 {method 'extend' of 'list' objects}
+     2418    0.108    0.000    0.293    0.000 detector.py:84(<genexpr>)
+     4824    0.160    0.000    0.172    0.000 detector.py:79(<genexpr>)
+     4500    0.013    0.000    0.092    0.000 detector.py:58(iban_valid)
+     5400    0.067    0.000    0.084    0.000 detector.py:47(luhn)
+     4512    0.023    0.000    0.078    0.000 {method 'join' of 'str' objects}
+     3918    0.049    0.000    0.055    0.000 detector.py:95(<genexpr>)
+   103800    0.037    0.000    0.055    0.000 detector.py:63(<genexpr>)
+       12    0.021    0.002    0.043    0.004 detector.py:101(redact)
+    99300    0.016    0.000    0.016    0.000 {method 'isalpha' of 'str' objects}
+    89400    0.015    0.000    0.015    0.000 {method 'isdigit' of 'str' objects}
+    11109    0.015    0.000    0.015    0.000 <string>:2(__init__)
+       24    0.006    0.000    0.013    0.001 {built-in method builtins.sorted}
+
+
+
+The historical pinned official-model profile in baseline-profile.txt explains the original CPU expert-gather/copy path. It was not recollected or treated as a timing sample in this run.

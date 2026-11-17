@@ -1,6 +1,9 @@
 use serde_json::{json, Value};
-use std::io::{ErrorKind, Write};
+use std::io::{BufRead, BufReader, Write};
 use std::process::{Command, Output, Stdio};
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
 
 fn invoke(input: &[u8], arguments: &[&str]) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_privacy-hygiene"))
@@ -11,10 +14,16 @@ fn invoke(input: &[u8], arguments: &[&str]) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    if let Err(error) = child.stdin.take().unwrap().write_all(input) {
-        assert_eq!(error.kind(), ErrorKind::BrokenPipe, "{error}");
-    }
-    child.wait_with_output().unwrap()
+    let mut stdin = child.stdin.take().unwrap();
+    thread::scope(|scope| {
+        let writer = scope.spawn(move || stdin.write_all(input));
+        let output = child.wait_with_output().unwrap();
+        if let Err(error) = writer.join().unwrap() {
+            assert!(!output.status.success());
+            assert_eq!(error.kind(), std::io::ErrorKind::BrokenPipe);
+        }
+        output
+    })
 }
 
 #[test]
@@ -107,4 +116,196 @@ fn malformed_models_are_rejected() {
     let mut invalid_magic = valid.to_vec();
     invalid_magic[..4].copy_from_slice(b"BAD!");
     assert!(privacy_hygiene::Detector::from_bytes(&invalid_magic).is_err());
+}
+
+#[test]
+fn matches_frozen_rules() {
+    let expected: Vec<Value> = include_str!("fixtures/rules-parity.jsonl")
+        .lines()
+        .map(|line| serde_json::from_str(line).unwrap())
+        .collect();
+    let mut requests = Vec::new();
+    for record in &expected {
+        serde_json::to_writer(
+            &mut requests,
+            &json!({"id": record["id"], "text": record["text"]}),
+        )
+        .unwrap();
+        requests.push(b'\n');
+    }
+    let output = invoke(&requests, &["--jsonl"]);
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let actual: Vec<Value> = BufReader::new(output.stdout.as_slice())
+        .lines()
+        .map(|line| {
+            let line = line.unwrap();
+            serde_json::from_str(&line).unwrap()
+        })
+        .collect();
+    assert_eq!(actual.len(), expected.len());
+    for (actual, expected) in actual.iter().zip(&expected) {
+        assert_eq!(
+            actual,
+            &json!({"id": expected["id"], "spans": expected["spans"],
+            "redacted": expected["redacted"]}),
+            "oracle record {}",
+            expected["id"]
+        );
+    }
+}
+
+#[test]
+fn jsonl_flushes_each_record_before_eof() {
+    let mut child = Command::new(env!("CARGO_BIN_EXE_privacy-hygiene"))
+        .arg("--jsonl")
+        .env("PATH", "")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let mut stdin = child.stdin.take().unwrap();
+    let stdout = child.stdout.take().unwrap();
+    let (sender, receiver) = mpsc::channel();
+    let reader = thread::spawn(move || {
+        for line in BufReader::new(stdout).lines() {
+            if sender.send(line).is_err() {
+                break;
+            }
+        }
+    });
+    for id in [json!("first"), json!({"batch": 2})] {
+        writeln!(stdin, "{}", json!({"id": id, "text": "🦊 a@example.test"})).unwrap();
+        stdin.flush().unwrap();
+        let response = receiver.recv_timeout(Duration::from_secs(10));
+        if response.is_err() {
+            child.kill().unwrap();
+            child.wait().unwrap();
+            reader.join().unwrap();
+            panic!("JSONL response was not flushed before EOF");
+        }
+        let line = response.unwrap().unwrap();
+        let actual: Value = serde_json::from_str(&line).unwrap();
+        assert_eq!(
+            actual,
+            json!({"id": id, "spans": [{"start": 2, "end": 16, "label": "email"}],
+            "redacted": "🦊 ██████████████"})
+        );
+    }
+    drop(stdin);
+    assert!(child.wait_with_output().unwrap().status.success());
+    reader.join().unwrap();
+}
+
+#[test]
+fn rejects_private_jsonl() {
+    for input in [
+        "private",
+        "{\"id\":1,\"text\":\"private\",\"extra\":true}",
+        "{\"id\":\"private\"}",
+        "{\"id\":1,\"text\":42}",
+    ] {
+        let output = invoke(input.as_bytes(), &["--jsonl"]);
+        assert!(!output.status.success());
+        assert!(output.stdout.is_empty());
+        assert_eq!(
+            String::from_utf8(output.stderr).unwrap(),
+            "privacy-hygiene: Invalid JSONL record\n"
+        );
+    }
+}
+
+fn model_json() -> Value {
+    serde_json::from_slice(&include_bytes!("../models/weights.bin")[10..]).unwrap()
+}
+
+fn model_bytes(model: &Value) -> Vec<u8> {
+    let payload = serde_json::to_vec(model).unwrap();
+    let mut bytes = b"PHYT".to_vec();
+    bytes.extend(2_u16.to_le_bytes());
+    bytes.extend(u32::try_from(payload.len()).unwrap().to_le_bytes());
+    bytes.extend(payload);
+    bytes
+}
+
+#[test]
+fn weights_control_predictions() {
+    let text = concat!(
+        "a@example.test 212-555-0123 123-45-6789 4111111111111111 ",
+        "GB82WEST12345698765432 Name: Nora Chen Address: 123 Main Street"
+    );
+    let baseline = privacy_hygiene::Detector::embedded().unwrap().detect(text);
+    let labels: std::collections::BTreeSet<_> =
+        baseline.iter().map(|span| span.label.as_str()).collect();
+    assert_eq!(
+        labels,
+        ["email", "phone", "ssn", "card", "iban", "name", "address"]
+            .into_iter()
+            .collect()
+    );
+
+    let mut model = model_json();
+    for mask in model["masks"].as_array_mut().unwrap() {
+        for byte in mask.as_array_mut().unwrap() {
+            *byte = json!(0);
+        }
+    }
+    let detector = privacy_hygiene::Detector::from_bytes(&model_bytes(&model)).unwrap();
+    assert!(detector.detect(text).is_empty());
+
+    let mut model = model_json();
+    for checksum in ["luhn", "iban"] {
+        for byte in model[checksum]["accept"].as_array_mut().unwrap() {
+            *byte = json!(0);
+        }
+    }
+    let detector = privacy_hygiene::Detector::from_bytes(&model_bytes(&model)).unwrap();
+    let expected: Vec<_> = baseline
+        .into_iter()
+        .filter(|span| span.label != "card" && span.label != "iban")
+        .collect();
+    assert_eq!(detector.detect(text), expected);
+}
+
+#[test]
+fn malformed_model_programs_are_rejected() {
+    let mut invalid_models = Vec::new();
+
+    let mut model = model_json();
+    model["heads"][0]["entry"] = json!(model["instructions"].as_array().unwrap().len());
+    invalid_models.push(("Invalid head", model));
+
+    let mut model = model_json();
+    model["instructions"][0] = json!([1, 9999, 0, 0]);
+    invalid_models.push(("Invalid instruction operands", model));
+
+    let mut model = model_json();
+    model["masks"][0][26] = json!(9);
+    invalid_models.push(("Invalid ternary padding", model));
+
+    let mut model = model_json();
+    model["instructions"] = json!([[2, 0, 0, 0]]);
+    invalid_models.push(("Cyclic zero-width program", model));
+
+    let mut model = model_json();
+    model["instructions"] = json!([[1, 0, 1, 0], [4, 0, 2, 1], [0, 0, 0, 0]]);
+    invalid_models.push(("Recursive assertion program", model));
+
+    let mut model = model_json();
+    let mut instructions = vec![json!([0, 0, 0, 0])];
+    for depth in 1..=65 {
+        instructions.push(json!([4, depth - 1, 0, 1]));
+    }
+    model["instructions"] = json!(instructions);
+    invalid_models.push(("Assertion nesting exceeds model limit", model));
+    for (reason, model) in invalid_models {
+        let error = privacy_hygiene::Detector::from_bytes(&model_bytes(&model))
+            .err()
+            .expect("malformed model was accepted");
+        assert_eq!(error, reason);
+    }
 }
