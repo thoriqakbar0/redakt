@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.svg" alt="privacy-hygiene logo" width="240">
+</p>
+
 # privacy-hygiene
 
 A native Rust PII detector and redactor that executes a compiled ternary model. Its character embeddings, window kernels, and readout weights detect hyphenated US SSNs and separated North American phone numbers. The executable embeds its model and needs no Python, NumPy, weights download, or network access.
