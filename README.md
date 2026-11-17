@@ -1,12 +1,34 @@
 # privacy-hygiene
 
-A 4,091-byte, training-free PII detector and redactor, evaluated against the real [OpenAI Privacy Filter](https://huggingface.co/openai/privacy-filter) checkpoint.
+A native Rust PII detector and redactor that executes a compiled ternary model. Its character embeddings, window kernels, and readout weights detect hyphenated US SSNs and separated North American phone numbers. The executable embeds its model and needs no Python, NumPy, weights download, or network access.
 
-The detector uses deterministic Python rules and checksums, with no weights or third-party dependencies. [codehygiene](https://github.com/brianbell-x/codehygiene) inspired the small, explicit-program approach, but uses a different mechanism: its compiler produces ternary neural weights. The baseline uses ordinary rules. An optional [compiled ternary backend](docs/ternary.md) now detects SSNs and North American phone numbers using packed numerical circuits. It covers two of the seven rule families. Privacy Filter is a pretrained neural classifier; this experiment runs its frozen weights without further training.
+This is a training-free circuit experiment, not a complete anonymization tool. It does not detect email, cards, IBANs, names, or addresses. The original seven-family Python rules detector and recorded [OpenAI Privacy Filter comparison](docs/results.md) remain available for comparison.
 
-This is an experiment, not a complete anonymization tool. Read the [results and limitations](docs/results.md) before interpreting the comparison.
+## Run the native ternary detector
 
-## Run the detector
+Install Rust with Cargo, then run from the repository root.
+
+```bash
+cargo build --release --locked
+printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | target/release/privacy-hygiene
+cargo install --path . --locked
+printf '123-45-6789' | privacy-hygiene
+```
+
+The CLI reads UTF-8 stdin and emits JSON with `spans` and `redacted`. Span offsets count Unicode code points, not UTF-8 bytes. Redaction masks the union of spans, including spaces, with `█`. Original CRLF and lone CR characters outside spans remain unchanged. Invalid input or model data exits nonzero on stderr without printing stdin. Use `--help`, `--version`, or `--weights PATH` to load an alternate native compiler artifact.
+
+The model contains 4,380 trits packed into 876 weight bytes. The complete artifact also includes thresholds, head metadata, and Python's Unicode classification ranges. This number excludes the executable and its runtime memory. See [the ternary architecture and native format](docs/ternary.md).
+
+To verify both implementations, build the release binary first, then run:
+
+```bash
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo test --locked
+uv run --extra ternary python -m unittest discover -s tests -v
+```
+
+## Run the original rules detector
 
 Use Python 3.10 or later.
 
@@ -28,17 +50,17 @@ spans = detect(text)
 masked = redact(text, spans)
 ```
 
-## Run the ternary backend
+## Compile or run the Python ternary backend
 
 The optional backend requires NumPy. It supports SSNs and separated North American phone numbers only. It does not detect email, cards, IBANs, names, or addresses.
 
 ```bash
-uv run --extra ternary python -m ternary.compile
-printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary python -m ternary
+uv run --extra ternary python -m experiments.compile_ternary --native-output models/weights.bin
+printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary python -m experiments.ternary
 uv run --extra ternary python -m unittest discover -s tests -v
 ```
 
-[`ternary/compile.py`](ternary/compile.py) creates deterministic [`ternary/weights.npz`](ternary/weights.npz) with five trits per byte. [`ternary/__init__.py`](ternary/__init__.py) executes character embeddings, fixed-width kernels, and threshold/readout gates. It performs no training or regex matching. See [the architecture and evaluation commands](docs/ternary.md) for scope and limitations. The recorded rule and Privacy Filter results below remain unchanged.
+[`experiments/compile_ternary.py`](experiments/compile_ternary.py) creates deterministic [`models/weights.npz`](models/weights.npz) with five trits per byte. [`experiments/ternary.py`](experiments/ternary.py) executes character embeddings, fixed-width kernels, and threshold/readout gates. It performs no training or regex matching. See [the architecture and evaluation commands](docs/ternary.md) for scope and limitations. The recorded rule and Privacy Filter results below remain unchanged.
 
 ## Supported rules
 
@@ -102,12 +124,15 @@ The preserved detector is [results/detector-before.py](results/detector-before.p
 
 ## Project files
 
-Run experiment modules from the repository root. The standalone detector stays at the root; the optional compiled backend lives under `ternary/`, and experiment tooling and optional model dependencies live under `experiments/`.
+Run experiment modules from the repository root. The Rust application lives under `src/`, compiled model artifacts under `models/`, and the Python compiler, reference runtime, and experiment tooling under `experiments/`. The standalone rules detector stays at the root.
 
 | File | Purpose |
 | --- | --- |
+| [src/](src/) | Native packed ternary inference and JSON CLI |
 | [detector.py](detector.py) | Rule matching and character masking |
-| [ternary/](ternary/) | Optional numerical detector, compiler, and packed weights |
+| [models/](models/) | Compiled NPZ and native binary model artifacts |
+| [experiments/ternary.py](experiments/ternary.py) | Python numerical reference runtime |
+| [experiments/compile_ternary.py](experiments/compile_ternary.py) | Deterministic ternary model compiler |
 | [experiments/evaluate.py](experiments/evaluate.py) | Corpus validation, span scoring, and character coverage |
 | [experiments/run_baseline.py](experiments/run_baseline.py) | Official model runner and shared prediction format |
 | [experiments/optimized_opf.py](experiments/optimized_opf.py) | Optional grouped CPU adapter |
@@ -115,4 +140,4 @@ Run experiment modules from the repository root. The standalone detector stays a
 | [docs/results.md](docs/results.md) | Measurements, methodology, boundaries, and limitations |
 | [results/](results/) | Raw predictions, scores, profiles, environment records, and source hashes |
 
-Downloaded model weights and virtual environments are excluded from Git. The small compiled archive in `ternary/` is checked in.
+Downloaded model weights and virtual environments are excluded from Git. The small compiled artifacts in `models/` are checked in.

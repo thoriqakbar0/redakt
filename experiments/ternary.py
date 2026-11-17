@@ -19,7 +19,7 @@ FEATURES = (
 UNICODE_WORD = 128
 NONWORD = 129
 CHUNK_SIZE = 4096
-DEFAULT_WEIGHTS = Path(__file__).with_name("weights.npz")
+DEFAULT_WEIGHTS = Path(__file__).resolve().parent.parent / "models" / "weights.npz"
 
 
 def pack_trits(tensor: np.ndarray) -> np.ndarray:
@@ -130,3 +130,7 @@ def main() -> None:
     spans = model.detect(text)
     result = {"spans": [asdict(span) for span in spans], "redacted": redact(text, spans)}
     print(json.dumps(result, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

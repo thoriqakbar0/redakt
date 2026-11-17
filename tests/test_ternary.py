@@ -14,8 +14,8 @@ except ImportError:
     np = None
 
 if np is not None:
-    from ternary.compile import compile_tensors, compile_weights
-    from ternary import CHUNK_SIZE, DEFAULT_WEIGHTS, Detector, detect, pack_trits, unpack_trits
+    from experiments.compile_ternary import compile_tensors, compile_weights
+    from experiments.ternary import CHUNK_SIZE, DEFAULT_WEIGHTS, Detector, detect, pack_trits, unpack_trits
 
 
 @unittest.skipIf(np is None, "Install the ternary extra to test compiled inference")
@@ -82,12 +82,13 @@ class TernaryTests(unittest.TestCase):
         for start in range(CHUNK_SIZE - 18, CHUNK_SIZE + 2):
             text = "🦊" * start + "+1 (212) 555-0123"
             self.assertEqual(detect(text), [Span(start, start + 17, "phone")])
-        result = subprocess.run([sys.executable, "-m", "ternary"], input="123-45-6789",
+        result = subprocess.run([sys.executable, "-m", "experiments.ternary"], input="123-45-6789",
                                 text=True, capture_output=True, check=True)
         self.assertEqual(json.loads(result.stdout), {
             "spans": [{"start": 0, "end": 11, "label": "ssn"}], "redacted": "█" * 11,
         })
-        result = subprocess.run([sys.executable, "-m", "ternary", "--corpus", "data/synthetic.jsonl"],
+        command = [sys.executable, "-m", "experiments.ternary", "--corpus", "data/synthetic.jsonl"]
+        result = subprocess.run(command,
                                 text=True, capture_output=True, check=True)
         rows = [json.loads(line) for line in result.stdout.splitlines()]
         self.assertEqual(len(rows), 64)
