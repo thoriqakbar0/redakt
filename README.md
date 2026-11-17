@@ -2,7 +2,7 @@
 
 A 4,091-byte, training-free PII detector and redactor, evaluated against the real [OpenAI Privacy Filter](https://huggingface.co/openai/privacy-filter) checkpoint.
 
-The detector uses deterministic Python rules and checksums, with no weights or third-party dependencies. [codehygiene](https://github.com/brianbell-x/codehygiene) inspired the small, explicit-program approach, but uses a different mechanism: its compiler produces ternary neural weights. This prototype uses ordinary rules. Privacy Filter is a pretrained neural classifier; this experiment runs its frozen weights without further training.
+The detector uses deterministic Python rules and checksums, with no weights or third-party dependencies. [codehygiene](https://github.com/brianbell-x/codehygiene) inspired the small, explicit-program approach, but uses a different mechanism: its compiler produces ternary neural weights. The baseline uses ordinary rules. An optional [compiled ternary backend](docs/ternary.md) now detects SSNs and North American phone numbers using packed numerical circuits. It covers two of the seven rule families. Privacy Filter is a pretrained neural classifier; this experiment runs its frozen weights without further training.
 
 This is an experiment, not a complete anonymization tool. Read the [results and limitations](docs/results.md) before interpreting the comparison.
 
@@ -27,6 +27,18 @@ text = "Name: Nora Chen."
 spans = detect(text)
 masked = redact(text, spans)
 ```
+
+## Run the ternary backend
+
+The optional backend requires NumPy. It supports SSNs and separated North American phone numbers only. It does not detect email, cards, IBANs, names, or addresses.
+
+```bash
+uv run --extra ternary python compile.py
+printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary python ternary.py
+uv run --extra ternary python -m unittest discover -s tests -v
+```
+
+[`compile.py`](compile.py) creates deterministic [`weights.npz`](weights.npz) with five trits per byte. [`ternary.py`](ternary.py) executes character embeddings, fixed-width kernels, and threshold/readout gates. It performs no training or regex matching. See [the architecture and evaluation commands](docs/ternary.md) for scope and limitations. The recorded rule and Privacy Filter results below remain unchanged.
 
 ## Supported rules
 

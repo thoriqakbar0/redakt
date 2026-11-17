@@ -4,3 +4,6 @@ version = "0.0.1"
 description = "Training-free PII rules experiment"
 requires-python = ">=3.10"
 dependencies = []
+
+[project.optional-dependencies]
+ternary = ["numpy>=1.21"]
