@@ -117,6 +117,19 @@ For `Address: 42 Elm Street, Apt 5.`, prediction `[9,22)` misses the apartment s
 
 Additional [boundary probes](../results/boundary-probes.json) show that appending ` USD` makes the IBAN candidate greedily consume extra text and fail validation. The otherwise valid IBAN is missed. These probes sit outside the scored corpus and do not alter its scores. The reports retain all gold spans, predictions, and masks for inspection.
 
+## Real-world document failures
+
+A spot check on 2026-11-17 ran the rule detector on two public specifications, a blog post, and its author's about page. This check evaluated the rules only; Privacy Filter and the ternary backend were not run on these pages. These documents have no complete gold annotations, so this check establishes individual failures rather than precision or recall. It does not change the synthetic scores above.
+
+- In [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.txt), the detector incorrectly classified `1234567890987` in a `Content-Length` header example as a card. The number passes Luhn validation but represents a body length. Six email occurrences were also detected.
+- In the extracted text of [this coding blog post](https://simonwillison.net/2025/Mar/11/using-llms-for-code/) and the [author's about page](https://simonwillison.net/about/), the archive-year sequences `2002 2003 2004 2005` and `2010 2011 2012 2013` were incorrectly classified as cards. Both sequences pass Luhn validation after spaces are removed. The about page's contact email was detected, but the author's name was not.
+- In [RFC 5322](https://www.rfc-editor.org/rfc/rfc5322.txt), the detector found 63 email occurrences and one phone number. Many email matches are illustrative examples, so these counts do not establish successful identification of private information.
+- RFC 9110's author name `Roy T. Fielding` and postal address beginning `345 Park Ave` were missed. The name and address rules require explicit field cues that these author details lack.
+
+Specifications were processed as UTF-8 plain text. HTML was parsed with Beautiful Soup; script, style, nav, and footer elements were removed, then remaining text nodes were joined with spaces. Archive links outside those elements remained. The year-list failures therefore concern extracted page text including site navigation, rather than the article body alone. Redaction preserved character length and masked every predicted span on all four inputs, but those checks do not establish detection accuracy.
+
+These failures show that checksum validation cannot distinguish a card from unrelated numbers, and cue-based rules miss personal details in ordinary prose. The detector remains unsuitable for general anonymization without further validation and review.
+
 ## Runtime and verification
 
 The measured environment is Linux x86-64 on a VMware VM, with an Intel Xeon E5-2697 v2 at 2.70 GHz, 32 visible CPUs, and CPython 3.12.16. No GPU is used. The baseline has four PyTorch compute threads, one interop thread, batch size one, a 512-token context limit, whitespace trimming, and Viterbi decoding with the artifact's default zero biases. All fixture documents fit the limit; long-context behavior is untested. Rules use one Python process.
