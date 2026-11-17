@@ -4,6 +4,8 @@ This repository is an experimental Rust detector with deliberately limited cover
 
 ## Run checks
 
+Use the project [verification skill](.agents/skills/verify/SKILL.md) for recorded CLI journeys and Linux-to-macOS compilation checks. Its feature map distinguishes build verification from runtime verification on a Mac.
+
 Install stable Rust and run these commands from the repository root.
 
 ```bash

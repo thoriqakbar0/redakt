@@ -3,6 +3,8 @@
 ## Unreleased
 
 - Fix intermittent CLI test failures when invalid arguments close stdin before the test finishes writing.
+- Add a project verification skill with CLI journeys, retained evidence, and Intel and Apple silicon cross-compilation checks.
+- Document a verified Linux-to-macOS cross-build setup for Intel and Apple silicon using pinned cargo-zigbuild and Zig tools.
 - Extend native ternary-gated matching to all seven original rule categories, add persistent JSONL inference, and record matched CPU/memory benchmarks; v2 artifacts require recompiling v1 weights.
 - Keep the default tree Rust-only, with 289 frozen independent parity cases and compiler/benchmark reproduction on a separate branch.
 - Make GitHub Actions manual-only and use documented local checks as the default PR verification.

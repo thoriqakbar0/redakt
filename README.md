@@ -47,6 +47,8 @@ printf '123-45-6789' | privacy-hygiene
 
 Maintainers can follow [the release procedure](docs/releasing.md) to publish Cargo packages and prebuilt binaries.
 
+To build Intel and Apple silicon macOS executables from Linux, follow [the macOS cross-compilation guide](docs/cross-compiling-macos.md). Executing and testing those binaries requires macOS.
+
 The CLI reads UTF-8 stdin and emits JSON with `spans` and `redacted`. Each span contains `start`, `end`, and `label`. Offsets are half-open Unicode code-point positions, not UTF-8 bytes. Redaction masks the union of spans, including spaces, with `█`. CRLF and lone CR characters outside spans remain unchanged.
 
 Invalid input or model data exits nonzero on stderr without printing stdin. Use `--help`, `--version`, or `--weights PATH` to load another native artifact. Version 2 replaces the former fixed-window format. Version 1 weights require recompilation.

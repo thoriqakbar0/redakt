@@ -1,4 +1,5 @@
 /target/
+/.intentionally-empty-file.o
 .env
 .env.*
 !.env.example
