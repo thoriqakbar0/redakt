@@ -1,0 +1,8 @@
+area	hypothesis	decision	evidence
+rules	Mask intervals rather than enumerate every character	keep	Exact output checks and seven alternating trials in rules-optimization.json
+rules	Skip regex families when required literal cues or digits are absent	keep	No regex policy changes; corpus and randomized differential checks
+rules	Cache answers to repeated inputs	reject	Would measure lookup rather than uncached inference
+rules	Rewrite runtime in a compiled language	defer	Outside this small Python experiment; CLI startup remains a documented floor
+opf	Increase or reduce compute threads	keep four threads	1/2/4 and4/8/16/32 rotated sweeps; no accepted higher-thread gain
+opf	Cast the whole model to FP32	preliminary superseded	Small preliminary gain; targeted expert cache preserves activation dtypes
+opf	Cache FP32 expert tensors and group token rows by expert	keep	5.82x probe gain; all64 full-corpus span lists unchanged; larger RAM footprint
