@@ -1,0 +1,45 @@
+{"id": "email-basic", "text": "Contact nora@example.test.", "expected": [{"value": "nora@example.test", "label": "email"}]}
+{"id": "email-unicode-prefix", "text": "🦊 café contact: nora@example.test", "expected": [{"value": "nora@example.test", "label": "email"}]}
+{"id": "email-plus", "text": "Send to nora+receipts@example.test", "expected": [{"value": "nora+receipts@example.test", "label": "email"}]}
+{"id": "email-benign", "text": "Use the at sign @ in your example.", "expected": []}
+{"id": "phone-dashes", "text": "Call 212-555-0123.", "expected": [{"value": "212-555-0123", "label": "phone"}]}
+{"id": "phone-country", "text": "Call +1 (212) 555-0123.", "expected": [{"value": "+1 (212) 555-0123", "label": "phone"}]}
+{"id": "phone-spaces", "text": "Phone: 212 555 0123", "expected": [{"value": "212 555 0123", "label": "phone"}]}
+{"id": "phone-benign", "text": "Version 212.555 is ready.", "expected": []}
+{"id": "ssn-basic", "text": "SSN: 123-45-6789", "expected": [{"value": "123-45-6789", "label": "ssn"}]}
+{"id": "ssn-unicode", "text": "🦊\r\nSSN: 234-56-7890", "expected": [{"value": "234-56-7890", "label": "ssn"}]}
+{"id": "ssn-invalid", "text": "Invalid example: 000-12-1234", "expected": []}
+{"id": "ssn-benign", "text": "Order 123-45 has shipped.", "expected": []}
+{"id": "card-basic", "text": "Card: 4111111111111111", "expected": [{"value": "4111111111111111", "label": "card"}]}
+{"id": "card-spaces", "text": "Card: 4111 1111 1111 1111", "expected": [{"value": "4111 1111 1111 1111", "label": "card"}]}
+{"id": "card-invalid", "text": "Checksum example: 4111111111111112", "expected": []}
+{"id": "card-public-number", "text": "Public product identifier: 4111111111111111", "expected": []}
+{"id": "iban-gb", "text": "IBAN: GB82WEST12345698765432", "expected": [{"value": "GB82WEST12345698765432", "label": "iban"}]}
+{"id": "iban-de", "text": "IBAN: DE89370400440532013000", "expected": [{"value": "DE89370400440532013000", "label": "iban"}]}
+{"id": "iban-invalid", "text": "Invalid IBAN: GB00WEST12345698765432", "expected": []}
+{"id": "iban-benign", "text": "Country codes GB and DE appear here.", "expected": []}
+{"id": "name-title", "text": "Name: Nora Chen.", "expected": [{"value": "Nora Chen", "label": "name"}]}
+{"id": "name-lower", "text": "name: Nora Chen.", "expected": [{"value": "Nora Chen", "label": "name"}]}
+{"id": "name-unicode", "text": "My name is María García.", "expected": [{"value": "María García", "label": "name"}]}
+{"id": "name-uncued", "text": "I met Nora Chen yesterday.", "expected": [{"value": "Nora Chen", "label": "name"}]}
+{"id": "name-benign", "text": "The name of this operation is sorting.", "expected": []}
+{"id": "address-title", "text": "Address: 42 Maple Street.", "expected": [{"value": "42 Maple Street", "label": "address"}]}
+{"id": "address-lower", "text": "address: 42 Maple Street.", "expected": [{"value": "42 Maple Street", "label": "address"}]}
+{"id": "address-international", "text": "Address: Jalan Melati 42, Bandung.", "expected": [{"value": "Jalan Melati 42, Bandung", "label": "address"}]}
+{"id": "address-benign", "text": "Please address the problem tomorrow.", "expected": []}
+{"id": "secret-env", "text": "API_KEY=synthetic_example_key_123456", "expected": [{"value": "synthetic_example_key_123456", "label": "secret"}]}
+{"id": "secret-quoted", "text": "password: \"orbit fox 731\"", "expected": [{"value": "orbit fox 731", "label": "secret"}]}
+{"id": "secret-punctuation", "text": "client_secret=abc:def=ghi.xyz", "expected": [{"value": "abc:def=ghi.xyz", "label": "secret"}]}
+{"id": "secret-benign", "text": "A password should be difficult to guess.", "expected": []}
+{"id": "account-basic", "text": "Bank account: 123456789012", "expected": [{"value": "123456789012", "label": "account_number"}]}
+{"id": "account-separated", "text": "account number: 1234-5678-9012", "expected": [{"value": "1234-5678-9012", "label": "account_number"}]}
+{"id": "account-benign", "text": "The account number has twelve digits.", "expected": []}
+{"id": "date-basic", "text": "Date of birth: 1990-04-12", "expected": [{"value": "1990-04-12", "label": "date"}]}
+{"id": "date-leap", "text": "DOB=2000-02-29", "expected": [{"value": "2000-02-29", "label": "date"}]}
+{"id": "date-ambiguous", "text": "Birth date: 12/04/1990", "expected": [{"value": "12/04/1990", "label": "date"}]}
+{"id": "date-public", "text": "Release date: 2026-11-17", "expected": []}
+{"id": "url-private", "text": "Private profile: https://portal.example.test/users/nora", "expected": [{"value": "https://portal.example.test/users/nora", "label": "url"}]}
+{"id": "url-public", "text": "Documentation: https://docs.example.test/guide", "expected": []}
+{"id": "mixed-fields", "text": "name: 李 明; API_KEY=fox_123; DOB=1990-04-12", "expected": [{"value": "李 明", "label": "name"}, {"value": "fox_123", "label": "secret"}, {"value": "1990-04-12", "label": "date"}]}
+{"id": "mixed-lines", "text": "🦊 Email: nora@example.test\r\nCall 212-555-0123", "expected": [{"value": "nora@example.test", "label": "email"}, {"value": "212-555-0123", "label": "phone"}]}
+{"id": "name-product", "text": "Product name: Maple Editor", "expected": []}
