@@ -8,7 +8,33 @@ A standalone Rust PII detector and redactor that executes an embedded compiled m
 
 This is a training-free rule-machine experiment, not a learned contextual detector or a complete anonymization tool. It preserves the original rules' narrow formats and known failures. Long or hostile inputs have no tested performance or memory guarantee.
 
-## Build and run
+## Install the native ternary detector
+
+Cargo packaging and the prebuilt release workflow are prepared. Registry installation and release downloads require a maintainer to publish a version first.
+
+After publication to crates.io, install with Rust and Cargo:
+
+```bash
+cargo install privacy-hygiene --locked
+```
+
+For installation without Rust, download the archive for your platform and `SHA256SUMS` from [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). The workflow prepares these targets:
+
+| Platform | Archive target |
+| --- | --- |
+| Linux x86_64 | `x86_64-unknown-linux-gnu` |
+| Linux ARM64 | `aarch64-unknown-linux-gnu` |
+| macOS Intel | `x86_64-apple-darwin` |
+| macOS Apple silicon | `aarch64-apple-darwin` |
+| Windows x86_64 | `x86_64-pc-windows-msvc` |
+
+Linux binaries are built on Ubuntu 24.04 and require glibc 2.39 or newer. They do not support musl-based distributions such as Alpine. macOS binaries are built on macOS 15. Windows binaries use the MSVC runtime.
+
+Verify the archive before extracting it. On Linux, run `sha256sum --ignore-missing --check SHA256SUMS`. On macOS, run `shasum -a 256 <archive>` and compare the result with `SHA256SUMS`. On Windows, use `Get-FileHash <archive> -Algorithm SHA256` in PowerShell. Then extract the archive and put `privacy-hygiene`, or `privacy-hygiene.exe` on Windows, in a directory on your `PATH`.
+
+Each archive includes the executable, README, license, and notice. The executable embeds its model and needs no separate download.
+
+### Install from source
 
 Install stable Rust with Cargo, then run from the repository root.
 
@@ -18,6 +44,8 @@ printf 'Name: Nora Chen. Mail nora@example.test!' | target/release/privacy-hygie
 cargo install --path . --locked
 printf '123-45-6789' | privacy-hygiene
 ```
+
+Maintainers can follow [the release procedure](docs/releasing.md) to publish Cargo packages and prebuilt binaries.
 
 The CLI reads UTF-8 stdin and emits JSON with `spans` and `redacted`. Each span contains `start`, `end`, and `label`. Offsets are half-open Unicode code-point positions, not UTF-8 bytes. Redaction masks the union of spans, including spaces, with `█`. CRLF and lone CR characters outside spans remain unchanged.
 

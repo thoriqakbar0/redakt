@@ -1,0 +1,169 @@
+name: Prepare release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag, such as v0.0.1
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      commit: ${{ steps.version.outputs.commit }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+          persist-credentials: false
+      - name: Check tag and package
+        id: version
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          rustup toolchain install stable --profile minimal
+          version=$(cargo +stable metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          test "$TAG" = "v$version"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          cargo +stable package --locked
+
+  build:
+    needs: validate
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+          - os: macos-15
+            target: aarch64-apple-darwin
+          - os: windows-2025
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.validate.outputs.commit }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.14'
+      - name: Build and test
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup target add "$TARGET" --toolchain stable
+          cargo +stable test --locked --target "$TARGET"
+          cargo +stable build --release --locked --target "$TARGET"
+      - name: Package and smoke test
+        env:
+          TARGET: ${{ matrix.target }}
+          TAG: ${{ needs.validate.outputs.tag }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import shutil
+          import subprocess
+          import tarfile
+          import zipfile
+
+          target = os.environ['TARGET']
+          tag = os.environ['TAG']
+          name = f'privacy-hygiene-{tag}-{target}'
+          binary = 'privacy-hygiene.exe' if 'windows' in target else 'privacy-hygiene'
+          folder = Path(name)
+          folder.mkdir()
+          shutil.copy2(Path('target') / target / 'release' / binary, folder / binary)
+
+          for document in ('README.md', 'LICENSE', 'NOTICE'):
+              shutil.copy2(document, folder / document)
+
+          Path('dist').mkdir()
+          if 'windows' in target:
+              archive = Path('dist') / f'{name}.zip'
+              with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as bundle:
+                  for member in folder.iterdir():
+                      bundle.write(member, member.as_posix())
+
+              with zipfile.ZipFile(archive) as bundle:
+                  bundle.extractall('unpacked')
+          else:
+              archive = Path('dist') / f'{name}.tar.gz'
+              with tarfile.open(archive, 'w:gz') as bundle:
+                  bundle.add(folder, arcname=name)
+
+              with tarfile.open(archive) as bundle:
+                  bundle.extractall('unpacked', filter='data')
+
+          executable = Path('unpacked') / name / binary
+          version = subprocess.check_output(
+              [str(executable), '--version'], encoding='utf-8',
+          ).strip()
+          assert version == f'privacy-hygiene {tag.removeprefix("v")}', version
+
+          result = subprocess.run(
+              [str(executable)], input='SSN 123-45-6789', encoding='utf-8',
+              capture_output=True, check=True,
+          )
+          output = json.loads(result.stdout)
+          assert output['redacted'] == 'SSN ' + '█' * 11, output
+          assert output['spans'], output
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: binary-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+
+  draft:
+    needs: [validate, build]
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          pattern: binary-*
+          merge-multiple: true
+          path: dist
+      - name: Create checksums and draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag }}
+        working-directory: dist
+        run: |
+          sha256sum *.tar.gz *.zip > SHA256SUMS
+          sha256sum --check SHA256SUMS
+          gh release create "$TAG" --verify-tag --draft --title "$TAG" \
+            --notes 'Draft. Replace these notes with the version changelog before publishing.' \
+            ./*.tar.gz ./*.zip SHA256SUMS
