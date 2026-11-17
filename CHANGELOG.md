@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Explain the ternary matcher in the README and simplify CLI installation, the redaction example, and the test command.
 - Fix intermittent CLI test failures when invalid arguments close stdin before the test finishes writing.
 - Add a project verification skill with CLI journeys, retained evidence, and Intel and Apple silicon cross-compilation checks.
 - Document a verified Linux-to-macOS cross-build setup for Intel and Apple silicon using pinned cargo-zigbuild and Zig tools.
