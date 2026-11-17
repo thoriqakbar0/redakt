@@ -130,4 +130,3 @@ def main() -> None:
     spans = model.detect(text)
     result = {"spans": [asdict(span) for span in spans], "redacted": redact(text, spans)}
     print(json.dumps(result, ensure_ascii=False))
-
