@@ -9,8 +9,8 @@ This backend covers two of the seven rule families. It detects hyphenated US SSN
 Run these commands from the repository root with Python 3.10 or later. NumPy is optional for the original rules detector and required for this backend.
 
 ```bash
-uv run --extra ternary python compile.py
-printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary python ternary.py
+uv run --extra ternary python -m ternary.compile
+printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary python -m ternary
 uv run --extra ternary python -m unittest discover -s tests -v
 ```
 
@@ -25,7 +25,7 @@ spans = detect(text)
 masked = redact(text, spans)
 ```
 
-`python compile.py --output /tmp/weights.npz` builds another archive. `python ternary.py --weights /tmp/weights.npz` loads that archive for stdin inference. The archive is a compiler artifact, not a general interchange format for arbitrary models.
+`python -m ternary.compile --output /tmp/weights.npz` builds another archive. `python -m ternary --weights /tmp/weights.npz` loads that archive for stdin inference. The archive is a compiler artifact, not a general interchange format for arbitrary models.
 
 ## Numerical architecture
 
@@ -43,12 +43,12 @@ At each possible start position, inference multiplies a character-feature window
 
 The runtime reuses the original `Span` class and redaction function. It does not call the rules detector for inference. It processes at most 4,096 start positions per numerical batch, with neighboring characters included across batch boundaries. Input text, returned spans, and candidate bookkeeping still require memory proportional to the input.
 
-The tensors contain 4,380 trits. Packing five base-three digits per byte uses 876 bytes before archive overhead and compression. The checked-in `weights.npz` is 2,015 bytes, including shapes, format version, one-dimensional thresholds, lengths, and labels. This size excludes Python, NumPy, source code, and interpreter memory. It is not an end-to-end deployment size.
+The tensors contain 4,380 trits. Packing five base-three digits per byte uses 876 bytes before archive overhead and compression. The checked-in `ternary/weights.npz` is 2,015 bytes, including shapes, format version, one-dimensional thresholds, lengths, and labels. This size excludes Python, NumPy, source code, and interpreter memory. It is not an end-to-end deployment size.
 
 ## Reproduce the evaluation
 
 ```bash
-uv run --extra ternary python ternary.py --corpus data/synthetic.jsonl > /tmp/ternary-predictions.jsonl
+uv run --extra ternary python -m ternary --corpus data/synthetic.jsonl > /tmp/ternary-predictions.jsonl
 python3 -m experiments.evaluate --predictions /tmp/ternary-predictions.jsonl --output /tmp/ternary-scores.json
 ```
 
