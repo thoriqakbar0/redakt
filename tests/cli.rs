@@ -87,8 +87,9 @@ fn alternate_model_and_private_errors() {
     assert!(output.status.success());
     assert_eq!(output.stdout, invoke(b"123-45-6789", &[]).stdout);
 
+    let private_input = "private".repeat(1024 * 1024);
     for arguments in [vec!["--weights"], vec!["--unknown"]] {
-        let output = invoke(b"private", &arguments);
+        let output = invoke(private_input.as_bytes(), &arguments);
         assert!(!output.status.success());
         assert!(output.stdout.is_empty());
         assert!(!String::from_utf8_lossy(&output.stderr).contains("private"));
