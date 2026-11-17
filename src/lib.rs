@@ -1,3 +1,5 @@
+mod contextual;
+
 use serde::{Deserialize, Serialize};
 
 const CODES: usize = 132;
@@ -378,16 +380,26 @@ impl Detector {
         start: usize,
         required_end: Option<usize>,
     ) -> Option<Match> {
-        let mut pending = vec![(entry, start, [None, None])];
-        while let Some((position, mut cursor, mut capture)) = pending.pop() {
+        let mut pending = Vec::new();
+        let mut position = entry;
+        let mut cursor = start;
+        let mut capture = [None, None];
+        loop {
             let [operation, first, second, detail] = self.model.instructions[position];
             if operation == 0 && required_end.is_none_or(|end| cursor == end) {
                 return Some((cursor, capture));
             }
-            if operation == 0 {
-                continue;
-            }
-            if operation == 1 && !self.gate(first as usize, codes.get(cursor).copied()) {
+            let failed = operation == 0
+                || (operation == 1 && !self.gate(first as usize, codes.get(cursor).copied()))
+                || (operation == 4 && !self.assertion_gate(codes, cursor, first as usize, detail))
+                || (operation == 5 && !self.anchor(first, codes, cursor));
+            if failed {
+                let Some((next, saved_cursor, saved_capture)) = pending.pop() else {
+                    break;
+                };
+                position = next;
+                cursor = saved_cursor;
+                capture = saved_capture;
                 continue;
             }
             if operation == 1 {
@@ -395,19 +407,13 @@ impl Detector {
             }
             if operation == 2 {
                 pending.push((second as usize, cursor, capture));
-                pending.push((first as usize, cursor, capture));
+                position = first as usize;
                 continue;
             }
             if operation == 3 {
                 capture[first as usize] = Some(cursor);
             }
-            if operation == 4 && !self.assertion_gate(codes, cursor, first as usize, detail) {
-                continue;
-            }
-            if operation == 5 && !self.anchor(first, codes, cursor) {
-                continue;
-            }
-            pending.push((second as usize, cursor, capture));
+            position = second as usize;
         }
         None
     }
@@ -505,6 +511,15 @@ impl Detector {
                 label: head.label.clone(),
             });
         }
+        spans
+    }
+
+    /// Adds bounded cue-based recognition without changing model predictions.
+    pub fn detect_contextual(&self, text: &str) -> Vec<Span> {
+        let mut spans = self.detect(text);
+        spans.extend(contextual::scan(text));
+        spans.sort();
+        spans.dedup();
         spans
     }
 

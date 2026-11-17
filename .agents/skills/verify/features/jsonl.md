@@ -7,6 +7,7 @@ Users stream records through one process and receive a flushed response for each
 - Preserve IDs and ignore blank lines.
 - Flush responses before EOF.
 - Reject malformed records without exposing their input.
+- Combine `--contextual`, `--jsonl`, and alternate native weights.
 
 ## How to get to it (user POV)
 
@@ -26,6 +27,8 @@ cargo test --locked --test cli jsonl >"$evidence/jsonl-tests.log" 2>&1
 ```
 
 Require both exact responses and passing streaming and private-error tests.
+
+Run `cargo test --locked --test contextual` for the contextual JSONL and alternate-weights journeys. The supplemental policy must remain active when the supplied model's original categories are disabled. Loading alternate weights must not silently load the embedded seven-category model instead.
 
 ## Gotchas
 

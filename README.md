@@ -62,6 +62,16 @@ Blank lines are ignored. An invalid record stops processing with a nonzero exit 
 
 Run `privacy-hygiene --help` for usage or `privacy-hygiene --version` to check the installed version. Use `--weights PATH` to load another native artifact. Version 1 weights require recompilation for the current version 2 format.
 
+### Remove additional labelled private values
+
+Use `--contextual` to add cue-based recognition for names and addresses, labelled secrets, bank account numbers, and dates of birth. It works with plain stdin and `--jsonl`.
+
+```bash
+printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene --contextual
+```
+
+The additional pass returns ordinary spans and masks their union with the original seven categories. It runs locally without a download or a new dependency. Default detection stays unchanged. See [contextual coverage and its limits](docs/contextual.md) before relying on it.
+
 ## Coverage and measurements
 
 Names require one of `Name`, `Patient`, `Customer`, or `My name is`. Addresses require `Address`, `Ship to`, or `Lives at`. These rules are case-sensitive. IBAN coverage is limited to GB, DE, FR, ES, NL, and IT. Checksums do not establish assignment, ownership, or privacy.
@@ -69,6 +79,8 @@ Names require one of `Name`, `Patient`, `Customer`, or `My name is`. Addresses r
 The native model is 57,721 bytes. The measured Linux executable is 830,384 bytes with the model embedded. Artifact size is separate from runtime RAM and depends on the build target.
 
 A matched five-trial CPU comparison verified exact native/rules outputs. Native RAM was lower, while native/rules timing ranges overlapped on both short and long documents. See [the benchmark findings and raw evidence](docs/fair-benchmark.md) and [the architecture and format](docs/ternary.md).
+
+A later matcher-loop optimization reduced median CLI time by 29% on a repeated mixed-PII fixture while preserving exact output. See [the workload, timing ranges, and reproduction](docs/performance.md). This is a fixture-specific measurement on a shared Linux VM.
 
 ## Run the tests
 
