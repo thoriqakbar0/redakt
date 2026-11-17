@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add a native Rust executable that embeds and executes the compiled ternary SSN and phone model, with Unicode code-point spans, model validation, and Python parity checks.
+
 - Group the optional compiler, runtime, and packed weights under `ternary/`; run inference with `python -m ternary` and compilation with `python -m ternary.compile`.
 - Document real-world rule failures on public specifications and blog pages, including card false positives and missed names and addresses.
 - Add an optional, training-free ternary compiler and numerical SSN/phone detector with packed weights, Unicode spans, and reproducible parity tests.

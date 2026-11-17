@@ -2,6 +2,8 @@
 
 import argparse
 import io
+import struct
+import unicodedata
 from pathlib import Path
 import zipfile
 
@@ -74,7 +76,38 @@ def compile_tensors() -> dict[str, np.ndarray]:
     }
 
 
-def compile_weights(path: Path = DEFAULT_WEIGHTS) -> None:
+def native_weights(tensors: dict[str, np.ndarray]) -> bytes:
+    """Serialize the fixed circuit and Python's non-ASCII alphanumeric table."""
+    ranges = []
+    start = None
+    for ordinal in range(128, 0x110001):
+        word = ordinal < 0x110000 and chr(ordinal).isalnum()
+        if word and start is None:
+            start = ordinal
+        if not word and start is not None:
+            ranges.append((start, ordinal - 1))
+            start = None
+
+    version = unicodedata.unidata_version.encode("ascii")
+    output = bytearray(b"PHYT" + struct.pack("<H", 1))
+    dimensions = (*tensors["embedding"].shape, *tensors["kernels"].shape[:2],
+                  *tensors["readout"].shape)
+    output.extend(struct.pack("<6H", *dimensions))
+    output.append(len(version))
+    output.extend(version)
+    output.extend(struct.pack("<I", len(ranges)))
+    for first, last in ranges:
+        output.extend(struct.pack("<II", first, last))
+    weights = np.concatenate([tensors[name].reshape(-1)
+                              for name in ("embedding", "kernels", "readout")])
+    output.extend(pack_trits(weights).tobytes())
+    output.extend(tensors["thresholds"].astype("<i2").tobytes())
+    output.extend(tensors["lengths"].astype("<i2").tobytes())
+    output.extend(bytes({"ssn": 0, "phone": 1}[label] for label in tensors["labels"]))
+    return bytes(output)
+
+
+def compile_weights(path: Path = DEFAULT_WEIGHTS, native_output: Path | None = None) -> None:
     tensors = compile_tensors()
     archive = {"version": np.array([FORMAT_VERSION], dtype=np.int16)}
     for name, tensor in tensors.items():
@@ -91,8 +124,13 @@ def compile_weights(path: Path = DEFAULT_WEIGHTS) -> None:
             member.compress_type = zipfile.ZIP_DEFLATED
             output.writestr(member, buffer.getvalue())
 
+    if native_output is not None:
+        native_output.write_bytes(native_weights(tensors))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=DEFAULT_WEIGHTS)
-    compile_weights(parser.parse_args().output)
+    parser.add_argument("--native-output", type=Path, help="Also write the native Rust model")
+    args = parser.parse_args()
+    compile_weights(args.output, args.native_output)
