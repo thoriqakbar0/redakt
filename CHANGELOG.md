@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Extend the compiled ternary matcher to all seven rules-detector categories, add persistent native JSONL inference, and provide matched comparison benchmarks; v2 model artifacts require recompiling v1 weights.
 - Add the project logo in SVG and transparent PNG formats and display it in the README.
 - Prepare public-source licensing, contributor and security guidance, cross-platform CI, and dependency updates.
 - Compare decompressed model payloads across platforms while preserving byte-identical recompilation checks within one environment.

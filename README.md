@@ -4,9 +4,9 @@
 
 # privacy-hygiene
 
-A native Rust PII detector and redactor that executes a compiled ternary model. Its character embeddings, window kernels, and readout weights detect hyphenated US SSNs and separated North American phone numbers. The executable embeds its model and needs no Python, NumPy, weights download, or network access.
+A native Rust PII detector and redactor that executes a compiled recurrent matcher with ternary gates. It covers the same seven categories as the Python rules detector. The executable embeds its model and needs no Python, NumPy, weights download, or network access.
 
-This is a training-free circuit experiment, not a complete anonymization tool. It does not detect email, cards, IBANs, names, or addresses. The original seven-family Python rules detector and recorded [OpenAI Privacy Filter comparison](docs/results.md) remain available for comparison.
+This is a training-free circuit experiment, not a complete anonymization tool. Compiling the rules preserves their narrow coverage and known failures. It adds no learned contextual understanding. The original Python rules detector and recorded [OpenAI Privacy Filter comparison](docs/results.md) remain available for comparison.
 
 ## Run the native ternary detector
 
@@ -21,7 +21,7 @@ printf '123-45-6789' | privacy-hygiene
 
 The CLI reads UTF-8 stdin and emits JSON with `spans` and `redacted`. Span offsets count Unicode code points, not UTF-8 bytes. Redaction masks the union of spans, including spaces, with `█`. Original CRLF and lone CR characters outside spans remain unchanged. Invalid input or model data exits nonzero on stderr without printing stdin. Use `--help`, `--version`, or `--weights PATH` to load an alternate native compiler artifact.
 
-The model contains 4,380 trits packed into 876 weight bytes. The complete artifact also includes thresholds, head metadata, and Python's Unicode classification ranges. This number excludes the executable and its runtime memory. See [the ternary architecture and native format](docs/ternary.md).
+The model includes packed ternary gates, ordered matching instructions, checksum transitions, and Python's Unicode classification ranges. Model size, executable size, and runtime RAM are separate measurements. See [the ternary architecture and native format](docs/ternary.md) and [the fair comparison](docs/fair-benchmark.md).
 
 To verify both implementations, build the release binary first, then run:
 
@@ -56,7 +56,7 @@ masked = redact(text, spans)
 
 ## Compile or run the Python ternary backend
 
-The optional backend requires NumPy. It supports SSNs and separated North American phone numbers only. It does not detect email, cards, IBANs, names, or addresses.
+The optional Python reference backend requires NumPy. It executes the same compiled model as the native runtime and supports all seven rule categories.
 
 ```bash
 uv run --extra ternary python -m experiments.compile_ternary --native-output models/weights.bin
@@ -64,7 +64,19 @@ printf 'SSN 123-45-6789; phone +1 (212) 555-0123' | uv run --extra ternary pytho
 uv run --extra ternary python -m unittest discover -s tests -v
 ```
 
-[`experiments/compile_ternary.py`](experiments/compile_ternary.py) creates deterministic [`models/weights.npz`](models/weights.npz) with five trits per byte. [`experiments/ternary.py`](experiments/ternary.py) executes character embeddings, fixed-width kernels, and threshold/readout gates. It performs no training or regex matching. See [the architecture and evaluation commands](docs/ternary.md) for scope and limitations. The recorded rule and Privacy Filter results below remain unchanged.
+[`experiments/compile_ternary.py`](experiments/compile_ternary.py) compiles the rules into deterministic [`models/weights.npz`](models/weights.npz) and a native artifact, with five trits per packed byte. [`experiments/ternary.py`](experiments/ternary.py) executes the compiled recurrent matcher. Regex parsing happens during compilation, not inference. See [the architecture and evaluation commands](docs/ternary.md) for scope and limitations. The earlier rule and Privacy Filter results remain unchanged.
+
+## Compare deployed detectors
+
+Build the release executable, then compare loaded processes on the same documents. Each trial verifies complete spans and redactions before accepting its timings.
+
+```bash
+cargo build --release --locked
+python3 -m experiments.benchmark_detectors --output results/fair-paired.json
+python3 -m experiments.benchmark_detectors --scalability --output results/fair-scalability.json
+```
+
+The first command compares the unchanged corpus. The second compares generated long mixed, clean, invalid-checksum, and variable-length inputs. See [the fair comparison guide](docs/fair-benchmark.md) for the three-way Privacy Filter command, measurement boundaries, and recorded results. The benchmark uses Linux process counters.
 
 ## Supported rules
 
@@ -137,6 +149,7 @@ Run experiment modules from the repository root. The Rust application lives unde
 | [models/](models/) | Compiled NPZ and native binary model artifacts |
 | [experiments/ternary.py](experiments/ternary.py) | Python numerical reference runtime |
 | [experiments/compile_ternary.py](experiments/compile_ternary.py) | Deterministic ternary model compiler |
+| [experiments/benchmark_detectors.py](experiments/benchmark_detectors.py) | Matched persistent-process timing, memory, output checks, and artifact hashes |
 | [experiments/evaluate.py](experiments/evaluate.py) | Corpus validation, span scoring, and character coverage |
 | [experiments/run_baseline.py](experiments/run_baseline.py) | Official model runner and shared prediction format |
 | [experiments/optimized_opf.py](experiments/optimized_opf.py) | Optional grouped CPU adapter |

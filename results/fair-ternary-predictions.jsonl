@@ -1,0 +1,64 @@
+{"id": "s001", "text": "Contact nora.chen@example.test today.", "spans": [{"end": 30, "label": "email", "start": 8}]}
+{"id": "s002", "text": "(a+b@example.test), please.", "spans": [{"end": 17, "label": "email", "start": 1}]}
+{"id": "s003", "text": "Mail help@sub.example.test.", "spans": [{"end": 26, "label": "email", "start": 5}]}
+{"id": "s004", "text": "Two: a@example.test; b@example.test.", "spans": [{"end": 19, "label": "email", "start": 5}, {"end": 35, "label": "email", "start": 21}]}
+{"id": "s005", "text": "Unicode prefix 🦊 zoe@example.test!", "spans": [{"end": 33, "label": "email", "start": 17}]}
+{"id": "s006", "text": "Call 212-555-0147.", "spans": [{"end": 17, "label": "phone", "start": 5}]}
+{"id": "s007", "text": "Telephone (415) 555-0198 now.", "spans": [{"end": 24, "label": "phone", "start": 10}]}
+{"id": "s008", "text": "Mobile +1 202 555 0174.", "spans": [{"end": 22, "label": "phone", "start": 7}]}
+{"id": "s009", "text": "Home 303.555.0128.", "spans": [{"end": 17, "label": "phone", "start": 5}]}
+{"id": "s010", "text": "Phone +44 7700 900123.", "spans": []}
+{"id": "s011", "text": "Phone 2125550147.", "spans": []}
+{"id": "s012", "text": "SSN 219-09-9999.", "spans": [{"end": 15, "label": "ssn", "start": 4}]}
+{"id": "s013", "text": "Identifier (123-45-6789).", "spans": [{"end": 23, "label": "ssn", "start": 12}]}
+{"id": "s014", "text": "SSN 078-05-1120\n", "spans": [{"end": 15, "label": "ssn", "start": 4}]}
+{"id": "s015", "text": "SSN without separators 123456789.", "spans": []}
+{"id": "s016", "text": "Card 4111 1111 1111 1111.", "spans": [{"end": 24, "label": "card", "start": 5}]}
+{"id": "s017", "text": "Card 5555-5555-5555-4444.", "spans": [{"end": 24, "label": "card", "start": 5}]}
+{"id": "s018", "text": "Card 378282246310005.", "spans": [{"end": 20, "label": "card", "start": 5}]}
+{"id": "s019", "text": "Card (6011111111111117).", "spans": [{"end": 22, "label": "card", "start": 6}]}
+{"id": "s020", "text": "IBAN GB82 WEST 1234 5698 7654 32.", "spans": [{"end": 32, "label": "iban", "start": 5}]}
+{"id": "s021", "text": "IBAN DE89370400440532013000.", "spans": [{"end": 27, "label": "iban", "start": 5}]}
+{"id": "s022", "text": "IBAN FR1420041010050500013M02606.", "spans": [{"end": 32, "label": "iban", "start": 5}]}
+{"id": "s023", "text": "IBAN NL91ABNA0417164300.", "spans": [{"end": 23, "label": "iban", "start": 5}]}
+{"id": "s024", "text": "IBAN gb82west12345698765432.", "spans": []}
+{"id": "s025", "text": "Email müller@example.test.", "spans": []}
+{"id": "s026", "text": "Email \"nora chen\"@example.test.", "spans": []}
+{"id": "s027", "text": "first@example.test\n212-555-0147", "spans": [{"end": 18, "label": "email", "start": 0}, {"end": 31, "label": "phone", "start": 19}]}
+{"id": "s028", "text": "Name: Nora Chen.", "spans": [{"end": 15, "label": "name", "start": 6}]}
+{"id": "s029", "text": "Patient Amelia Rivers arrived.", "spans": [{"end": 21, "label": "name", "start": 8}]}
+{"id": "s030", "text": "Customer: Omar Farouk.", "spans": [{"end": 21, "label": "name", "start": 10}]}
+{"id": "s031", "text": "My name is Alice Baker.", "spans": [{"end": 22, "label": "name", "start": 11}]}
+{"id": "s032", "text": "Nora Chen called yesterday.", "spans": []}
+{"id": "s033", "text": "Please ask Omar Farouk to call.", "spans": []}
+{"id": "s034", "text": "Name: Élodie Moreau.", "spans": []}
+{"id": "s035", "text": "Name: Li Wei.", "spans": [{"end": 12, "label": "name", "start": 6}]}
+{"id": "s036", "text": "患者は山田太郎です。", "spans": []}
+{"id": "s037", "text": "Name: Anne-Marie Smith.", "spans": [{"end": 22, "label": "name", "start": 6}]}
+{"id": "s038", "text": "Patient: John O'Neil.", "spans": []}
+{"id": "s039", "text": "Name: nora chen.", "spans": []}
+{"id": "s040", "text": "Address: 123 Maple Street.", "spans": [{"end": 25, "label": "address", "start": 9}]}
+{"id": "s041", "text": "Ship to 48 Cedar Road.", "spans": [{"end": 21, "label": "address", "start": 8}]}
+{"id": "s042", "text": "Lives at 7 Oak Lane, Boston, MA 02108.", "spans": [{"end": 37, "label": "address", "start": 9}]}
+{"id": "s043", "text": "Home is 123 Maple Street.", "spans": []}
+{"id": "s044", "text": "Address: Flat 3, 20 High Street, London SW1A 1AA.", "spans": []}
+{"id": "s045", "text": "Adresse: 8 rue des Lilas, Paris.", "spans": []}
+{"id": "s046", "text": "Address: 22 Birch Ave; leave parcel.", "spans": [{"end": 21, "label": "address", "start": 9}]}
+{"id": "s047", "text": "Address: 42 Elm Street, Apt 5.", "spans": [{"end": 22, "label": "address", "start": 9}]}
+{"id": "s048", "text": "Name: Maria del Carmen.", "spans": []}
+{"id": "s049", "text": "Version 123-00-6789 is invalid.", "spans": []}
+{"id": "s050", "text": "Invalid SSN 000-12-1234 and 666-12-1234.", "spans": []}
+{"id": "s051", "text": "Invalid card checksum 4111 1111 1111 1112.", "spans": []}
+{"id": "s052", "text": "Invalid IBAN GB83 WEST 1234 5698 7654 32.", "spans": []}
+{"id": "s053", "text": "Order 0000000000000000.", "spans": []}
+{"id": "s054", "text": "Use example.test and user@localhost.", "spans": []}
+{"id": "s055", "text": "The release is 2026-11-17.", "spans": []}
+{"id": "s056", "text": "A temperature of 212.555 is a measurement.", "spans": []}
+{"id": "s057", "text": "Name: Maple Street is a song title.", "spans": [{"end": 18, "label": "name", "start": 6}]}
+{"id": "s058", "text": "Customer: Example Company sells widgets.", "spans": [{"end": 25, "label": "name", "start": 10}]}
+{"id": "s059", "text": "The address space is 64 bits.", "spans": []}
+{"id": "s060", "text": "Public help mailbox support@example.test is intentionally not private.", "spans": [{"end": 40, "label": "email", "start": 20}]}
+{"id": "s061", "text": "Catalog code X123-45-6789Y is not a person identifier.", "spans": []}
+{"id": "s062", "text": "Serial 14111111111111111112 is not a payment card.", "spans": []}
+{"id": "s063", "text": "Call function(415) then return 555-0198.", "spans": []}
+{"id": "s064", "text": "No private content here. 🦊 café 東京.", "spans": []}

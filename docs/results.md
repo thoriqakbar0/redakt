@@ -4,6 +4,8 @@ On this 64-document synthetic fixture, deterministic rules have higher exact pre
 
 These results describe one small, hand-authored corpus. They do not establish general accuracy, model equivalence, or complete anonymization. The rules use no weights; Privacy Filter uses its real frozen checkpoint without additional training. Reproduction commands are in the [README](../README.md).
 
+The current seven-category compiled matcher has a separate [matched comparison](fair-benchmark.md). The historical timings below use their original boundaries and must not be mixed with that comparison.
+
 ## Accuracy
 
 The official CPU baseline completed five passes without errors or tokenizer warnings. Optimized outputs match the original outputs on every fixture document.

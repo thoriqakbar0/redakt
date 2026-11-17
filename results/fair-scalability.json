@@ -1,0 +1,147 @@
+{
+  "description": "Cross-language deployed implementations, warm persistent JSONL, one document per request; wall times include transport and parent validation, not pure detector kernel time.",
+  "corpus_sha256": "9b6ddec0bad424e3cbe8917495d4ef2f54bfd21104b38da43311dc193ffc91a9",
+  "documents_per_trial": 4,
+  "workload": "scalability",
+  "characters_per_trial": 540739,
+  "request_sha256": "860a69788ae79543e8767da6e5e5fd42d3bbbd4e04b5bb57db2fc006ebc3dbdc",
+  "source_sha256": {
+    "detector.py": "f29be211597b0801a232ee6e1a7c0a8bf724695c4bc157631ced410c11bc6160",
+    "src/lib.rs": "450314c4b3ca3aa2b13eed55de92b1c3a4fbee0f34fc5bcbd7dd0f4d394fa6b3",
+    "src/main.rs": "c331b2f02f9504b064e2a601c102a8d4201014c14f04fa555375dcadea6553b0",
+    "experiments/compile_ternary.py": "987f2ca34f8fdf3ad4d82af6ad23bd6c2c58456975b8eaa64789e20b97073cab",
+    "experiments/ternary.py": "413c3c1855cce4ceced43021293476a4e0c64f36599eaab3ff2f497baa01676c",
+    "experiments/benchmark_worker.py": "d9547b11aa11f79b86feaa24be08734ecfda1874fa3ecd16711c1e401b2b7ca5",
+    "experiments/benchmark_detectors.py": "07b45e7d753546d08f5dec8b8a2af3f9e90a1c8a99551d9897f2b91dd82f8217",
+    "experiments/run_baseline.py": "200974d3f596181d30b41a97c7a7692a51a840c061bad1ffd42811e2b83cba64",
+    "experiments/optimized_opf.py": "4427330e05570af431cc7e089a9313f378c0b09acf379662183216ced4aac31c"
+  },
+  "native_executable_sha256": "6ff9e655dfd4646dc903d938d79d36623d00a5339e75e063e28486f3f7af68fe",
+  "commands": {
+    "rules": [
+      "/root/.t3/worktrees/privacy-hygiene/feat-training-free-pii-9da16f080a5f3191/.venv-baseline/bin/python",
+      "-m",
+      "experiments.benchmark_worker",
+      "rules"
+    ],
+    "ternary": [
+      "/root/.t3/worktrees/privacy-hygiene/thor-9782de13-e8a40bf11c993c38/target/release/privacy-hygiene",
+      "--jsonl"
+    ]
+  },
+  "artifact_bytes": {
+    "native_executable_including_model": 830384,
+    "native_model": 57721,
+    "python_reference_archive": 16080,
+    "rules_source_excluding_python": 4091,
+    "privacy_filter_checkpoint_excluding_runtime": null
+  },
+  "native_model_sha256": "80eb9d586204777b508b3cfe991f30fc8ab620acc990765084161d8f5ba9d247",
+  "python": "3.12.16 (main, Nov 11 2026, 00:15:59) [Clang 23.1.3 ]",
+  "baseline_python": "Python 3.12.16",
+  "cpu_model": "Intel(R) Xeon(R) CPU E5-2697 v2 @ 2.70GHz",
+  "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "load_average_start": [
+    9.94921875,
+    12.4208984375,
+    12.60107421875
+  ],
+  "load_average_end": [
+    9.392578125,
+    12.26416015625,
+    12.54931640625
+  ],
+  "environment": {
+    "OMP_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null
+  },
+  "threads": 4,
+  "grouped_cpu": false,
+  "checkpoint": null,
+  "checkpoint_sha256": null,
+  "baseline_packages": null,
+  "warmup": {
+    "id": "warmup",
+    "text": "Name: Mira Vale; Address: 12 Oak Street; mira@example.test; 212-555-1234; SSN 123-45-6789; 4111 1111 1111 1111; GB82 WEST 1234 5698 7654 32."
+  },
+  "startup_and_warmup_seconds": {
+    "rules": 0.18276225299632642,
+    "ternary": 0.00927262200275436
+  },
+  "trial_order": [
+    [
+      "rules",
+      "ternary"
+    ],
+    [
+      "ternary",
+      "rules"
+    ],
+    [
+      "ternary",
+      "rules"
+    ],
+    [
+      "rules",
+      "ternary"
+    ],
+    [
+      "rules",
+      "ternary"
+    ]
+  ],
+  "trials": {
+    "rules": {
+      "wall_seconds": [
+        0.32249037500150735,
+        0.26962681399891153,
+        0.2926364029990509,
+        0.30949849400349194,
+        0.3401169100034167
+      ],
+      "median_seconds": 0.30949849400349194,
+      "range_seconds": [
+        0.26962681399891153,
+        0.3401169100034167
+      ],
+      "cpu_seconds": [
+        0.28,
+        0.21999999999999997,
+        0.23999999999999988,
+        0.24,
+        0.29000000000000004
+      ],
+      "worker_peak_rss_kib": 23596
+    },
+    "ternary": {
+      "wall_seconds": [
+        0.2566238239960512,
+        0.2974688620015513,
+        0.2493675399964559,
+        0.2793820990045788,
+        0.20462818200030597
+      ],
+      "median_seconds": 0.2566238239960512,
+      "range_seconds": [
+        0.20462818200030597,
+        0.2974688620015513
+      ],
+      "cpu_seconds": [
+        0.18000000000000002,
+        0.22000000000000003,
+        0.18999999999999995,
+        0.20999999999999996,
+        0.15000000000000013
+      ],
+      "worker_peak_rss_kib": 6940
+    }
+  },
+  "errors": 0
+}
