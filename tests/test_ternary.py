@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 
 from detector import Span, detect as rules_detect
 
@@ -32,8 +33,12 @@ class TernaryTests(unittest.TestCase):
             first, second = (Path(directory) / name for name in ("first.npz", "second.npz"))
             compile_weights(first)
             compile_weights(second)
+
             self.assertEqual(first.read_bytes(), second.read_bytes())
-            self.assertEqual(first.read_bytes(), DEFAULT_WEIGHTS.read_bytes())
+            with zipfile.ZipFile(first) as compiled, zipfile.ZipFile(DEFAULT_WEIGHTS) as committed:
+                self.assertEqual(compiled.namelist(), committed.namelist())
+                for member in compiled.namelist():
+                    self.assertEqual(compiled.read(member), committed.read(member), member)
             self.assertEqual(Detector(first).detect("212-555-0123"), [Span(0, 12, "phone")])
         with self.assertRaises(ValueError):
             pack_trits(np.array([2]))

@@ -84,7 +84,7 @@ Checksums validate mathematical form, not assignment, ownership, or privacy. The
 Reproduce the recorded run with Linux, Python 3.12, and an isolated environment. Set `OPF_SOURCE` to a clone of [openai/privacy-filter](https://github.com/openai/privacy-filter) at revision `f7f00ca7fb869683eb732c010299d901457f19c3`. The path below is the reference checkout used for the recorded run.
 
 ```bash
-OPF_SOURCE=/root/work/oss/privacy-filter
+OPF_SOURCE="$HOME/work/oss/privacy-filter"
 
 git -C "$OPF_SOURCE" rev-parse HEAD
 uv venv --python 3.12 .venv-baseline
@@ -145,3 +145,13 @@ Run experiment modules from the repository root. The Rust application lives unde
 | [results/](results/) | Raw predictions, scores, profiles, environment records, and source hashes |
 
 Downloaded model weights and virtual environments are excluded from Git. The small compiled artifacts in `models/` are checked in.
+
+## Contribute
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and dataset requirements. Report security problems through the private channel in [SECURITY.md](SECURITY.md).
+
+The [public-source readiness record](docs/open-source-readiness.md) lists audit scope and remaining publication steps.
+
+## License
+
+This project's original code, compiled circuit artifacts, documentation, and synthetic fixtures are licensed under [Apache-2.0](LICENSE). Third-party packages and the separately downloaded OpenAI Privacy Filter checkpoint retain their own licenses. See [NOTICE](NOTICE).

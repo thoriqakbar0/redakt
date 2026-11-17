@@ -4,6 +4,8 @@ version = "0.0.1"
 edition = "2021"
 description = "Native packed ternary SSN and phone detector"
 publish = false
+license = "Apache-2.0"
+repository = "https://github.com/thoriqakbar0/privacy-hygiene"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
