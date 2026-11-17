@@ -1,5 +1,5 @@
 use serde_json::{json, Value};
-use std::io::Write;
+use std::io::{ErrorKind, Write};
 use std::process::{Command, Output, Stdio};
 
 fn invoke(input: &[u8], arguments: &[&str]) -> Output {
@@ -11,7 +11,9 @@ fn invoke(input: &[u8], arguments: &[&str]) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    child.stdin.take().unwrap().write_all(input).unwrap();
+    if let Err(error) = child.stdin.take().unwrap().write_all(input) {
+        assert_eq!(error.kind(), ErrorKind::BrokenPipe, "{error}");
+    }
     child.wait_with_output().unwrap()
 }
 
@@ -76,8 +78,9 @@ fn alternate_model_and_private_errors() {
     assert!(output.status.success());
     assert_eq!(output.stdout, invoke(b"123-45-6789", &[]).stdout);
 
+    let private_input = "private".repeat(1024 * 1024);
     for arguments in [vec!["--weights"], vec!["--unknown"]] {
-        let output = invoke(b"private", &arguments);
+        let output = invoke(private_input.as_bytes(), &arguments);
         assert!(!output.status.success());
         assert!(output.stdout.is_empty());
         assert!(!String::from_utf8_lossy(&output.stderr).contains("private"));
