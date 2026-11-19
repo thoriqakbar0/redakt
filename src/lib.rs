@@ -368,7 +368,7 @@ impl Detector {
             .checked_sub(width)
             .and_then(|origin| {
                 let end = if width == 0 { None } else { Some(cursor) };
-                self.run(codes, entry, origin, end)
+                self.run(codes, entry, origin, end, &mut Vec::new())
             })
             .is_some();
         let polarity = if detail > 0 { 1 } else { -1 };
@@ -382,8 +382,9 @@ impl Detector {
         entry: usize,
         start: usize,
         required_end: Option<usize>,
+        pending: &mut Vec<(usize, usize, Capture)>,
     ) -> Option<Match> {
-        let mut pending = Vec::new();
+        pending.clear();
         let mut position = entry;
         let mut cursor = start;
         let mut capture = [None, None];
@@ -482,13 +483,15 @@ impl Detector {
 
     fn detect_head(&self, head: &Head, starts: &[bool; CODES], codes: &[usize]) -> Vec<Span> {
         let mut spans = Vec::new();
+        let mut pending = Vec::new();
         let mut cursor = 0;
         while cursor < codes.len() {
             if !starts[codes[cursor]] {
                 cursor += 1;
                 continue;
             }
-            let Some((end, capture)) = self.run(codes, head.entry, cursor, None) else {
+            let Some((end, capture)) = self.run(codes, head.entry, cursor, None, &mut pending)
+            else {
                 cursor += 1;
                 continue;
             };
