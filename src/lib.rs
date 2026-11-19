@@ -53,7 +53,7 @@ struct Model {
 pub struct Detector {
     model: Model,
     masks: Vec<Vec<i16>>,
-    starts: Vec<Vec<usize>>,
+    starts: Vec<[bool; CODES]>,
     luhn_accept: Vec<i16>,
     iban_accept: Vec<i16>,
     pub unicode_version: String,
@@ -308,7 +308,10 @@ impl Detector {
         let starts = model
             .heads
             .iter()
-            .map(|head| starting_masks(&model.instructions, head.entry))
+            .map(|head| {
+                let starting = starting_masks(&model.instructions, head.entry);
+                std::array::from_fn(|code| starting.iter().any(|&mask| masks[mask][code] >= 1))
+            })
             .collect();
         let unicode_version = model.unicode_version.clone();
         Ok(Self {
@@ -477,14 +480,11 @@ impl Detector {
         self.iban_accept[state] >= 1
     }
 
-    fn detect_head(&self, head: &Head, starts: &[usize], codes: &[usize]) -> Vec<Span> {
+    fn detect_head(&self, head: &Head, starts: &[bool; CODES], codes: &[usize]) -> Vec<Span> {
         let mut spans = Vec::new();
         let mut cursor = 0;
         while cursor < codes.len() {
-            if !starts
-                .iter()
-                .any(|&mask| self.gate(mask, Some(codes[cursor])))
-            {
+            if !starts[codes[cursor]] {
                 cursor += 1;
                 continue;
             }
