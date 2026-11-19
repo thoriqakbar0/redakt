@@ -23,13 +23,13 @@ Cues match ASCII letters without regard to case. Values retain their original ch
 | `address` | `address`, `ship to`, `lives at` | A numeric house number, alphabetic street words, and a supported street suffix, with three to eight whitespace-separated parts. |
 | `secret` | `password`, `passwd`, `api_key`, `api key`, `access_token`, `access token`, `client_secret`, `client secret` | A nonempty unquoted token or a quoted passphrase. Periods, colons, and equals signs remain part of the value. |
 | `account_number` | `bank account`, `account number` | Six to 34 ASCII digits, optionally separated by spaces, tabs, or hyphens. The first and last characters must be digits. |
-| `date` | `dob`, `date of birth`, `birth date` | A valid Gregorian `YYYY-MM-DD` date with a nonzero year. |
+| `date` | `dob`, `date of birth`, `birth date` | A valid Gregorian `YYYY-MM-DD`, `DD/MM/YYYY`, or `MM/DD/YYYY` date with a nonzero year. |
 
 Supported street suffixes are `street`, `st`, `road`, `rd`, `avenue`, `ave`, `lane`, `ln`, `drive`, `dr`, `boulevard`, and `blvd`.
 
 Supplemental values stop at line boundaries and have a 256-code-point limit. Unquoted values stop at field punctuation. Unquoted secrets and dates also stop at horizontal whitespace. Quoted secrets can contain spaces and the opposite quote character. Escape sequences and multiline values are unsupported. Oversized or malformed values are rejected rather than partially matched.
 
-The supplemental address rule covers the street portion, not following city, region, or postal fields. Uncued names, private URLs, unlabelled secrets and account numbers, ambiguous date formats, and many international addresses remain unsupported by this pass. The original seven-category model still runs independently, with its existing coverage and limitations.
+The supplemental address rule covers the street portion, not following city, region, or postal fields. Uncued names, private URLs, unlabelled secrets and account numbers, dates with two-digit years, and many international addresses remain unsupported by this pass. The original seven-category model still runs independently, with its existing coverage and limitations.
 
 ## Relationship to OpenAI Privacy Filter
 
