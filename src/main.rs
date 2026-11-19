@@ -1,6 +1,6 @@
 use privacy_hygiene::{redact, Detector, Span};
-use serde::Deserialize;
-use serde_json::{json, Value};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::io::{self, BufRead, Read, Write};
 
 const HELP: &str = concat!(
@@ -19,6 +19,14 @@ struct Record {
     text: String,
 }
 
+#[derive(Serialize)]
+struct Response {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    id: Option<Value>,
+    redacted: String,
+    spans: Vec<Span>,
+}
+
 fn stream(detect: impl Fn(&str) -> Vec<Span>) -> Result<(), String> {
     let input = io::stdin();
     let output = io::stdout();
@@ -31,7 +39,13 @@ fn stream(detect: impl Fn(&str) -> Vec<Span>) -> Result<(), String> {
         let record: Record = serde_json::from_str(&line).map_err(|_| "Invalid JSONL record")?;
         let spans = detect(&record.text);
         let masked = redact(&record.text, &spans)?;
-        let response = json!({"id": record.id, "spans": spans, "redacted": masked});
+        let response = Response {
+            id: Some(record.id),
+            redacted: masked,
+            spans,
+        };
+        let response =
+            serde_json::to_string(&response).map_err(|_| "Could not serialize JSONL response")?;
         writeln!(output, "{response}").map_err(|_| "Could not write JSONL response")?;
         output
             .flush()
@@ -85,7 +99,13 @@ fn run() -> Result<(), String> {
         .map_err(|_| "Could not read UTF-8 stdin")?;
     let spans = detect(&text);
     let masked = redact(&text, &spans)?;
-    println!("{}", json!({"spans": spans, "redacted": masked}));
+    let response = Response {
+        id: None,
+        redacted: masked,
+        spans,
+    };
+    let response = serde_json::to_string(&response).map_err(|_| "Could not serialize response")?;
+    println!("{response}");
     Ok(())
 }
 

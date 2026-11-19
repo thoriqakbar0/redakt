@@ -178,7 +178,7 @@ fn jsonl_flushes_each_record_before_eof() {
             }
         }
     });
-    for id in [json!("first"), json!({"batch": 2})] {
+    for id in [json!("first"), json!({"batch": 2}), json!(null)] {
         writeln!(stdin, "{}", json!({"id": id, "text": "🦊 a@example.test"})).unwrap();
         stdin.flush().unwrap();
         let response = receiver.recv_timeout(Duration::from_secs(10));
