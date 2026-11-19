@@ -82,6 +82,8 @@ A matched five-trial CPU comparison verified exact native/rules outputs. Native 
 
 A later matcher-loop optimization reduced median CLI time by 29% on a repeated mixed-PII fixture while preserving exact output. See [the workload, timing ranges, and reproduction](docs/performance.md). This is a fixture-specific measurement on a shared Linux VM.
 
+A subsequent model and CLI optimization reduced median JSONL time by 49% on a larger version of that fixture. Reusing matcher storage and serializing typed responses preserved parsed JSON results. See [the follow-up measurements](docs/performance.md#model-storage-and-cli-serialization).
+
 The [independent detection-quality evaluation](docs/accuracy.md) reports per-category misses and false positives on hand-labelled synthetic documents for default and contextual modes. These selected examples do not establish general accuracy.
 
 ## Run the tests

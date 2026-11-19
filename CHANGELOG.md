@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Reduce model inference allocations with reusable backtracking storage and precomputed starting-character gates, and serialize CLI responses without intermediate JSON trees. Preserve detection results and per-record JSONL flushing. Thanks @thoriqakbar0.
 - Add an independent hand-labelled synthetic corpus and repeatable CLI evaluation reporting per-category detection misses and false positives in default and contextual modes. Thanks @thoriqakbar0.
 - Add opt-in contextual masking for additional cued names and addresses, labelled secrets, bank account numbers, and birth dates while preserving default detector output.
 - Reduce matcher stack operations by keeping sequential instructions in the active execution state and stacking only alternative branches.

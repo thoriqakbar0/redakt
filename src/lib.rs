@@ -53,7 +53,7 @@ struct Model {
 pub struct Detector {
     model: Model,
     masks: Vec<Vec<i16>>,
-    starts: Vec<Vec<usize>>,
+    starts: Vec<[bool; CODES]>,
     luhn_accept: Vec<i16>,
     iban_accept: Vec<i16>,
     pub unicode_version: String,
@@ -308,7 +308,10 @@ impl Detector {
         let starts = model
             .heads
             .iter()
-            .map(|head| starting_masks(&model.instructions, head.entry))
+            .map(|head| {
+                let starting = starting_masks(&model.instructions, head.entry);
+                std::array::from_fn(|code| starting.iter().any(|&mask| masks[mask][code] >= 1))
+            })
             .collect();
         let unicode_version = model.unicode_version.clone();
         Ok(Self {
@@ -365,7 +368,7 @@ impl Detector {
             .checked_sub(width)
             .and_then(|origin| {
                 let end = if width == 0 { None } else { Some(cursor) };
-                self.run(codes, entry, origin, end)
+                self.run(codes, entry, origin, end, &mut Vec::new())
             })
             .is_some();
         let polarity = if detail > 0 { 1 } else { -1 };
@@ -379,8 +382,9 @@ impl Detector {
         entry: usize,
         start: usize,
         required_end: Option<usize>,
+        pending: &mut Vec<(usize, usize, Capture)>,
     ) -> Option<Match> {
-        let mut pending = Vec::new();
+        pending.clear();
         let mut position = entry;
         let mut cursor = start;
         let mut capture = [None, None];
@@ -477,18 +481,17 @@ impl Detector {
         self.iban_accept[state] >= 1
     }
 
-    fn detect_head(&self, head: &Head, starts: &[usize], codes: &[usize]) -> Vec<Span> {
+    fn detect_head(&self, head: &Head, starts: &[bool; CODES], codes: &[usize]) -> Vec<Span> {
         let mut spans = Vec::new();
+        let mut pending = Vec::new();
         let mut cursor = 0;
         while cursor < codes.len() {
-            if !starts
-                .iter()
-                .any(|&mask| self.gate(mask, Some(codes[cursor])))
-            {
+            if !starts[codes[cursor]] {
                 cursor += 1;
                 continue;
             }
-            let Some((end, capture)) = self.run(codes, head.entry, cursor, None) else {
+            let Some((end, capture)) = self.run(codes, head.entry, cursor, None, &mut pending)
+            else {
                 cursor += 1;
                 continue;
             };
