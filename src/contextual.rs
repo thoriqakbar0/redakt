@@ -185,25 +185,25 @@ fn valid_name(value: &[char]) -> bool {
 }
 
 fn valid_date(value: &[char]) -> bool {
-    if value.len() != 10 || value[4] != '-' || value[7] != '-' {
-        return false;
-    }
-    if !value
-        .iter()
-        .enumerate()
-        .all(|(index, character)| [4, 7].contains(&index) || character.is_ascii_digit())
-    {
-        return false;
-    }
-    let number = |range: std::ops::Range<usize>| {
-        value[range].iter().fold(0_u32, |total, character| {
-            total * 10 + (*character as u32 - '0' as u32)
+    let number = |digits: &[char]| {
+        digits.iter().try_fold(0_u32, |total, ch| {
+            ch.to_digit(10).map(|digit| total * 10 + digit)
         })
     };
-    let year = number(0..4);
-    let month = number(5..7);
-    let day = number(8..10);
-    let leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+    let (year, first, second, slash) = match value {
+        [_, _, _, _, '-', _, _, '-', _, _] => (&value[..4], &value[5..7], &value[8..], false),
+        [_, _, '/', _, _, '/', _, _, _, _] => (&value[6..], &value[..2], &value[3..5], true),
+        _ => return false,
+    };
+    let (Some(year), Some(first), Some(second)) = (number(year), number(first), number(second))
+    else {
+        return false;
+    };
+    calendar_date(year, first, second) || (slash && calendar_date(year, second, first))
+}
+
+fn calendar_date(year: u32, month: u32, day: u32) -> bool {
+    let leap = year.is_multiple_of(4) && (!year.is_multiple_of(100) || year.is_multiple_of(400));
     let days = match month {
         2 => 28 + u32::from(leap),
         4 | 6 | 9 | 11 => 30,

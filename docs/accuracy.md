@@ -44,3 +44,5 @@ A deterministic local run on 2026-11-17 produced these counts. No sampling or st
 Default micro precision was 0.941 and recall was 0.485. Contextual micro precision was 0.935 and recall was 0.879 on this corpus only.
 
 Both modes masked the explicitly public card-shaped product identifier. Contextual mode also masked `Maple Editor` in `Product name: Maple Editor`. Contextual mode missed an uncued person, an Indonesian address, a slash-formatted birth date, and the private profile URL. Default mode additionally missed the lowercase and Unicode cues and supplemental categories listed in the report. These are observations of current behavior, not assertions that every matching string should receive the same privacy treatment in every application.
+
+After adding slash-formatted birth dates, contextual mode finds all four annotated dates. Its totals are 30 TP, 2 FP, and 3 FN (precision 0.938, recall 0.909) on the same corpus. Default totals are unchanged.

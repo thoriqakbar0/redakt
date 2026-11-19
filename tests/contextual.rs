@@ -51,6 +51,8 @@ fn contextual_values_and_unicode_offsets() {
             "1234 5678 9012",
             "account_number",
         ),
+        ("DOB=29/02/2000", "29/02/2000", "date"),
+        ("Birth date: 02/29/2000", "02/29/2000", "date"),
         ("DOB=2000-02-29", "2000-02-29", "date"),
         ("address: 12 lower road; next", "12 lower road", "address"),
         ("SHIP TO: 42 Maple Street.", "42 Maple Street", "address"),
@@ -74,6 +76,9 @@ fn contextual_values_and_unicode_offsets() {
 fn rejects_invalid_values() {
     for text in [
         "ada lovelace 2000-02-29",
+        "DOB: 29/02/1900",
+        "DOB: 12/0x/1990",
+        "Release date: 12/04/1990",
         "DOB: 1900-02-29",
         "DOB: 2024-04-31",
         "DOB: 0000-01-01",
