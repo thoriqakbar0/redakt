@@ -1,0 +1,110 @@
+{
+  "baseline_revision": "ac6ae8df196071556776987a565a10b90b1e03e9",
+  "cpu_affinity": 2,
+  "variants": [
+    "baseline",
+    "model_lookup_and_reused_stack",
+    "model_lookup_reused_stack_and_typed_cli"
+  ],
+  "cpu_samples_seconds": [
+    [
+      1.3440999999999996,
+      1.4191080000000005,
+      1.415864000000002,
+      1.3005159999999991,
+      1.5279309999999984,
+      1.4158289999999991,
+      1.4160749999999993
+    ],
+    [
+      1.0375610000000006,
+      1.0281199999999995,
+      1.0244039999999976,
+      1.1109199999999992,
+      1.0595389999999991,
+      1.0527440000000023,
+      1.0691599999999992
+    ],
+    [
+      0.7553249999999994,
+      0.7779380000000004,
+      0.771911000000001,
+      0.7092330000000009,
+      0.6232979999999986,
+      0.6889109999999974,
+      0.6078770000000011
+    ]
+  ],
+  "cpu_medians_seconds": [
+    1.415864000000002,
+    1.0527440000000023,
+    0.7092330000000009
+  ],
+  "samples_seconds": [
+    [
+      1.4582950809999602,
+      1.5215564030004316,
+      1.4518681940026,
+      1.3204188680028892,
+      1.7843823470029747,
+      1.5086620310030412,
+      1.636899450000783
+    ],
+    [
+      1.148923806998937,
+      1.0726495199996862,
+      1.0690234990033787,
+      1.3500862999935634,
+      1.2835766610005521,
+      1.0672554620032315,
+      1.3098339760035742
+    ],
+    [
+      0.9110045350025757,
+      0.8298340320034185,
+      0.8408491730006062,
+      0.7741655900026672,
+      0.6875130779953906,
+      0.7705823680007597,
+      0.700600714997563
+    ]
+  ],
+  "medians_seconds": [
+    1.5086620310030412,
+    1.148923806998937,
+    0.7741655900026672
+  ],
+  "ranges_seconds": [
+    [
+      1.3204188680028892,
+      1.7843823470029747
+    ],
+    [
+      1.0672554620032315,
+      1.3500862999935634
+    ],
+    [
+      0.6875130779953906,
+      0.9110045350025757
+    ]
+  ],
+  "errors": 0,
+  "documents": 50,
+  "spans": 250000,
+  "input_bytes": 5901400,
+  "input_sha256": "5e0988604486a2910444f6b17d7965267492b982e4b6a9364a7543f8b1c0ec36",
+  "output_sha256": "06fffdaab4e7c9db49e46ec9c8956d91221ca139ea3bf1c8b12398f903b69023",
+  "date": "2026-11-19",
+  "platform": "Linux 6.8.0-149-generic, Intel Xeon E5-2697 v2, 32 visible CPUs",
+  "rustc": "1.100.0 (0ef1bc386 2026-11-09)",
+  "build": "cargo build --release --locked",
+  "warmup_trials": 1,
+  "measured_trials": 7,
+  "order": "baseline, model, combined on even trials; reversed on odd trials",
+  "validation": "Warmup output of each variant parsed and compared to baseline; every timed output byte-compared to its validated warmup. JSON object key order may differ between variants.",
+  "model_artifact_sha256": "80eb9d586204777b508b3cfe991f30fc8ab620acc990765084161d8f5ba9d247",
+  "output_sha256_note": "Baseline output hash; typed serializer changes object key order.",
+  "load_average_before": "1.08, 0.82, 0.57",
+  "model_only_revision": "c531137",
+  "combined_revision": "3b63cda"
+}
