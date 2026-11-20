@@ -8,7 +8,7 @@ Redact personal data locally with a standalone Rust CLI. The binary embeds the m
 
 ## Install the CLI
 
-Install version 0.0.3 from crates.io with [Rust and Cargo](https://rustup.rs/).
+Install the latest published version from crates.io with [Rust and Cargo](https://rustup.rs/).
 
 ```bash
 cargo install privacy-hygiene --locked
@@ -16,7 +16,7 @@ cargo install privacy-hygiene --locked
 
 To install from the current development branch, run `cargo install --git https://github.com/thoriqakbar0/privacy-hygiene.git --locked`.
 
-For a prebuilt binary, download the version 0.0.3 archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
+For a prebuilt binary, download the archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
 
 ## Try it
 
@@ -30,7 +30,7 @@ printf '%s\n' \
   'Password: demo-password' | privacy-hygiene
 ```
 
-The development build prints numbered labels. Version 0.0.3 replaces each matched character with `█`.
+Version 0.0.4 and later print numbered labels. Version 0.0.3 replaces each matched character with `█`.
 
 ```text
 Emails: [EMAIL_1], [EMAIL_2], [EMAIL_3]

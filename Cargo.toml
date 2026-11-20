@@ -1,6 +1,6 @@
 [package]
 name = "privacy-hygiene"
-version = "0.0.3"
+version = "0.0.4"
 edition = "2021"
 description = "Native compiled ternary-gated PII rules detector"
 include = ["/src/**", "/tests/**", "/models/weights.bin", "/assets/logo.svg", "/Cargo.lock", "/README.md", "/LICENSE", "/NOTICE"]
