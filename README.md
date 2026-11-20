@@ -28,13 +28,7 @@ After installing, pipe in a sample email address.
 printf 'Email: nora@example.test\n' | privacy-hygiene
 ```
 
-Release 0.0.2 prints a JSON object with the redacted text and the match locations.
-
-```json
-{"redacted":"Email: █████████████████\n","spans":[{"start":7,"end":24,"label":"email"}]}
-```
-
-The development version prints the redacted text directly.
+The command prints the redacted text.
 
 ```text
 Email: █████████████████
@@ -46,7 +40,7 @@ To save the output for a UTF-8 text file, redirect it to a separate file.
 privacy-hygiene < sample.txt > result
 ```
 
-The CLI writes results to stdout and errors to stderr. It preserves line endings in the redacted text and masks matched characters, including spaces, with `█`.
+The CLI writes redacted text to stdout and errors to stderr. It preserves line endings and masks matched characters, including spaces, with `█`.
 
 ### Process multiple documents
 
