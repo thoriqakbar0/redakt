@@ -57,6 +57,27 @@ fn detects_supported_layouts() {
 }
 
 #[test]
+fn address_boundaries() {
+    let street = "12 Oak Lane West Road";
+    for ending in [
+        "!", "?", ":", ")", "\"", "。", " ", "\t", "\r", "\r\n", "  !",
+    ] {
+        let input = format!("Address: {street}{ending}");
+        let output = invoke(input.as_bytes(), &[]);
+        assert!(output.status.success());
+        let actual: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(
+            actual,
+            json!({
+                "spans": [{"start": 9, "end": 9 + street.len(), "label": "address"}],
+                "redacted": format!("Address: {}{ending}", "█".repeat(street.len()))
+            }),
+            "ending {ending:?}"
+        );
+    }
+}
+
+#[test]
 fn exclusions_and_boundaries() {
     for input in [
         "",

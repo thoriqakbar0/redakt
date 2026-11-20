@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.0.2 - 2026-11-20
+
+- Mask cued street addresses before CRLF, trailing spaces or tabs, and additional punctuation, including the ideographic full stop. Preserve the delimiter.
+
 - Mask valid day-first and month-first slash-formatted birth dates in contextual mode. Thanks @thoriqakbar0.
 
 - Reduce model inference allocations with reusable backtracking storage and precomputed starting-character gates, and serialize CLI responses without intermediate JSON trees. Preserve detection results and per-record JSONL flushing. Thanks @thoriqakbar0.

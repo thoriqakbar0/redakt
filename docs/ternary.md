@@ -14,6 +14,8 @@ The graph uses accept, character, ordered split, capture, assertion, and anchor 
 
 Each category searches independently. Ordered branches preserve greedy and lazy regex choices rather than selecting a global longest match. Names and addresses return their value capture, but advance the cursor beyond the full match including its cue.
 
+The native address rule extends the original ending assertion. After the captured value, it skips ASCII spaces and tabs and checks for end of input, CR, LF, one of `.,;!?:)"`, or a non-ASCII character in the model’s non-word, non-whitespace class. That last class includes the ideographic full stop and symbols such as emoji. The assertion leaves all of these characters outside the capture.
+
 Card and IBAN checksum validation happens after a syntax match commits. A rejected checksum does not retry a shorter candidate or search inside the rejected match. This preserves original failures such as a greedy IBAN candidate consuming an uppercase suffix and then failing its checksum or length.
 
 Offsets are half-open Unicode code-point positions in the original UTF-8 input. Redaction validates every span, masks their union with `█`, preserves character count, and leaves unrelated CRLF and lone CR characters unchanged.
@@ -40,7 +42,7 @@ The JSON object has these fields.
 
 Five base-three digits fit in each packed byte, least significant digit first. Digits 0 and 1 represent their weights; digit 2 represents -1. Packed values above 242 and nonzero padding are invalid. The loader validates dimensions, indices, Unicode ranges, weights, head metadata, zero-width cycles, recursive assertions, and assertion nesting before execution. The fixed limits include 2,000,000 artifact bytes, 10,000 instructions, 512 masks, and 64 assertion levels.
 
-The current artifact contains 78 character masks, 468 instructions, 703 alphanumeric ranges, and eight whitespace ranges. It is 57,721 bytes. Its SHA-256 is `80eb9d586204777b508b3cfe991f30fc8ab620acc990765084161d8f5ba9d247`. The earlier 876-byte weight figure described the superseded two-category circuit.
+The current artifact contains 79 character masks, 470 instructions, 703 alphanumeric ranges, and eight whitespace ranges. It is 57,811 bytes. Its SHA-256 is `89df444d2aacece620611883d331ec48f2a130e8ba3c04845ca9eb39212d5d1a`. The earlier 876-byte weight figure described the superseded two-category circuit.
 
 Loading expands masks and creates runtime structures. Input text, character codes, backtracking state, spans, and redaction also consume RAM. The measured executable is 830,384 bytes with the model embedded. Neither figure is a RAM estimate. See [the matched measurements](fair-benchmark.md).
 
