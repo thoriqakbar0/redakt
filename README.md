@@ -4,7 +4,7 @@
 
 # privacy-hygiene
 
-Redact personal data locally with a standalone Rust CLI. Pipe in text and get redacted text. The binary embeds the model and runs offline after installation.
+Redact personal data locally with a standalone Rust CLI. The binary embeds the model and runs offline after installation.
 
 ## Install the CLI
 
@@ -28,19 +28,25 @@ After installing, pipe in a sample email address.
 printf 'Email: nora@example.test\n' | privacy-hygiene
 ```
 
-The command prints this text.
+Release 0.0.2 prints a JSON object with the redacted text and the match locations.
+
+```json
+{"redacted":"Email: █████████████████\n","spans":[{"start":7,"end":24,"label":"email"}]}
+```
+
+The development version prints the redacted text directly.
 
 ```text
 Email: █████████████████
 ```
 
-To redact a UTF-8 text file, redirect the output to a separate file.
+To save the output for a UTF-8 text file, redirect it to a separate file.
 
 ```bash
-privacy-hygiene < sample.txt > redacted.txt
+privacy-hygiene < sample.txt > result
 ```
 
-The CLI writes redacted text to stdout and errors to stderr. It preserves line endings and masks matched characters, including spaces, with `█`.
+The CLI writes results to stdout and errors to stderr. It preserves line endings in the redacted text and masks matched characters, including spaces, with `█`.
 
 ### Process multiple documents
 
