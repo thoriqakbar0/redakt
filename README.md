@@ -8,7 +8,7 @@ Redact personal data locally with a standalone Rust CLI. The binary embeds the m
 
 ## Install the CLI
 
-Install the published 0.0.2 release from crates.io with [Rust and Cargo](https://rustup.rs/).
+Install version 0.0.3 from crates.io with [Rust and Cargo](https://rustup.rs/).
 
 ```bash
 cargo install privacy-hygiene --locked
@@ -16,7 +16,7 @@ cargo install privacy-hygiene --locked
 
 To install from the current development branch, run `cargo install --git https://github.com/thoriqakbar0/privacy-hygiene.git --locked`.
 
-For a prebuilt binary, download the version 0.0.2 archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
+For a prebuilt binary, download the version 0.0.3 archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
 
 There is no installable detector skill in this repository yet. Use the CLI directly from your terminal or agent.
 
@@ -62,13 +62,13 @@ Run `privacy-hygiene --help` for usage or `privacy-hygiene --version` to check t
 
 ### Remove cued private values
 
-In release 0.0.2, pass `--contextual` to detect cued names, addresses, secrets, bank account numbers, and dates of birth in plain stdin or JSONL.
+The CLI detects cued names, addresses, secrets, bank account numbers, and dates of birth in plain stdin and JSONL.
 
 ```bash
-printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene --contextual
+printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene
 ```
 
-The development version detects cued values automatically. Omit `--contextual` when using it. The CLI masks both native model spans and cue-based spans. See [cue-based coverage and its limits](docs/contextual.md).
+If you used `--contextual` in version 0.0.2, remove it from your commands. The CLI masks both native model spans and cue-based spans. See [cue-based coverage and its limits](docs/contextual.md).
 
 ## How the ternary matcher works
 

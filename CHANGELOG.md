@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.0.3 - 2026-11-20
+
 - Write plain redacted text to stdout by default. Use `--jsonl` for JSON responses with match spans. Thanks @thoriqakbar0.
 - Apply cue-based detection automatically in stdin and JSONL. Remove the `--contextual` flag from existing commands. Thanks @thoriqakbar0.
 
