@@ -47,11 +47,11 @@ privacy-hygiene < sample.txt > result
 
 The CLI writes redacted text to stdout and errors to stderr. Each category starts at 1 in each document. The same value and category reuse the same label within that document. Text outside detected spans, including line endings, is preserved.
 
-### Redact a file with Claude Code or Codex
+### Redact a text file with Claude Code or Codex
 
-Install the CLI, then paste this prompt into Claude Code or Codex. Replace the example filenames with your own.
+Install the CLI, then paste this prompt into Claude Code or Codex and tell it which file to redact. Any filename works as long as the file contains UTF-8 plain text.
 
-> Use the local `privacy-hygiene` CLI to redact `support.log` into `support.redacted.log`. Feed the original file directly into stdin and redirect stdout to the new file. Leave the original untouched. Create the redacted copy with permissions limited to my account. If the destination already exists, choose a fresh filename without overwriting it. Keep both files' contents out of chat, tool output, and external services. On success, tell me the path so I can review the copy locally. If the command fails, report the error without quoting the file.
+> Use `privacy-hygiene` on this machine to redact the UTF-8 text file I specify. If I haven't given you the file path, ask me for it. Pass the file directly to the CLI through stdin and save its output to a new file only my account can access. Leave the original alone and use a filename that isn't already taken. Keep both files' contents out of chat, tool output, and external services. If it works, tell me where to find the copy. If it fails, tell me what went wrong without quoting either file.
 
 Review the new file locally before sharing it.
 
