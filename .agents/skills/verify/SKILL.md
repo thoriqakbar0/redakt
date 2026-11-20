@@ -5,7 +5,7 @@ description: Verify privacy-hygiene's real Rust CLI, JSONL streaming, alternate 
 
 # Verify privacy-hygiene
 
-Run from the repository root. Read [the feature map](features/README.md) and drive every affected entry. The primary interface is stdin and JSON stdout. Library behavior also has Rust unit tests. No server, credentials, ports, or seed data are needed. Use synthetic inputs only.
+Run from the repository root. Read [the feature map](features/README.md) and drive every affected entry. The primary interface is text on stdin and redacted text on stdout. Library behavior also has Rust unit tests. No server, credentials, ports, or seed data are needed. Use synthetic inputs only.
 
 ## Launch
 
@@ -44,13 +44,14 @@ test "$(cat "$evidence/version.txt")" = "privacy-hygiene $expected_version"
 
 ## Drive
 
-Exercise the real stdin path and verify its JSON, Unicode offsets, and CRLF preservation.
+Exercise the real stdin path and verify the redacted text byte for byte, including its CRLF ending.
 
 ```bash
 printf '🦊 123-45-6789\r\n' >"$evidence/stdin.txt"
-printf '%s\n' 'privacy-hygiene < stdin.txt > stdout.json' >"$evidence/action.txt"
-"$binary" <"$evidence/stdin.txt" >"$evidence/stdout.json" 2>"$evidence/stderr.txt"
-jq -e '. == {spans: [{start: 2, end: 13, label: "ssn"}], redacted: "🦊 ███████████\r\n"}' "$evidence/stdout.json"
+printf '🦊 ███████████\r\n' >"$evidence/expected.txt"
+printf '%s\n' 'privacy-hygiene < stdin.txt > stdout.txt' >"$evidence/action.txt"
+"$binary" <"$evidence/stdin.txt" >"$evidence/stdout.txt" 2>"$evidence/stderr.txt"
+cmp "$evidence/expected.txt" "$evidence/stdout.txt"
 test ! -s "$evidence/stderr.txt"
 cargo test --locked >"$evidence/tests.log" 2>&1
 ```
@@ -72,7 +73,7 @@ rm -rf -- "$scratch"
 trap - EXIT
 unset CARGO_TARGET_DIR
 test -s "$evidence/build.log"
-test -s "$evidence/stdout.json"
+test -s "$evidence/stdout.txt"
 printf 'Evidence retained at %s\n' "$evidence"
 ```
 
