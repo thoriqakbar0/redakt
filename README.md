@@ -4,17 +4,7 @@
 
 # privacy-hygiene
 
-A standalone Rust PII detector powered by an embedded ternary-gated rule machine. Detect and redact emails, phones, US SSNs, cards, supported IBANs, and cued private values with one CLI binary. No model download or network access is needed after installation.
-
-## How the ternary matcher works
-
-The matcher uses weights in `{-1, 0, +1}` to make threshold decisions over character classes and boundaries. Five ternary weights fit in each packed byte. The binary embeds the compiled model in [models/weights.bin](models/weights.bin).
-
-The model stores character masks, an ordered instruction graph, capture metadata, Unicode tables, and sparse checksum transitions. The Rust runtime executes that graph to find spans and redact text. It makes no regex-engine calls during inference. Luhn and IBAN checks use compiled transition tables.
-
-This is a training-free rule-machine experiment. Its ternary weights encode compiled rules, not learned contextual understanding. Names and addresses still need explicit cues, and narrow formats can miss personal data. It is not a complete anonymization tool. Hostile inputs have no tested worst-case time or memory guarantee.
-
-See [the ternary architecture and model format](docs/ternary.md) for the execution details.
+Redact personal data locally with a standalone Rust CLI. Pipe in text and get JSON with the redacted text and the location of each match. The binary embeds the model and runs offline after installation.
 
 ## Install the CLI
 
@@ -24,13 +14,13 @@ With [Rust and Cargo](https://rustup.rs/) installed, run this from any directory
 cargo install --git https://github.com/thoriqakbar0/privacy-hygiene.git --locked
 ```
 
-Prefer a prebuilt binary? Check [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). For version 0.0.2, download the archive for your platform, verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
+For a prebuilt binary, download the version 0.0.2 archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
 
 There is no installable detector skill in this repository yet. Use the CLI directly from your terminal or agent.
 
 ## Try it
 
-Paste this into your terminal after installation.
+After installing, pipe in a sample email address.
 
 ```bash
 printf 'Email: nora@example.test' | privacy-hygiene
@@ -72,9 +62,19 @@ printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene
 
 The CLI masks the union of the native model spans and the cue-based spans. If you used the former `--contextual` flag, remove it from your commands. See [cue-based coverage and its limits](docs/contextual.md).
 
+## How the ternary matcher works
+
+privacy-hygiene detects personal data locally using a compiled rule model with 14,237 fixed ternary weights. The binary embeds the model from [models/weights.bin](models/weights.bin). The matcher uses weights in `{-1, 0, +1}` to test character classes and boundaries. Five ternary weights fit in each packed byte.
+
+The model stores character masks, an ordered instruction graph, capture metadata, Unicode tables, and sparse checksum transitions. The Rust runtime executes that graph to find spans and redact text. It makes no regex-engine calls during inference. Luhn and IBAN checks use compiled transition tables.
+
+The weights encode rules at compile time. See [the ternary architecture and model format](docs/ternary.md) for the execution details.
+
 ## Coverage and measurements
 
-Names and addresses require [explicit cues](docs/contextual.md#supplemental-coverage). IBAN coverage is limited to GB, DE, FR, ES, NL, and IT. Checksums do not establish assignment, ownership, or privacy.
+The CLI detects emails, phone numbers, US SSNs, payment card numbers, supported IBANs, and cued private values. Names and addresses require [explicit cues](docs/contextual.md#supplemental-coverage). IBAN coverage is limited to GB, DE, FR, ES, NL, and IT. Checksums do not establish assignment, ownership, or privacy.
+
+For anonymization, treat the detector as one step in the process. The rules can miss personal data outside the formats they cover. This experimental detector has no tested worst-case time or memory guarantee for hostile inputs.
 
 The native model is 57,811 bytes. The previously measured Linux executable was 830,384 bytes with the model embedded. Artifact size is separate from runtime RAM and depends on the build target.
 
