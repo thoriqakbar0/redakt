@@ -49,25 +49,9 @@ The CLI writes redacted text to stdout and errors to stderr. Each category start
 
 ### Redact a file with Claude Code or Codex
 
-Both plugins use the same [redaction skill](plugins/privacy-hygiene/skills/privacy-hygiene/SKILL.md). Install the CLI first, then run the commands for your agent from this checkout.
+Install the CLI, then paste this prompt into Claude Code or Codex. Replace the example filenames with your own.
 
-**Claude Code**
-
-```bash
-claude plugin marketplace add "$PWD"
-claude plugin install privacy-hygiene@privacy-hygiene
-```
-
-Start a new session and enter `/privacy-hygiene:privacy-hygiene redact support.log for sharing`.
-
-**Codex**
-
-```bash
-codex plugin marketplace add .
-codex plugin add privacy-hygiene@privacy-hygiene
-```
-
-Start a new session and ask `Use the privacy-hygiene plugin to redact support.log for sharing.`
+> Use the local `privacy-hygiene` CLI to redact `support.log` into `support.redacted.log`. Feed the original file directly into stdin and redirect stdout to the new file. Leave the original untouched. Create the redacted copy with permissions limited to my account. If the destination already exists, choose a fresh filename without overwriting it. Keep both files' contents out of chat, tool output, and external services. On success, tell me the path so I can review the copy locally. If the command fails, report the error without quoting the file.
 
 Review the new file locally before sharing it.
 

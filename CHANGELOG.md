@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Replace the Claude Code and Codex plugins with a copy-paste README prompt that uses the local CLI. Thanks @thoriqakbar0.
+
 ## 0.0.4 - 2026-11-20
 
 - Add Claude Code and Codex plugins that use the local CLI to prepare redacted copies of text files and support logs for review. Thanks @thoriqakbar0.

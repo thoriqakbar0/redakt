@@ -1,8 +1,0 @@
-{
-  "name": "privacy-hygiene",
-  "version": "0.1.0",
-  "description": "Redact personal data and credentials locally from text files and support logs.",
-  "author": {
-    "name": "Thoriq Akbar"
-  }
-}
