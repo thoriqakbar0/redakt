@@ -109,8 +109,8 @@ fn alternate_model_and_private_errors() {
     assert_eq!(output.stdout, invoke(b"123-45-6789", &[]).stdout);
 
     let private_input = "private".repeat(1024 * 1024);
-    for arguments in [vec!["--weights"], vec!["--unknown"]] {
-        let output = invoke(private_input.as_bytes(), &arguments);
+    for argument in ["--weights", "--unknown", "--contextual"] {
+        let output = invoke(private_input.as_bytes(), &[argument]);
         assert!(!output.status.success());
         assert!(output.stdout.is_empty());
         assert!(!String::from_utf8_lossy(&output.stderr).contains("private"));
@@ -140,39 +140,16 @@ fn malformed_models_are_rejected() {
 }
 
 #[test]
-fn matches_frozen_rules() {
-    let expected: Vec<Value> = include_str!("fixtures/rules-parity.jsonl")
-        .lines()
-        .map(|line| serde_json::from_str(line).unwrap())
-        .collect();
-    let mut requests = Vec::new();
-    for record in &expected {
-        serde_json::to_writer(
-            &mut requests,
-            &json!({"id": record["id"], "text": record["text"]}),
-        )
-        .unwrap();
-        requests.push(b'\n');
-    }
-    let output = invoke(&requests, &["--jsonl"]);
-    assert!(
-        output.status.success(),
-        "{}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    let actual: Vec<Value> = BufReader::new(output.stdout.as_slice())
-        .lines()
-        .map(|line| {
-            let line = line.unwrap();
-            serde_json::from_str(&line).unwrap()
-        })
-        .collect();
-    assert_eq!(actual.len(), expected.len());
-    for (actual, expected) in actual.iter().zip(&expected) {
+fn native_model_matches_frozen_rules() {
+    let model = privacy_hygiene::Detector::embedded().unwrap();
+    for line in include_str!("fixtures/rules-parity.jsonl").lines() {
+        let expected: Value = serde_json::from_str(line).unwrap();
+        let text = expected["text"].as_str().unwrap();
+        let spans = model.detect(text);
+        let redacted = privacy_hygiene::redact(text, &spans).unwrap();
         assert_eq!(
-            actual,
-            &json!({"id": expected["id"], "spans": expected["spans"],
-            "redacted": expected["redacted"]}),
+            json!({"spans": spans, "redacted": redacted}),
+            json!({"spans": expected["spans"], "redacted": expected["redacted"]}),
             "oracle record {}",
             expected["id"]
         );
@@ -200,7 +177,8 @@ fn jsonl_flushes_each_record_before_eof() {
         }
     });
     for id in [json!("first"), json!({"batch": 2}), json!(null)] {
-        writeln!(stdin, "{}", json!({"id": id, "text": "🦊 a@example.test"})).unwrap();
+        let record = json!({"id": id, "text": "🦊 password: a@example.test"});
+        writeln!(stdin, "{record}").unwrap();
         stdin.flush().unwrap();
         let response = receiver.recv_timeout(Duration::from_secs(10));
         if response.is_err() {
@@ -213,8 +191,14 @@ fn jsonl_flushes_each_record_before_eof() {
         let actual: Value = serde_json::from_str(&line).unwrap();
         assert_eq!(
             actual,
-            json!({"id": id, "spans": [{"start": 2, "end": 16, "label": "email"}],
-            "redacted": "🦊 ██████████████"})
+            json!({
+                "id": id,
+                "spans": [
+                    {"start": 12, "end": 26, "label": "email"},
+                    {"start": 12, "end": 26, "label": "secret"}
+                ],
+                "redacted": "🦊 password: ██████████████"
+            })
         );
     }
     drop(stdin);

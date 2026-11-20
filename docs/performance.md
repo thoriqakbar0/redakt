@@ -20,7 +20,7 @@ The optimized prototype also matched all 289 frozen oracle records and 300 seede
 
 ## Reproduce the workload
 
-Build both revisions with `cargo build --release --locked` in separate checkouts. Set `baseline` and `optimized` to their executable paths. The following optional Python standard-library script generates the fixture and performs the paired wall-time measurement. Python is not a detector dependency.
+Build the historical baseline (`43ec192`) and optimized revision (`3352a81`) with `cargo build --release --locked` in separate checkouts. These measurements predate automatic cue-based recognition and the script uses the former `--contextual` flag. Set `baseline` and `optimized` to the historical executable paths. The following optional Python standard-library script generates the fixture and performs the paired wall-time measurement. Python is not a detector dependency.
 
 ```bash
 python3 - "$baseline" "$optimized" <<'PY'

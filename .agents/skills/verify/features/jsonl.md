@@ -7,7 +7,7 @@ Users stream records through one process and receive a flushed response for each
 - Preserve IDs and ignore blank lines.
 - Flush responses before EOF.
 - Reject malformed records without exposing their input.
-- Combine `--contextual`, `--jsonl`, and alternate native weights.
+- Detect additional cued values automatically with embedded or alternate native weights.
 
 ## How to get to it (user POV)
 

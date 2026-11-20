@@ -4,7 +4,7 @@
 
 # privacy-hygiene
 
-A standalone Rust PII detector powered by an embedded ternary-gated rule machine. Detect and redact emails, phones, US SSNs, cards, supported IBANs, and cue-based names and addresses with one CLI binary. No model download or network access is needed after installation.
+A standalone Rust PII detector powered by an embedded ternary-gated rule machine. Detect and redact emails, phones, US SSNs, cards, supported IBANs, and cued private values with one CLI binary. No model download or network access is needed after installation.
 
 ## How the ternary matcher works
 
@@ -62,19 +62,19 @@ Blank lines are ignored. An invalid record stops processing with a nonzero exit 
 
 Run `privacy-hygiene --help` for usage or `privacy-hygiene --version` to check the installed version. Use `--weights PATH` to load another native artifact. Version 1 weights require recompilation for the current version 2 format.
 
-### Remove additional labelled private values
+### Remove cued private values
 
-Use `--contextual` to add cue-based recognition for names and addresses, labelled secrets, bank account numbers, and dates of birth. It works with plain stdin and `--jsonl`.
+The CLI automatically detects cued names, addresses, secrets, bank account numbers, and dates of birth in plain stdin and `--jsonl`.
 
 ```bash
-printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene --contextual
+printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene
 ```
 
-The additional pass returns ordinary spans and masks their union with the original seven categories. It runs locally without a download or a new dependency. Default detection stays unchanged. See [contextual coverage and its limits](docs/contextual.md) before relying on it.
+The CLI masks the union of the native model spans and the cue-based spans. If you used the former `--contextual` flag, remove it from your commands. See [cue-based coverage and its limits](docs/contextual.md).
 
 ## Coverage and measurements
 
-Names require one of `Name`, `Patient`, `Customer`, or `My name is`. Addresses require `Address`, `Ship to`, or `Lives at`. These rules are case-sensitive. IBAN coverage is limited to GB, DE, FR, ES, NL, and IT. Checksums do not establish assignment, ownership, or privacy.
+Names and addresses require [explicit cues](docs/contextual.md#supplemental-coverage). IBAN coverage is limited to GB, DE, FR, ES, NL, and IT. Checksums do not establish assignment, ownership, or privacy.
 
 The native model is 57,811 bytes. The previously measured Linux executable was 830,384 bytes with the model embedded. Artifact size is separate from runtime RAM and depends on the build target.
 
@@ -84,7 +84,7 @@ A later matcher-loop optimization reduced median CLI time by 29% on a repeated m
 
 A subsequent model and CLI optimization reduced median JSONL time by 49% on a larger version of that fixture. Reusing matcher storage and serializing typed responses preserved parsed JSON results. See [the follow-up measurements](docs/performance.md#model-storage-and-cli-serialization).
 
-The [independent detection-quality evaluation](docs/accuracy.md) reports per-category misses and false positives on hand-labelled synthetic documents for default and contextual modes. These selected examples do not establish general accuracy.
+The [independent detection-quality evaluation](docs/accuracy.md) reports per-category misses and false positives on hand-labelled synthetic documents. These selected examples do not establish general accuracy.
 
 ## Run the tests
 
