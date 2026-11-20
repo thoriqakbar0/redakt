@@ -105,7 +105,7 @@ The weights encode rules at compile time. See [the ternary architecture and mode
 
 The CLI detects emails, phone numbers, US SSNs, payment card numbers, supported IBANs, and cued private values. Names and addresses require [explicit cues](docs/contextual.md#supplemental-coverage). IBAN coverage is limited to GB, DE, FR, ES, NL, and IT. Checksums do not establish assignment, ownership, or privacy.
 
-For anonymization, treat the detector as one step in the process. The rules can miss personal data outside the formats they cover. This experimental detector has no tested worst-case time or memory guarantee for hostile inputs.
+For anonymization, treat the detector as one step in the process. The rules can miss personal data outside the formats they cover. The detector has no tested worst-case time or memory guarantee for hostile inputs.
 
 The native model is 57,811 bytes. The previously measured Linux executable was 830,384 bytes with the model embedded. Artifact size is separate from runtime RAM and depends on the build target.
 

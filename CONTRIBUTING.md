@@ -1,6 +1,6 @@
 # Contribute to privacy-hygiene
 
-This repository is an experimental Rust detector with deliberately limited coverage. Describe the input format and observable behavior when proposing a change. Use public or synthetic examples only. Never submit real personal data, credentials, or production logs.
+Describe the input format and observable behavior when proposing a detector change. Use public or synthetic examples only. Never submit real personal data, credentials, or production logs.
 
 ## Run checks
 
