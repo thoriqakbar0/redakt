@@ -1,0 +1,13 @@
+{
+  "name": "privacy-hygiene",
+  "description": "Plugins for local redaction with privacy-hygiene.",
+  "owner": {
+    "name": "Thoriq Akbar"
+  },
+  "plugins": [
+    {
+      "name": "privacy-hygiene",
+      "source": "./plugins/privacy-hygiene"
+    }
+  ]
+}

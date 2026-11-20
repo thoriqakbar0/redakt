@@ -18,8 +18,6 @@ To install from the current development branch, run `cargo install --git https:/
 
 For a prebuilt binary, download the version 0.0.3 archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
 
-There is no installable detector skill in this repository yet. Use the CLI directly from your terminal or agent.
-
 ## Try it
 
 After installing, pipe in a sample email address.
@@ -41,6 +39,30 @@ privacy-hygiene < sample.txt > result
 ```
 
 The CLI writes redacted text to stdout and errors to stderr. It preserves line endings and masks matched characters, including spaces, with `█`.
+
+### Redact a file with Claude Code or Codex
+
+Both plugins use the same [redaction skill](plugins/privacy-hygiene/skills/privacy-hygiene/SKILL.md). Install the CLI first, then run the commands for your agent from this checkout.
+
+**Claude Code**
+
+```bash
+claude plugin marketplace add "$PWD"
+claude plugin install privacy-hygiene@privacy-hygiene
+```
+
+Start a new session and enter `/privacy-hygiene:privacy-hygiene redact support.log for sharing`.
+
+**Codex**
+
+```bash
+codex plugin marketplace add .
+codex plugin add privacy-hygiene@privacy-hygiene
+```
+
+Start a new session and ask `Use the privacy-hygiene plugin to redact support.log for sharing.`
+
+Review the new file locally before sharing it.
 
 ### Process multiple documents
 

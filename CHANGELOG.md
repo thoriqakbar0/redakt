@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add Claude Code and Codex plugins that use the local CLI to prepare redacted copies of text files and support logs for review. Thanks @thoriqakbar0.
+
 ## 0.0.3 - 2026-11-20
 
 - Write plain redacted text to stdout by default. Use `--jsonl` for JSON responses with match spans. Thanks @thoriqakbar0.
