@@ -24,7 +24,7 @@ With [Rust and Cargo](https://rustup.rs/) installed, run this from any directory
 cargo install --git https://github.com/thoriqakbar0/privacy-hygiene.git --locked
 ```
 
-Prefer a prebuilt binary? Check [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). No release is published yet. Once available, download the archive for your platform, verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
+Prefer a prebuilt binary? Check [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). For version 0.0.2, download the archive for your platform, verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
 
 There is no installable detector skill in this repository yet. Use the CLI directly from your terminal or agent.
 
@@ -76,7 +76,7 @@ The additional pass returns ordinary spans and masks their union with the origin
 
 Names require one of `Name`, `Patient`, `Customer`, or `My name is`. Addresses require `Address`, `Ship to`, or `Lives at`. These rules are case-sensitive. IBAN coverage is limited to GB, DE, FR, ES, NL, and IT. Checksums do not establish assignment, ownership, or privacy.
 
-The native model is 57,721 bytes. The measured Linux executable is 830,384 bytes with the model embedded. Artifact size is separate from runtime RAM and depends on the build target.
+The native model is 57,811 bytes. The previously measured Linux executable was 830,384 bytes with the model embedded. Artifact size is separate from runtime RAM and depends on the build target.
 
 A matched five-trial CPU comparison verified exact native/rules outputs. Native RAM was lower, while native/rules timing ranges overlapped on both short and long documents. See [the benchmark findings and raw evidence](docs/fair-benchmark.md) and [the architecture and format](docs/ternary.md).
 
