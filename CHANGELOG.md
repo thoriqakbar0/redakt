@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Replace the Claude Code and Codex plugins with a copy-paste README prompt that uses the local CLI. Thanks @thoriqakbar0.
+- Replace the Claude Code and Codex plugins with a copy-paste README prompt for any UTF-8 text file. Thanks @thoriqakbar0.
 
 ## 0.0.4 - 2026-11-20
 
