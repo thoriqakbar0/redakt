@@ -20,13 +20,25 @@ fn invoke(text: &str, arguments: &[&str]) -> Output {
 }
 
 fn response(text: &str) -> Value {
-    let output = invoke(text, &[]);
+    let input = format!("{}\n", json!({"id":1,"text":text}));
+    let output = invoke(&input, &["--jsonl"]);
     assert!(
         output.status.success(),
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
     serde_json::from_slice(&output.stdout).unwrap()
+}
+
+#[test]
+fn plain_stdin_masks_cued_values() {
+    let output = invoke("🦊 DOB: 2000-02-29\r\npassword: abc", &[]);
+    assert!(output.status.success());
+    assert!(output.stderr.is_empty());
+    assert_eq!(
+        output.stdout,
+        "🦊 DOB: ██████████\r\npassword: ███".as_bytes()
+    );
 }
 
 #[test]

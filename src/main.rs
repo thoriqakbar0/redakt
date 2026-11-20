@@ -5,11 +5,11 @@ use std::io::{self, BufRead, Read, Write};
 
 const HELP: &str = concat!(
     "privacy-hygiene [--weights PATH] [--jsonl]\n",
-    "Read UTF-8 stdin and emit JSON spans and redacted text.\n",
-    "Offsets count Unicode code points.\n",
+    "Read UTF-8 stdin and write plain redacted text to stdout.\n",
     "Detects email, phone, SSN, card, IBAN, and cued private values.\n",
     "Cued values include names, addresses, secrets, accounts and birth dates.\n",
-    "--jsonl reads one {id, text} record per line and flushes each response."
+    "--jsonl reads one {id, text} record per line and flushes each JSON response.\n",
+    "JSONL span offsets count Unicode code points."
 );
 
 #[derive(Deserialize)]
@@ -21,8 +21,7 @@ struct Record {
 
 #[derive(Serialize)]
 struct Response {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    id: Option<Value>,
+    id: Value,
     redacted: String,
     spans: Vec<Span>,
 }
@@ -40,7 +39,7 @@ fn stream(model: &Detector) -> Result<(), String> {
         let spans = model.detect_contextual(&record.text);
         let masked = redact(&record.text, &spans)?;
         let response = Response {
-            id: Some(record.id),
+            id: record.id,
             redacted: masked,
             spans,
         };
@@ -90,13 +89,13 @@ fn run() -> Result<(), String> {
         .map_err(|_| "Could not read UTF-8 stdin")?;
     let spans = model.detect_contextual(&text);
     let masked = redact(&text, &spans)?;
-    let response = Response {
-        id: None,
-        redacted: masked,
-        spans,
-    };
-    let response = serde_json::to_string(&response).map_err(|_| "Could not serialize response")?;
-    println!("{response}");
+    let mut output = io::stdout().lock();
+    output
+        .write_all(masked.as_bytes())
+        .map_err(|_| "Could not write redacted text")?;
+    output
+        .flush()
+        .map_err(|_| "Could not flush redacted text")?;
     Ok(())
 }
 

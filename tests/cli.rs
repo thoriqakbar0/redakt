@@ -28,7 +28,7 @@ fn invoke(input: &[u8], arguments: &[&str]) -> Output {
 
 #[test]
 fn detects_supported_layouts() {
-    for (index, sample) in [
+    for sample in [
         "123-45-6789",
         "212-555-0123",
         "+1212-555-0123",
@@ -36,22 +36,13 @@ fn detects_supported_layouts() {
         "(212) 555-0123",
         "+1(212) 555-0123",
         "+1 (212) 555-0123",
-    ]
-    .iter()
-    .enumerate()
-    {
+    ] {
         let input = format!("🦊 {sample}\r\n");
         let output = invoke(input.as_bytes(), &[]);
         assert!(output.status.success());
-        let actual: Value = serde_json::from_slice(&output.stdout).unwrap();
-        let label = if index == 0 { "ssn" } else { "phone" };
         assert_eq!(
-            actual,
-            json!({
-                "spans": [{"start": 2, "end": 2 + sample.len(),
-                           "label": label}],
-                "redacted": format!("🦊 {}\r\n", "█".repeat(sample.len()))
-            })
+            output.stdout,
+            format!("🦊 {}\r\n", "█".repeat(sample.len())).as_bytes()
         );
     }
 }
@@ -65,13 +56,9 @@ fn address_boundaries() {
         let input = format!("Address: {street}{ending}");
         let output = invoke(input.as_bytes(), &[]);
         assert!(output.status.success());
-        let actual: Value = serde_json::from_slice(&output.stdout).unwrap();
         assert_eq!(
-            actual,
-            json!({
-                "spans": [{"start": 9, "end": 9 + street.len(), "label": "address"}],
-                "redacted": format!("Address: {}{ending}", "█".repeat(street.len()))
-            }),
+            output.stdout,
+            format!("Address: {}{ending}", "█".repeat(street.len())).as_bytes(),
             "ending {ending:?}"
         );
     }
@@ -96,8 +83,7 @@ fn exclusions_and_boundaries() {
     ] {
         let output = invoke(input.as_bytes(), &[]);
         assert!(output.status.success());
-        let actual: Value = serde_json::from_slice(&output.stdout).unwrap();
-        assert_eq!(actual, json!({"spans": [], "redacted": input}));
+        assert_eq!(output.stdout, input.as_bytes());
     }
 }
 

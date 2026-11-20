@@ -4,7 +4,7 @@
 
 # privacy-hygiene
 
-Redact personal data locally with a standalone Rust CLI. Pipe in text and get JSON with the redacted text and the location of each match. The binary embeds the model and runs offline after installation.
+Redact personal data locally with a standalone Rust CLI. Pipe in text and get redacted text. The binary embeds the model and runs offline after installation.
 
 ## Install the CLI
 
@@ -23,26 +23,26 @@ There is no installable detector skill in this repository yet. Use the CLI direc
 After installing, pipe in a sample email address.
 
 ```bash
-printf 'Email: nora@example.test' | privacy-hygiene
+printf 'Email: nora@example.test\n' | privacy-hygiene
 ```
 
-Expected JSON, with key order allowed to differ:
+The command prints this text.
 
-```json
-{"redacted":"Email: █████████████████","spans":[{"start":7,"end":24,"label":"email"}]}
+```text
+Email: █████████████████
 ```
 
-To check a UTF-8 text file, run:
+To redact a UTF-8 text file, redirect the output to a separate file.
 
 ```bash
-privacy-hygiene < sample.txt
+privacy-hygiene < sample.txt > redacted.txt
 ```
 
-The CLI writes JSON to stdout and errors to stderr. Each result contains `spans` and `redacted`. Span offsets count Unicode code points, starting at zero, with an exclusive end. Redaction masks matched characters, including spaces, with `█`.
+The CLI writes redacted text to stdout and errors to stderr. It preserves line endings and masks matched characters, including spaces, with `█`.
 
 ### Process multiple documents
 
-Use `--jsonl` to keep the model loaded. Each input line must contain exactly `id` and `text`. Each response contains `id`, `spans`, and `redacted` and is flushed immediately.
+Use `--jsonl` for match locations or to process multiple documents with one model load. Each input line must contain exactly `id` and `text`. Each response contains `id`, `spans`, and `redacted` and is flushed immediately. Span offsets count Unicode code points, starting at zero, with an exclusive end.
 
 ```bash
 printf '%s\n' '{"id":"one","text":"Name: Nora Chen."}' '{"id":"two","text":"a@example.test"}' | privacy-hygiene --jsonl
@@ -102,7 +102,7 @@ To build macOS executables from Linux, follow [the macOS cross-compilation guide
 
 | Path | Purpose |
 | --- | --- |
-| [src/](src/) | Compiled ternary-gated matching, redaction, and JSON CLI |
+| [src/](src/) | Compiled ternary-gated matching, redaction, and CLI |
 | [models/weights.bin](models/weights.bin) | Embedded version 2 model |
 | [tests/](tests/) | Rust CLI, model, and frozen parity checks |
 | [docs/ternary.md](docs/ternary.md) | Architecture, matching contract, and native format |

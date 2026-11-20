@@ -4,8 +4,8 @@ Use [verify](../SKILL.md) to launch, check readiness, capture evidence, and clea
 
 | Feature | Journey |
 | --- | --- |
-| Stdin redaction and Unicode offsets | [stdin.md](stdin.md) |
-| JSONL streaming and private errors | [jsonl.md](jsonl.md) |
+| Plain text stdin redaction | [stdin.md](stdin.md) |
+| JSONL streaming, Unicode offsets, and private errors | [jsonl.md](jsonl.md) |
 | Alternate native weights | [weights.md](weights.md) |
 | Intel and Apple silicon compilation | [macos-build.md](macos-build.md) |
 

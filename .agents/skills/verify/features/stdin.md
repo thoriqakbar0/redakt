@@ -1,11 +1,11 @@
 # Stdin redaction
 
-Users pipe text into the CLI and receive spans and redacted text.
+Users pipe text into the CLI and receive redacted text.
 
 ## Sub-features
 
 - Detect the seven supported categories.
-- Preserve Unicode code-point offsets and untouched whitespace.
+- Preserve untouched whitespace and line endings.
 - Display help and the current version.
 - Detect additional cued values automatically.
 
@@ -17,10 +17,17 @@ Run `privacy-hygiene` with UTF-8 stdin. Use `--help` or `--version` for command 
 
 Preconditions. Run Launch and Doctor in the parent skill.
 
-Run the parent's Drive commands. Require the fox and CRLF to remain unchanged and the SSN span to start at 2 and end at 13. Run `"$binary" --help >"$evidence/help.txt"` and confirm that it lists `--weights` and `--jsonl`. The parent's full test suite checks supported layouts, exclusions, and the frozen 289-document oracle.
+Run the parent's Drive commands. Require the fox and CRLF to remain unchanged and the eleven SSN characters to be masked. Run `"$binary" --help >"$evidence/help.txt"` and confirm that it lists `--weights` and `--jsonl`. The parent's full test suite checks supported layouts, exclusions, and the frozen 289-document oracle.
 
-Run `printf '🦊 DOB: 2000-02-29\r\n' | "$binary" >"$evidence/contextual.json"`. Require `jq -e '. == {spans:[{start:7,end:17,label:"date"}],redacted:"🦊 DOB: ██████████\r\n"}' "$evidence/contextual.json"` to succeed. Run `cargo test --locked --test contextual` to check contextual offsets, value boundaries, and exclusions.
+Run these commands to check cue-based masking on a document without a final newline.
+
+```bash
+printf '🦊 DOB: 2000-02-29' | "$binary" >"$evidence/contextual.txt"
+printf '🦊 DOB: ██████████' >"$evidence/contextual-expected.txt"
+cmp "$evidence/contextual-expected.txt" "$evidence/contextual.txt"
+cargo test --locked --test contextual
+```
 
 ## Gotchas
 
-Offsets count code points, not UTF-8 bytes. The detector covers narrow rule formats. These checks do not prove complete anonymization or hostile-input performance.
+Plain text output has the same line endings as the input, including when the last line has no line ending.
