@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Apply cue-based detection automatically in stdin and JSONL. Remove the `--contextual` flag from existing commands. Thanks @thoriqakbar0.
+
 ## 0.0.2 - 2026-11-20
 
 - Mask cued street addresses before CRLF, trailing spaces or tabs, and additional punctuation, including the ideographic full stop. Preserve the delimiter.

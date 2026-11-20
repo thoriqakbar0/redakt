@@ -4,11 +4,11 @@ use serde_json::Value;
 use std::io::{self, BufRead, Read, Write};
 
 const HELP: &str = concat!(
-    "privacy-hygiene [--weights PATH] [--jsonl] [--contextual]\n",
+    "privacy-hygiene [--weights PATH] [--jsonl]\n",
     "Read UTF-8 stdin and emit JSON spans and redacted text.\n",
     "Offsets count Unicode code points.\n",
-    "Detects email, phone, SSN, card, IBAN, cued name and address.\n",
-    "--contextual adds cued Unicode names, addresses, secrets, accounts and birth dates.\n",
+    "Detects email, phone, SSN, card, IBAN, and cued private values.\n",
+    "Cued values include names, addresses, secrets, accounts and birth dates.\n",
     "--jsonl reads one {id, text} record per line and flushes each response."
 );
 
@@ -27,7 +27,7 @@ struct Response {
     spans: Vec<Span>,
 }
 
-fn stream(detect: impl Fn(&str) -> Vec<Span>) -> Result<(), String> {
+fn stream(model: &Detector) -> Result<(), String> {
     let input = io::stdin();
     let output = io::stdout();
     let mut output = output.lock();
@@ -37,7 +37,7 @@ fn stream(detect: impl Fn(&str) -> Vec<Span>) -> Result<(), String> {
             continue;
         }
         let record: Record = serde_json::from_str(&line).map_err(|_| "Invalid JSONL record")?;
-        let spans = detect(&record.text);
+        let spans = model.detect_contextual(&record.text);
         let masked = redact(&record.text, &spans)?;
         let response = Response {
             id: Some(record.id),
@@ -58,7 +58,6 @@ fn run() -> Result<(), String> {
     let mut arguments = std::env::args().skip(1);
     let mut weights = None;
     let mut jsonl = false;
-    let mut contextual = false;
     while let Some(argument) = arguments.next() {
         match argument.as_str() {
             "--help" | "-h" => {
@@ -73,7 +72,6 @@ fn run() -> Result<(), String> {
                 weights = Some(arguments.next().ok_or("--weights requires a path")?);
             }
             "--jsonl" if !jsonl => jsonl = true,
-            "--contextual" if !contextual => contextual = true,
             _ => return Err("Unknown or repeated argument; use --help".into()),
         }
     }
@@ -83,21 +81,14 @@ fn run() -> Result<(), String> {
     } else {
         Detector::embedded()?
     };
-    let detect = |text: &str| {
-        if contextual {
-            model.detect_contextual(text)
-        } else {
-            model.detect(text)
-        }
-    };
     if jsonl {
-        return stream(detect);
+        return stream(&model);
     }
     let mut text = String::new();
     io::stdin()
         .read_to_string(&mut text)
         .map_err(|_| "Could not read UTF-8 stdin")?;
-    let spans = detect(&text);
+    let spans = model.detect_contextual(&text);
     let masked = redact(&text, &spans)?;
     let response = Response {
         id: None,

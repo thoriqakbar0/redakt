@@ -1,6 +1,6 @@
 # Independent detection-quality evaluation
 
-Run the hand-labelled synthetic corpus through the real JSONL CLI in both modes:
+Run the hand-labelled synthetic corpus through the JSONL CLI.
 
 ```bash
 cargo test --locked --test accuracy evaluate_accuracy -- --ignored --nocapture
@@ -24,9 +24,9 @@ Precision is TP / (TP + FP), and recall is TP / (TP + FN). An empty denominator 
 
 ## Observed baseline
 
-A deterministic local run on 2026-11-17 produced these counts. No sampling or statistical inference is involved.
+A deterministic local run on 2026-11-17 produced these counts, before the CLI enabled cue-based recognition by default. The model-only column is retained as a historical baseline. No sampling or statistical inference is involved.
 
-| Category | Default TP / FP / FN | Contextual TP / FP / FN |
+| Category | Model-only TP / FP / FN | With cue-based recognition TP / FP / FN |
 | --- | --- | --- |
 | Email | 4 / 0 / 0 | 4 / 0 / 0 |
 | Phone | 4 / 0 / 0 | 4 / 0 / 0 |
@@ -41,8 +41,8 @@ A deterministic local run on 2026-11-17 produced these counts. No sampling or st
 | Private URL | 0 / 0 / 1 | 0 / 0 / 1 |
 | All categories | 16 / 1 / 17 | 29 / 2 / 4 |
 
-Default micro precision was 0.941 and recall was 0.485. Contextual micro precision was 0.935 and recall was 0.879 on this corpus only.
+Model-only micro precision was 0.941 and recall was 0.485. With cue-based recognition, precision was 0.935 and recall was 0.879 on this corpus only.
 
-Both modes masked the explicitly public card-shaped product identifier. Contextual mode also masked `Maple Editor` in `Product name: Maple Editor`. Contextual mode missed an uncued person, an Indonesian address, a slash-formatted birth date, and the private profile URL. Default mode additionally missed the lowercase and Unicode cues and supplemental categories listed in the report. These are observations of current behavior, not assertions that every matching string should receive the same privacy treatment in every application.
+Both runs masked the explicitly public card-shaped product identifier. Cue-based recognition also masked `Maple Editor` in `Product name: Maple Editor` and missed an uncued person, an Indonesian address, a slash-formatted birth date, and the private profile URL. The model-only run additionally missed the lowercase and Unicode cues and supplemental categories listed in the report.
 
-After adding slash-formatted birth dates, contextual mode finds all four annotated dates. Its totals are 30 TP, 2 FP, and 3 FN (precision 0.938, recall 0.909) on the same corpus. Default totals are unchanged.
+The current CLI finds all four annotated dates, including slash-formatted dates. Its totals are 30 TP, 2 FP, and 3 FN (precision 0.938, recall 0.909) on the same corpus.

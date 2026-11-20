@@ -202,84 +202,76 @@ fn evaluate_accuracy() {
         .iter()
         .map(|case| format!("{}\n", json!({"id": case.id, "text": case.text})))
         .collect();
-    for contextual in [false, true] {
-        let mut command = Command::new(env!("CARGO_BIN_EXE_privacy-hygiene"));
-        command.arg("--jsonl");
-        if contextual {
-            command.arg("--contextual");
-        }
-        let mut child = command
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .unwrap();
-        let mut stdin = child.stdin.take().unwrap();
-        let input_bytes = input.as_bytes();
-        let output = thread::scope(|scope| {
-            let writer = scope.spawn(move || stdin.write_all(input_bytes));
-            let output = child.wait_with_output().unwrap();
-            writer.join().unwrap().unwrap();
-            output
-        });
-        assert!(
-            output.status.success(),
-            "{}",
-            String::from_utf8_lossy(&output.stderr)
+
+    let mut child = Command::new(env!("CARGO_BIN_EXE_privacy-hygiene"))
+        .arg("--jsonl")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+
+    let mut stdin = child.stdin.take().unwrap();
+    let input_bytes = input.as_bytes();
+    let output = thread::scope(|scope| {
+        let writer = scope.spawn(move || stdin.write_all(input_bytes));
+        let output = child.wait_with_output().unwrap();
+        writer.join().unwrap().unwrap();
+        output
+    });
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(output.stderr.is_empty());
+    let responses: Vec<Response> = String::from_utf8(output.stdout)
+        .unwrap()
+        .lines()
+        .map(|line| serde_json::from_str(line).unwrap())
+        .collect();
+    assert_eq!(responses.len(), cases.len());
+    let mut totals = score(&BTreeSet::new(), &BTreeSet::new());
+    println!("documents={}", cases.len());
+    for (case, response) in cases.iter().zip(responses) {
+        assert_eq!(case.id, response.id);
+        let expected = case.spans();
+        let span_count = response.spans.len();
+        let actual: BTreeSet<_> = response.spans.into_iter().collect();
+        assert_eq!(
+            actual.len(),
+            span_count,
+            "duplicate prediction in {}",
+            case.id
         );
-        assert!(output.stderr.is_empty());
-        let responses: Vec<Response> = String::from_utf8(output.stdout)
-            .unwrap()
-            .lines()
-            .map(|line| serde_json::from_str(line).unwrap())
-            .collect();
-        assert_eq!(responses.len(), cases.len());
-        let mut totals = score(&BTreeSet::new(), &BTreeSet::new());
-        println!(
-            "mode={} documents={}",
-            if contextual { "contextual" } else { "default" },
-            cases.len()
-        );
-        for (case, response) in cases.iter().zip(responses) {
-            assert_eq!(case.id, response.id);
-            let expected = case.spans();
-            let span_count = response.spans.len();
-            let actual: BTreeSet<_> = response.spans.into_iter().collect();
-            assert_eq!(
-                actual.len(),
-                span_count,
-                "duplicate prediction in {}",
-                case.id
-            );
-            for span in &actual {
-                assert!(LABELS.contains(&span.label.as_str()));
-                assert!(span.start < span.end && span.end <= case.text.chars().count());
-            }
-            let mut masked: Vec<_> = case.text.chars().collect();
-            for span in &actual {
-                masked[span.start..span.end].fill('█');
-            }
-            assert_eq!(response.redacted, masked.into_iter().collect::<String>());
-            for span in expected.difference(&actual) {
-                println!("{} MISS {span:?}", case.id);
-            }
-            for span in actual.difference(&expected) {
-                println!("{} EXTRA {span:?}", case.id);
-            }
-            for (label, count) in score(&expected, &actual) {
-                let total = totals.get_mut(&label).unwrap();
-                total.correct += count.correct;
-                total.extra += count.extra;
-                total.missed += count.missed;
-            }
+        for span in &actual {
+            assert!(LABELS.contains(&span.label.as_str()));
+            assert!(span.start < span.end && span.end <= case.text.chars().count());
         }
-        let mut micro = Counts::default();
-        for (label, count) in totals {
-            print_counts(&label, &count);
-            micro.correct += count.correct;
-            micro.extra += count.extra;
-            micro.missed += count.missed;
+        let mut masked: Vec<_> = case.text.chars().collect();
+        for span in &actual {
+            masked[span.start..span.end].fill('█');
         }
-        print_counts("micro", &micro);
+        assert_eq!(response.redacted, masked.into_iter().collect::<String>());
+        for span in expected.difference(&actual) {
+            println!("{} MISS {span:?}", case.id);
+        }
+        for span in actual.difference(&expected) {
+            println!("{} EXTRA {span:?}", case.id);
+        }
+        for (label, count) in score(&expected, &actual) {
+            let total = totals.get_mut(&label).unwrap();
+            total.correct += count.correct;
+            total.extra += count.extra;
+            total.missed += count.missed;
+        }
     }
+    let mut micro = Counts::default();
+    for (label, count) in totals {
+        print_counts(&label, &count);
+        micro.correct += count.correct;
+        micro.extra += count.extra;
+        micro.missed += count.missed;
+    }
+    print_counts("micro", &micro);
 }

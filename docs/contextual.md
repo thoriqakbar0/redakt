@@ -1,15 +1,15 @@
-# Contextual PII removal
+# Cue-based PII removal
 
-`--contextual` adds deterministic, cue-based recognition to the embedded seven-category detector. It is an optional policy for broader masking, not a learned language model. Default CLI output and `Detector::detect` retain the original matching contract.
+The CLI automatically runs deterministic, cue-based recognition alongside the embedded seven-category detector. Rust callers can use `Detector::detect_contextual` for the combined results or `Detector::detect` for model-only results.
 
-## Use the broader policy
+## Examples
 
 ```bash
-printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene --contextual
-printf '%s\n' '{"id":"one","text":"Date of birth: 1990-04-12"}' | privacy-hygiene --contextual --jsonl
+printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene
+printf '%s\n' '{"id":"one","text":"Date of birth: 1990-04-12"}' | privacy-hygiene --jsonl
 ```
 
-The output keeps the existing JSON structure and Unicode code-point offsets. The new pass adds spans to the original results. Redaction masks their union, including overlapping spans. Exact duplicate spans appear once.
+The JSON output uses Unicode code-point offsets. Redaction masks the union of model and cue-based spans, including overlaps. Exact duplicate spans appear once.
 
 `--weights PATH` changes the seven-category model. The supplemental contextual rules are built into the executable and operate independently of that artifact.
 
@@ -54,4 +54,4 @@ The model identified private spans in each of these synthetic examples. These ex
 
 The updated CLI masked the expected private value in the seven cued examples. The final, uncued example remains unsupported by its supplemental rules. OpenAI's model also used different address span boundaries. This check is neither an output-parity claim nor a benchmark against the model.
 
-Neither the default detector nor contextual mode guarantees complete PII removal. Evaluate representative examples for your language and domain, including examples that should remain visible.
+Evaluate representative examples for your language and domain, including examples that should remain visible.

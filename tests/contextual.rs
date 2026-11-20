@@ -20,7 +20,7 @@ fn invoke(text: &str, arguments: &[&str]) -> Output {
 }
 
 fn response(text: &str) -> Value {
-    let output = invoke(text, &["--contextual"]);
+    let output = invoke(text, &[]);
     assert!(
         output.status.success(),
         "{}",
@@ -99,26 +99,16 @@ fn rejects_invalid_values() {
 }
 
 #[test]
-fn cli_modes() {
-    let text = "name: ada lovelace; password=abc, DOB: 2024-01-02";
-    assert_eq!(response(text)["spans"].as_array().unwrap().len(), 3);
-    let default = invoke("password: abc", &[]);
-    assert_eq!(
-        serde_json::from_slice::<Value>(&default.stdout).unwrap()["spans"],
-        json!([])
-    );
+fn contextual_jsonl_with_file_weights() {
     let model = concat!(env!("CARGO_MANIFEST_DIR"), "/models/weights.bin");
     let input = format!("{}\n", json!({"id":1,"text":"password: abc"}));
-    let output = invoke(&input, &["--jsonl", "--weights", model, "--contextual"]);
+    let output = invoke(&input, &["--jsonl", "--weights", model]);
     assert!(output.status.success());
     let actual: Value = serde_json::from_slice(&output.stdout).unwrap();
     assert_eq!(
         actual,
         json!({"id":1,"spans":[{"start":10,"end":13,"label":"secret"}],"redacted":"password: ███"})
     );
-    assert!(!invoke("", &["--contextual", "--contextual"])
-        .status
-        .success());
 }
 
 #[test]
@@ -183,15 +173,7 @@ fn disabled_weights() {
         "{}\n",
         json!({"id":1,"text":"password: abc a@example.test"})
     );
-    let output = invoke(
-        &input,
-        &[
-            "--contextual",
-            "--jsonl",
-            "--weights",
-            path.to_str().unwrap(),
-        ],
-    );
+    let output = invoke(&input, &["--jsonl", "--weights", path.to_str().unwrap()]);
     std::fs::remove_file(path).unwrap();
     assert!(output.status.success());
     let actual: Value = serde_json::from_slice(&output.stdout).unwrap();
