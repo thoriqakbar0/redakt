@@ -20,7 +20,7 @@ The corpus includes supported formats, benign prose, invalid checksums, Unicode 
 
 A true positive requires an exact match of document, label, start, and exclusive end. A prediction with the wrong boundary or label counts as both an extra prediction and a missed annotation. Overlapping spans with different labels remain separate predictions. Duplicate predictions are rejected instead of improving the score.
 
-Precision is TP / (TP + FP), and recall is TP / (TP + FN). An empty denominator is reported as `n/a`. The micro result sums category counts before dividing. It includes unsupported categories such as private URLs so missing capabilities stay visible. It does not measure whether the redaction union happened to cover an incorrectly labelled span. Separately, the harness checks response IDs, counts, labels, bounds, and that redacted text equals the union of returned spans.
+Precision is TP / (TP + FP), and recall is TP / (TP + FN). An empty denominator is reported as `n/a`. The micro result sums category counts before dividing. It includes unsupported categories such as private URLs so missing capabilities stay visible. The harness checks response IDs, counts, span labels, and bounds. The CLI integration tests check the rendered placeholders.
 
 ## Observed baseline
 

@@ -31,13 +31,13 @@ fn response(text: &str) -> Value {
 }
 
 #[test]
-fn plain_stdin_masks_cued_values() {
+fn plain_stdin_replaces_cued_values() {
     let output = invoke("🦊 DOB: 2000-02-29\r\npassword: abc", &[]);
     assert!(output.status.success());
     assert!(output.stderr.is_empty());
     assert_eq!(
         output.stdout,
-        "🦊 DOB: ██████████\r\npassword: ███".as_bytes()
+        "🦊 DOB: [DATE_1]\r\npassword: [SECRET_1]".as_bytes()
     );
 }
 
@@ -119,7 +119,11 @@ fn contextual_jsonl_with_file_weights() {
     let actual: Value = serde_json::from_slice(&output.stdout).unwrap();
     assert_eq!(
         actual,
-        json!({"id":1,"spans":[{"start":10,"end":13,"label":"secret"}],"redacted":"password: ███"})
+        json!({
+            "id": 1,
+            "spans": [{"start": 10, "end": 13, "label": "secret"}],
+            "redacted": "password: [SECRET_1]"
+        })
     );
 }
 
@@ -157,7 +161,10 @@ fn aliases_quotes_and_adjacent_fields() {
     let text = "name: ada lovelace password: abc.def== DOB: 2024-02-29\r\nname: 李 明  \r\n";
     let actual = response(text);
     assert_eq!(actual["spans"].as_array().unwrap().len(), 4);
-    assert!(actual["redacted"].as_str().unwrap().ends_with("███  \r\n"));
+    assert_eq!(
+        actual["redacted"],
+        "name: [NAME_1] password: [SECRET_1] DOB: [DATE_1]\r\nname: [NAME_2]  \r\n"
+    );
     let spans = response("Name: Nora Chen")["spans"]
         .as_array()
         .unwrap()
@@ -214,13 +221,8 @@ fn complete_secret_values() {
             actual["spans"],
             json!([{"start":start,"end":end,"label":"secret"}])
         );
-        let masked = format!(
-            "{}{}{}",
-            &text[..start],
-            "█".repeat(secret.len()),
-            &text[end..]
-        );
-        assert_eq!(actual["redacted"], masked);
+        let redacted = format!("{}[SECRET_1]{}", &text[..start], &text[end..]);
+        assert_eq!(actual["redacted"], redacted);
     }
     for text in [
         "password='some pass phrase",

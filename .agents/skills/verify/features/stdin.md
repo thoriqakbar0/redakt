@@ -17,13 +17,13 @@ Run `privacy-hygiene` with UTF-8 stdin. Use `--help` or `--version` for command 
 
 Preconditions. Run Launch and Doctor in the parent skill.
 
-Run the parent's Drive commands. Require the fox and CRLF to remain unchanged and the eleven SSN characters to be masked. Run `"$binary" --help >"$evidence/help.txt"` and confirm that it lists `--weights` and `--jsonl`. The parent's full test suite checks supported layouts, exclusions, and the frozen 289-document oracle.
+Run the parent's Drive commands. Require the fox and CRLF to remain unchanged and the SSN to become `[SSN_1]`. Run `"$binary" --help >"$evidence/help.txt"` and confirm that it lists `--weights` and `--jsonl`. The parent's full test suite checks supported layouts, exclusions, and the frozen 289-document span oracle.
 
-Run these commands to check cue-based masking on a document without a final newline.
+Run these commands to check a cued date on a document without a final newline.
 
 ```bash
 printf '🦊 DOB: 2000-02-29' | "$binary" >"$evidence/contextual.txt"
-printf '🦊 DOB: ██████████' >"$evidence/contextual-expected.txt"
+printf '🦊 DOB: [DATE_1]' >"$evidence/contextual-expected.txt"
 cmp "$evidence/contextual-expected.txt" "$evidence/contextual.txt"
 cargo test --locked --test contextual
 ```

@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add Claude Code and Codex plugins that use the local CLI to prepare redacted copies of text files and support logs for review. Thanks @thoriqakbar0.
+- Replace detected private values with numbered labels such as `[NAME_1]` and `[EMAIL_1]`. Repeated values reuse their label within a document. JSONL span offsets still refer to the original text. Thanks @thoriqakbar0.
 
 ## 0.0.3 - 2026-11-20
 

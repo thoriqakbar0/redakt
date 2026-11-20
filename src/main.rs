@@ -6,6 +6,7 @@ use std::io::{self, BufRead, Read, Write};
 const HELP: &str = concat!(
     "privacy-hygiene [--weights PATH] [--jsonl]\n",
     "Read UTF-8 stdin and write plain redacted text to stdout.\n",
+    "Replaces private values with numbered labels such as [EMAIL_1].\n",
     "Detects email, phone, SSN, card, IBAN, and cued private values.\n",
     "Cued values include names, addresses, secrets, accounts and birth dates.\n",
     "--jsonl reads one {id, text} record per line and flushes each JSON response.\n",
@@ -37,10 +38,10 @@ fn stream(model: &Detector) -> Result<(), String> {
         }
         let record: Record = serde_json::from_str(&line).map_err(|_| "Invalid JSONL record")?;
         let spans = model.detect_contextual(&record.text);
-        let masked = redact(&record.text, &spans)?;
+        let redacted = redact(&record.text, &spans)?;
         let response = Response {
             id: record.id,
-            redacted: masked,
+            redacted,
             spans,
         };
         let response =
@@ -88,10 +89,10 @@ fn run() -> Result<(), String> {
         .read_to_string(&mut text)
         .map_err(|_| "Could not read UTF-8 stdin")?;
     let spans = model.detect_contextual(&text);
-    let masked = redact(&text, &spans)?;
+    let redacted = redact(&text, &spans)?;
     let mut output = io::stdout().lock();
     output
-        .write_all(masked.as_bytes())
+        .write_all(redacted.as_bytes())
         .map_err(|_| "Could not write redacted text")?;
     output
         .flush()

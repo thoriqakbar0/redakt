@@ -18,7 +18,7 @@ for cue, street, ending in itertools.product(cues, streets, endings):
     requests.append({"id": record_id, "text": prefix + street + ending})
     span = {"label": "address", "start": len(prefix), "end": len(prefix + street)}
     expected.append({"id": record_id, "spans": [span],
-                     "redacted": prefix + "█" * len(street) + ending})
+                     "redacted": prefix + "[ADDRESS_1]" + ending})
 
 payload = "".join(json.dumps(row) + "\n" for row in requests)
 results = []

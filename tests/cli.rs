@@ -28,23 +28,49 @@ fn invoke(input: &[u8], arguments: &[&str]) -> Output {
 
 #[test]
 fn detects_supported_layouts() {
-    for sample in [
-        "123-45-6789",
-        "212-555-0123",
-        "+1212-555-0123",
-        "+1 212-555-0123",
-        "(212) 555-0123",
-        "+1(212) 555-0123",
-        "+1 (212) 555-0123",
+    for (sample, placeholder) in [
+        ("123-45-6789", "[SSN_1]"),
+        ("212-555-0123", "[PHONE_1]"),
+        ("+1212-555-0123", "[PHONE_1]"),
+        ("+1 212-555-0123", "[PHONE_1]"),
+        ("(212) 555-0123", "[PHONE_1]"),
+        ("+1(212) 555-0123", "[PHONE_1]"),
+        ("+1 (212) 555-0123", "[PHONE_1]"),
     ] {
         let input = format!("🦊 {sample}\r\n");
         let output = invoke(input.as_bytes(), &[]);
         assert!(output.status.success());
-        assert_eq!(
-            output.stdout,
-            format!("🦊 {}\r\n", "█".repeat(sample.len())).as_bytes()
-        );
+        assert_eq!(output.stdout, format!("🦊 {placeholder}\r\n").as_bytes());
     }
+}
+
+#[test]
+fn numbers_distinct_values_by_category() {
+    let input = concat!(
+        "🦊 Name: Nora Chen\r\n",
+        "Emails: nora@example.test, ada@example.test, nora@example.test, jo@example.test\r\n",
+        "Name: Ada Green\r\nName: Nora Chen\r\n",
+        "Address: 12 Oak Lane\r\nAddress: 48 Cedar Road\r\nAddress: 12 Oak Lane\r\n",
+        "password: demo-first\r\napi_key: demo-second\r\npassword: demo-first\r\n",
+        "Phone: 212-555-0123\r\nSSN: 123-45-6789\r\nCard: 4111111111111111\r\n",
+        "IBAN: GB82WEST12345698765432\r\nBank account: 1234 5678 9012\r\nDOB: 2000-02-29"
+    );
+    let output = invoke(input.as_bytes(), &[]);
+    assert!(output.status.success());
+    assert!(output.stderr.is_empty());
+    assert_eq!(
+        output.stdout,
+        concat!(
+            "🦊 Name: [NAME_1]\r\n",
+            "Emails: [EMAIL_1], [EMAIL_2], [EMAIL_1], [EMAIL_3]\r\n",
+            "Name: [NAME_2]\r\nName: [NAME_1]\r\n",
+            "Address: [ADDRESS_1]\r\nAddress: [ADDRESS_2]\r\nAddress: [ADDRESS_1]\r\n",
+            "password: [SECRET_1]\r\napi_key: [SECRET_2]\r\npassword: [SECRET_1]\r\n",
+            "Phone: [PHONE_1]\r\nSSN: [SSN_1]\r\nCard: [CARD_1]\r\n",
+            "IBAN: [IBAN_1]\r\nBank account: [ACCOUNT_NUMBER_1]\r\nDOB: [DATE_1]"
+        )
+        .as_bytes()
+    );
 }
 
 #[test]
@@ -58,7 +84,7 @@ fn address_boundaries() {
         assert!(output.status.success());
         assert_eq!(
             output.stdout,
-            format!("Address: {}{ending}", "█".repeat(street.len())).as_bytes(),
+            format!("Address: [ADDRESS_1]{ending}").as_bytes(),
             "ending {ending:?}"
         );
     }
@@ -132,10 +158,9 @@ fn native_model_matches_frozen_rules() {
         let expected: Value = serde_json::from_str(line).unwrap();
         let text = expected["text"].as_str().unwrap();
         let spans = model.detect(text);
-        let redacted = privacy_hygiene::redact(text, &spans).unwrap();
         assert_eq!(
-            json!({"spans": spans, "redacted": redacted}),
-            json!({"spans": expected["spans"], "redacted": expected["redacted"]}),
+            json!(spans),
+            expected["spans"],
             "oracle record {}",
             expected["id"]
         );
@@ -163,7 +188,7 @@ fn jsonl_flushes_each_record_before_eof() {
         }
     });
     for id in [json!("first"), json!({"batch": 2}), json!(null)] {
-        let record = json!({"id": id, "text": "🦊 password: a@example.test"});
+        let record = json!({"id": id, "text": "🦊 password: a@example.test b@example.test"});
         writeln!(stdin, "{record}").unwrap();
         stdin.flush().unwrap();
         let response = receiver.recv_timeout(Duration::from_secs(10));
@@ -181,9 +206,10 @@ fn jsonl_flushes_each_record_before_eof() {
                 "id": id,
                 "spans": [
                     {"start": 12, "end": 26, "label": "email"},
-                    {"start": 12, "end": 26, "label": "secret"}
+                    {"start": 12, "end": 26, "label": "secret"},
+                    {"start": 27, "end": 41, "label": "email"}
                 ],
-                "redacted": "🦊 password: ██████████████"
+                "redacted": "🦊 password: [EMAIL_1] [EMAIL_2]"
             })
         );
     }
