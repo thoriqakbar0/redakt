@@ -8,11 +8,13 @@ Redact personal data locally with a standalone Rust CLI. Pipe in text and get JS
 
 ## Install the CLI
 
-With [Rust and Cargo](https://rustup.rs/) installed, run this from any directory. No clone is needed.
+Install the published 0.0.2 release from crates.io with [Rust and Cargo](https://rustup.rs/).
 
 ```bash
-cargo install --git https://github.com/thoriqakbar0/privacy-hygiene.git --locked
+cargo install privacy-hygiene --locked
 ```
+
+To install from the current development branch, run `cargo install --git https://github.com/thoriqakbar0/privacy-hygiene.git --locked`.
 
 For a prebuilt binary, download the version 0.0.2 archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
 
@@ -45,7 +47,7 @@ The CLI writes JSON to stdout and errors to stderr. Each result contains `spans`
 Use `--jsonl` to keep the model loaded. Each input line must contain exactly `id` and `text`. Each response contains `id`, `spans`, and `redacted` and is flushed immediately.
 
 ```bash
-printf '%s\n' '{"id":"one","text":"Name: Nora Chen."}' '{"id":"two","text":"a@example.test"}' | privacy-hygiene --jsonl
+printf '%s\n' '{"id":"one","text":"SSN 123-45-6789"}' '{"id":"two","text":"a@example.test"}' | privacy-hygiene --jsonl
 ```
 
 Blank lines are ignored. An invalid record stops processing with a nonzero exit after any earlier complete responses.
@@ -54,13 +56,13 @@ Run `privacy-hygiene --help` for usage or `privacy-hygiene --version` to check t
 
 ### Remove cued private values
 
-The CLI automatically detects cued names, addresses, secrets, bank account numbers, and dates of birth in plain stdin and `--jsonl`.
+In release 0.0.2, pass `--contextual` to detect cued names, addresses, secrets, bank account numbers, and dates of birth in plain stdin or JSONL.
 
 ```bash
-printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene
+printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene --contextual
 ```
 
-The CLI masks the union of the native model spans and the cue-based spans. If you used the former `--contextual` flag, remove it from your commands. See [cue-based coverage and its limits](docs/contextual.md).
+The development version detects cued values automatically. Omit `--contextual` when using it. The CLI masks both native model spans and cue-based spans. See [cue-based coverage and its limits](docs/contextual.md).
 
 ## How the ternary matcher works
 
