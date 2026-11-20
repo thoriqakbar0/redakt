@@ -45,7 +45,6 @@ struct Span {
 struct Response {
     id: String,
     spans: Vec<Span>,
-    redacted: String,
 }
 
 #[derive(Default, Debug, PartialEq, Eq)]
@@ -248,11 +247,6 @@ fn evaluate_accuracy() {
             assert!(LABELS.contains(&span.label.as_str()));
             assert!(span.start < span.end && span.end <= case.text.chars().count());
         }
-        let mut masked: Vec<_> = case.text.chars().collect();
-        for span in &actual {
-            masked[span.start..span.end].fill('█');
-        }
-        assert_eq!(response.redacted, masked.into_iter().collect::<String>());
         for span in expected.difference(&actual) {
             println!("{} MISS {span:?}", case.id);
         }

@@ -9,7 +9,7 @@ printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene
 printf '%s\n' '{"id":"one","text":"Date of birth: 1990-04-12"}' | privacy-hygiene --jsonl
 ```
 
-JSONL responses include spans with Unicode code-point offsets. Redaction masks the union of model and cue-based spans, including overlaps. Exact duplicate spans appear once.
+JSONL responses include spans with Unicode code-point offsets into the original text. Redaction replaces overlapping model and cue-based spans with one numbered label. Exact duplicate spans appear once in the response.
 
 `--weights PATH` changes the seven-category model. The supplemental contextual rules are built into the executable and operate independently of that artifact.
 

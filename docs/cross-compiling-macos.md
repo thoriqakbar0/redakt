@@ -38,6 +38,6 @@ chmod +x privacy-hygiene
 printf 'SSN 123-45-6789' | ./privacy-hygiene
 ```
 
-Expect version `privacy-hygiene 0.0.1` and JSON whose `redacted` value is `SSN ███████████`.
+Expect the version listed in `Cargo.toml` and the plain text output `SSN [SSN_1]`.
 
 Linux cannot execute these binaries natively. A successful cross-build and Mach-O inspection do not verify macOS runtime behavior, compatibility with older macOS versions, signing, or notarization. Release builds continue to use the native macOS jobs in [the release procedure](releasing.md), which test and smoke-check the executables on macOS.

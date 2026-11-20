@@ -1,6 +1,9 @@
 mod contextual;
 
 use serde::{Deserialize, Serialize};
+use std::cmp::Reverse;
+use std::collections::HashMap;
+use std::fmt::Write;
 
 const CODES: usize = 132;
 const MAX_MODEL_BYTES: usize = 2_000_000;
@@ -556,17 +559,52 @@ impl Detector {
     }
 }
 
+/// Replaces spans with numbered labels such as `[EMAIL_1]`.
+///
+/// Overlapping spans share one replacement. The earliest span supplies its
+/// label, with longer spans and then alphabetical labels breaking ties.
+/// Identical replaced text with the same label reuses its number in this call.
 pub fn redact(text: &str, spans: &[Span]) -> Result<String, String> {
-    let mut characters: Vec<_> = text.chars().collect();
-    for span in spans {
-        if span.start >= span.end || span.end > characters.len() {
-            return Err("Invalid span bounds".into());
+    if spans.is_empty() {
+        return Ok(text.to_owned());
+    }
+
+    let offsets: Vec<_> = text
+        .char_indices()
+        .map(|(offset, _)| offset)
+        .chain([text.len()])
+        .collect();
+    if spans
+        .iter()
+        .any(|span| span.start >= span.end || span.end >= offsets.len())
+    {
+        return Err("Invalid span bounds".into());
+    }
+
+    let mut ordered: Vec<_> = spans.iter().collect();
+    ordered.sort_unstable_by_key(|span| (span.start, Reverse(span.end), &span.label));
+    let mut ordered = ordered.into_iter().peekable();
+    let mut numbers: HashMap<String, HashMap<&str, usize>> = HashMap::new();
+    let mut redacted = String::with_capacity(text.len());
+    let mut cursor = 0;
+    while let Some(span) = ordered.next() {
+        let mut end = span.end;
+        while let Some(overlap) = ordered.next_if(|next| next.start < end) {
+            end = end.max(overlap.end);
         }
+
+        let start = offsets[span.start];
+        let end = offsets[end];
+        let label = span.label.to_ascii_uppercase();
+        let values = numbers.entry(label.clone()).or_default();
+        let next = values.len() + 1;
+        let number = values.entry(&text[start..end]).or_insert(next);
+        redacted.push_str(&text[cursor..start]);
+        write!(redacted, "[{label}_{number}]").expect("writing to a String cannot fail");
+        cursor = end;
     }
-    for span in spans {
-        characters[span.start..span.end].fill('█');
-    }
-    Ok(characters.into_iter().collect())
+    redacted.push_str(&text[cursor..]);
+    Ok(redacted)
 }
 
 #[cfg(test)]
@@ -580,7 +618,14 @@ mod tests {
             end,
             label: "phone".into(),
         };
-        assert_eq!(redact("a bcd", &[span(1, 4), span(2, 5)]).unwrap(), "a████");
+        assert_eq!(
+            redact(
+                "🦊étude!",
+                &[span(3, 6), span(1, 3), span(2, 4), span(6, 7)]
+            )
+            .unwrap(),
+            "🦊[PHONE_1][PHONE_2]"
+        );
         assert!(redact("abc", &[span(0, 3), span(2, 1)]).is_err());
         assert!(redact("abc", &[span(0, 4)]).is_err());
         assert!(redact("abc", &[span(1, 1)]).is_err());

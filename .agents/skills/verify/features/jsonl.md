@@ -21,7 +21,7 @@ Preconditions. Run Launch and Doctor in the parent skill.
 printf '%s\n' '{"id":"one","text":"123-45-6789"}' '' '{"id":"two","text":"clean"}' >"$evidence/records.jsonl"
 printf '%s\n' 'privacy-hygiene --jsonl < records.jsonl' >"$evidence/jsonl-action.txt"
 "$binary" --jsonl <"$evidence/records.jsonl" >"$evidence/responses.jsonl" 2>"$evidence/jsonl-stderr.txt"
-jq -se '. == [{id:"one",spans:[{start:0,end:11,label:"ssn"}],redacted:"███████████"},{id:"two",spans:[],redacted:"clean"}]' "$evidence/responses.jsonl"
+jq -se '. == [{id:"one",spans:[{start:0,end:11,label:"ssn"}],redacted:"[SSN_1]"},{id:"two",spans:[],redacted:"clean"}]' "$evidence/responses.jsonl"
 test ! -s "$evidence/jsonl-stderr.txt"
 cargo test --locked --test cli jsonl >"$evidence/jsonl-tests.log" 2>&1
 ```

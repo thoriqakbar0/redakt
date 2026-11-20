@@ -18,7 +18,7 @@ The native address rule extends the original ending assertion. After the capture
 
 Card and IBAN checksum validation happens after a syntax match commits. A rejected checksum does not retry a shorter candidate or search inside the rejected match. This preserves original failures such as a greedy IBAN candidate consuming an uppercase suffix and then failing its checksum or length.
 
-Offsets are half-open Unicode code-point positions in the original UTF-8 input. Redaction validates every span, masks their union with `█`, preserves character count, and leaves unrelated CRLF and lone CR characters unchanged.
+Offsets are half-open Unicode code-point positions in the original UTF-8 input. Redaction validates every span and replaces overlapping spans with a single numbered label. The earliest span supplies the category. Ties favor the longer span, then the alphabetically first category. Redaction copies text outside the spans verbatim.
 
 The artifact uses Python 3.10's Unicode 13.0.0 alphanumeric and whitespace tables, with underscore included in word characters. Rust uses these embedded ranges rather than its own Unicode classification. The end anchor also accepts the position before a final newline, following the original regex policy.
 

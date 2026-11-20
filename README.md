@@ -20,16 +20,23 @@ For a prebuilt binary, download the version 0.0.3 archive for your platform from
 
 ## Try it
 
-After installing, pipe in a sample email address.
+Pipe in three email addresses, two street addresses, and a sample password.
 
 ```bash
-printf 'Email: nora@example.test\n' | privacy-hygiene
+printf '%s\n' \
+  'Emails: nora@example.test, ada@example.test, jo@example.test' \
+  'Address: 12 Oak Lane' \
+  'Address: 48 Cedar Road' \
+  'Password: demo-password' | privacy-hygiene
 ```
 
-The command prints the redacted text.
+The development build prints numbered labels. Version 0.0.3 replaces each matched character with `█`.
 
 ```text
-Email: █████████████████
+Emails: [EMAIL_1], [EMAIL_2], [EMAIL_3]
+Address: [ADDRESS_1]
+Address: [ADDRESS_2]
+Password: [SECRET_1]
 ```
 
 To save the output for a UTF-8 text file, redirect it to a separate file.
@@ -38,7 +45,7 @@ To save the output for a UTF-8 text file, redirect it to a separate file.
 privacy-hygiene < sample.txt > result
 ```
 
-The CLI writes redacted text to stdout and errors to stderr. It preserves line endings and masks matched characters, including spaces, with `█`.
+The CLI writes redacted text to stdout and errors to stderr. Each category starts at 1 in each document. The same value and category reuse the same label within that document. Text outside detected spans, including line endings, is preserved.
 
 ### Redact a file with Claude Code or Codex
 
@@ -66,7 +73,7 @@ Review the new file locally before sharing it.
 
 ### Process multiple documents
 
-Use `--jsonl` for match locations or to process multiple documents with one model load. Each input line must contain exactly `id` and `text`. Each response contains `id`, `spans`, and `redacted` and is flushed immediately. Span offsets count Unicode code points, starting at zero, with an exclusive end.
+Use `--jsonl` for match locations or to process multiple documents with one model load. Each input line must contain exactly `id` and `text`. Each response contains `id`, `spans`, and `redacted` and is flushed immediately. Span offsets count Unicode code points in the original text, starting at zero, with an exclusive end. Placeholder numbering restarts for each record.
 
 ```bash
 printf '%s\n' '{"id":"one","text":"SSN 123-45-6789"}' '{"id":"two","text":"a@example.test"}' | privacy-hygiene --jsonl
@@ -84,7 +91,7 @@ The CLI detects cued names, addresses, secrets, bank account numbers, and dates 
 printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene
 ```
 
-If you used `--contextual` in version 0.0.2, remove it from your commands. The CLI masks both native model spans and cue-based spans. See [cue-based coverage and its limits](docs/contextual.md).
+If you used `--contextual` in version 0.0.2, remove it from your commands. The CLI replaces both native model spans and cue-based spans. See [cue-based coverage and its limits](docs/contextual.md).
 
 ## How the ternary matcher works
 

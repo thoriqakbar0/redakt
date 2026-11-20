@@ -130,7 +130,7 @@ jobs:
               [str(executable)], input='SSN 123-45-6789', encoding='utf-8',
               capture_output=True, check=True,
           )
-          assert result.stdout == 'SSN ' + '█' * 11, result.stdout
+          assert result.stdout == 'SSN [SSN_1]', result.stdout
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
