@@ -47,3 +47,16 @@ Use the [verification setup](README.md#how-to-run-a-pass). Run each row in a fre
 | JSONL-12 | P2 | Linux terminal | Interrupt after a flushed response ([spec](../cli/jsonl.md#cancel-and-interrupt)). | Fresh terminal session. | 1. Launch redakt --jsonl in a terminal, send one record, wait for output, and press Ctrl+C | Earlier response remains visible and the process stops. | pass (terminal) |
 | JSONL-13 | P1 | Linux, redirected streams | Accept positional arrays (suspected bug) ([spec](../cli/jsonl.md#begin-running)). | Release binary and scratch directory. | 1. Run `r JSONL-13 '[1,"a@example.test"]' --jsonl`. | Observed status 0 and a normal response for ID 1. | pass |
 | JSONL-14 | P2 | Linux, /dev/full | Stop on response output errors ([spec](../cli/jsonl.md#finish)). | Release binary and scratch directory. | 1. Run `printf '%s\n' '{"id":1,"text":""}' > "$scratch/in"; "$binary" --jsonl < "$scratch/in" > /dev/full 2> "$scratch/err"; rc=$?; test "$rc" = 1 && grep -Eq '^redakt: Could not (write\|flush) JSONL response$' "$scratch/err"`. | Status 1 and a JSONL output diagnostic. | pass |
+
+## Restore
+
+These checks used the release binary from `78fb4c7` on Linux with temporary
+paths and a synthetic email. The `LOCALAPPDATA` row exercises environment
+variable handling on Linux.
+
+| ID | Priority | Environment | Claim | Setup | Steps | Expected result | Result |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| RESTORE-01 | P1 | Linux | [Default pair](../cli/restore.md#default-locations) | Set a temporary `HOME` and unset the three override variables. | 1. Mask a synthetic email. 2. List the default directory. 3. Pass the masked text to `redakt --reverse`. | One matching file pair under `$HOME/.local/state/redakt`. Reverse restores the original bytes. | pass |
+| RESTORE-02 | P1 | Linux | [Directory precedence](../cli/restore.md#default-locations) | Use separate temporary directories for the three overrides. | 1. Mask with only `LOCALAPPDATA`. 2. Mask with `XDG_STATE_HOME` also set. 3. Mask with all three overrides set. | The pair goes under the local application data directory, then the XDG directory, then the exact redakt override path. | pass |
+| RESTORE-03 | P1 | Linux | [Automatic selection failures](../cli/restore.md#choose-files-explicitly) | Prepare one directory with two mappings and point a second run at a missing directory. | 1. Run reverse without `--recovery` in each setup. | Both exit with an error and empty stdout. Diagnostics distinguish multiple candidates from no candidate. | pass |
+| RESTORE-04 | P1 | Linux | [Explicit paths](../cli/restore.md#choose-files-explicitly) | Choose separate mapping and code paths. | 1. Mask with both flags. 2. Reverse with the same flags. | Files use the selected paths. Reverse restores the original bytes. | pass |

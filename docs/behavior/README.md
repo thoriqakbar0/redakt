@@ -6,7 +6,7 @@ This specification follows the user from launching redakt to receiving redacted 
 
 ## Scope decisions
 
-- Surface: the redakt 0.0.5 executable built from source commit `6ba6de0`. Examples use Bash on Linux, with redirected streams unless they explicitly call for a terminal.
+- Surface begins with the redakt 0.0.5 baseline at commit `6ba6de0`. The recovery update describes redakt 0.0.6 at commit `78fb4c7`. Each feature footer records its source baseline. Examples use Bash on Linux, with redirected streams unless they explicitly call for a terminal.
 - Configuration: embedded weights and plain text by default. The documented CLI options include JSONL and file weights.
 - Run from the source checkout with `cargo build --release --locked`, then use `target/release/redakt`. Use synthetic data.
 - The website, agent prompt, Rust library API, installation and release workflows, cross-platform behavior, model compilation, and performance benchmarking are outside this CLI specification. The library and the model are sources for observed CLI behavior.
@@ -58,7 +58,7 @@ Read the command entry point, the matching source and tests, and then exercise t
   - [JSONL](cli/jsonl.md) follows the record loop from first response to EOF or failure.
   - [Detection](cli/detection.md) describes which values are recognized.
   - [Alternate weights](cli/weights.md) follows choosing and loading a model from a file.
-  - [Restore placeholders in a reply](cli/restore.md) describes the local workflow and acceptance checks.
+  - [Restore placeholders in a reply](cli/restore.md) describes recovery locations, file selection, and the local restore workflow.
 - Verification
   - [Protocol](verification/README.md) describes setup and evidence.
   - [Foundations](verification/foundations.md) checks startup and the document model.

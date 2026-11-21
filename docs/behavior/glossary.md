@@ -18,6 +18,7 @@
 
 - **Restore** — replace exact placeholders in arbitrary local text with original values from the selected recovery mapping.
 - **Recovery mapping** — the encrypted file associating placeholders with their original values. Its separate recovery code unlocks it.
+- **Recovery code file** — the file holding the code that unlocks one recovery mapping. By default its path is the mapping path with `.code` appended.
 
 ## Events that end or interrupt
 
