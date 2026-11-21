@@ -87,7 +87,7 @@ Redakt creates no output file itself. A shell can create or truncate a path befo
 
 **Concurrency.** Invocations do not coordinate access to a shared destination. The caller controls how concurrent streams are combined.
 
-**Offline use.** Redaction is offline by default. With `REDAKT_UPDATE_NOTIFY=1` and stderr attached to a terminal, a successful redaction can check GitHub after writing its output. Help and version remain available offline.
+**Offline use.** Redaction works offline. When stderr is attached to a terminal, redakt can check GitHub Releases after writing its output. Set `REDAKT_UPDATE_NOTIFY=0` to disable automatic checks. Help and version remain available offline.
 
 ## Edge cases
 

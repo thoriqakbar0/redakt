@@ -15,7 +15,7 @@ const HELP: &str = concat!(
     "JSONL span offsets count Unicode code points.\n\n",
     "redakt update [--check]\n",
     "Check GitHub Releases or update a standalone Linux or macOS binary.\n",
-    "Set REDAKT_UPDATE_NOTIFY=1 for daily update notices on stderr."
+    "Set REDAKT_UPDATE_NOTIFY=0 to disable daily update notices."
 );
 
 #[derive(Deserialize)]

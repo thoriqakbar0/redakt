@@ -140,7 +140,7 @@ pub fn run(check_only: bool) -> Result<String, String> {
 
 pub fn notify() {
     let mut stderr = io::stderr().lock();
-    if std::env::var_os("REDAKT_UPDATE_NOTIFY").as_deref() != Some("1".as_ref())
+    if std::env::var_os("REDAKT_UPDATE_NOTIFY").as_deref() == Some("0".as_ref())
         || !stderr.is_terminal()
     {
         return;

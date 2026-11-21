@@ -4,7 +4,7 @@
 
 # redakt
 
-Redact personal data locally with a standalone Rust CLI. The binary embeds the model and redacts offline by default.
+Redact personal data locally with a standalone Rust CLI. The binary embeds the model and processes documents on your machine.
 
 ## Install the CLI
 
@@ -25,7 +25,9 @@ For a prebuilt binary, choose a release that includes `redakt` and download the 
 - On Windows, use the download link from `redakt update --check` and replace the executable after redakt exits.
 - For a Cargo installation, run `cargo install redakt --locked` to upgrade from crates.io.
 
-Set `REDAKT_UPDATE_NOTIFY=1` in your shell to get update notices. After a successful redaction, redakt can check GitHub once per day and print a notice on terminal stderr. The check sends a release metadata request. Redacted output stays on stdout.
+After a successful redaction with stderr attached to a terminal, redakt checks GitHub Releases at most once every 24 hours per local cache. A failed check also counts toward that limit. The request asks for release metadata and contains no document contents. All update checks use GitHub Releases. Cargo contacts crates.io when you run `cargo install` yourself.
+
+Set `REDAKT_UPDATE_NOTIFY=0` in your shell to disable automatic checks. Notices go to stderr. Redacted output stays on stdout.
 
 ## Try it
 

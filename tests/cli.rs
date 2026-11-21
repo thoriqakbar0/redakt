@@ -32,7 +32,7 @@ fn update_uses_a_separate_argument_list() {
     assert!(help.status.success());
     let help = String::from_utf8(help.stdout).unwrap();
     assert!(help.contains("redakt update [--check]"));
-    assert!(help.contains("REDAKT_UPDATE_NOTIFY=1"));
+    assert!(help.contains("REDAKT_UPDATE_NOTIFY=0"));
 
     let invalid = invoke(b"", &["update", "--check", "--jsonl"]);
     assert!(!invalid.status.success());
