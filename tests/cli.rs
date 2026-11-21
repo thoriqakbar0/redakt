@@ -141,33 +141,39 @@ fn alternate_model_and_private_errors() {
 fn non_utf8_weights_path() {
     use std::ffi::OsStr;
     use std::os::unix::ffi::OsStrExt;
-    use std::os::unix::fs::symlink;
 
-    let dir = std::env::temp_dir().join(format!("redakt-weights-{}", std::process::id()));
-    std::fs::create_dir(&dir).unwrap();
-    let path = dir.join(OsStr::from_bytes(b"synthetic-\xff"));
-    let run = || {
+    let filename = OsStr::from_bytes(b"synthetic-\xff");
+    let run = |path: &std::path::Path| {
         Command::new(env!("CARGO_BIN_EXE_redakt"))
             .arg("--weights")
-            .arg(&path)
+            .arg(path)
             .output()
             .unwrap()
     };
-    let missing = run();
-    symlink(
-        concat!(env!("CARGO_MANIFEST_DIR"), "/models/weights.bin"),
-        &path,
-    )
-    .unwrap();
-    let valid = run();
-    std::fs::remove_file(path).unwrap();
-    std::fs::remove_dir(dir).unwrap();
 
+    let missing = run(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(filename));
     assert_eq!(missing.status.code(), Some(1));
     assert_eq!(missing.stderr, b"redakt: Could not read native model\n");
     assert!(missing.stdout.is_empty());
-    assert!(valid.status.success());
-    assert!(valid.stderr.is_empty());
+
+    // macOS filesystems can reject non-UTF-8 filenames.
+    #[cfg(target_os = "linux")]
+    {
+        let dir = std::env::temp_dir().join(format!("redakt-weights-{}", std::process::id()));
+        std::fs::create_dir(&dir).unwrap();
+        let path = dir.join(filename);
+        std::os::unix::fs::symlink(
+            concat!(env!("CARGO_MANIFEST_DIR"), "/models/weights.bin"),
+            &path,
+        )
+        .unwrap();
+        let valid = run(&path);
+        std::fs::remove_file(path).unwrap();
+        std::fs::remove_dir(dir).unwrap();
+
+        assert!(valid.status.success());
+        assert!(valid.stderr.is_empty());
+    }
 }
 
 #[test]
