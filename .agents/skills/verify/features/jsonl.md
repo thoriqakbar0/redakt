@@ -11,7 +11,7 @@ Users stream records through one process and receive a flushed response for each
 
 ## How to get to it (user POV)
 
-Run `privacy-hygiene --jsonl` and write one object containing exactly `id` and `text` per line.
+Run `redakt --jsonl` and write one object containing exactly `id` and `text` per line.
 
 ## Driving it with shell
 
@@ -19,7 +19,7 @@ Preconditions. Run Launch and Doctor in the parent skill.
 
 ```bash
 printf '%s\n' '{"id":"one","text":"123-45-6789"}' '' '{"id":"two","text":"clean"}' >"$evidence/records.jsonl"
-printf '%s\n' 'privacy-hygiene --jsonl < records.jsonl' >"$evidence/jsonl-action.txt"
+printf '%s\n' 'redakt --jsonl < records.jsonl' >"$evidence/jsonl-action.txt"
 "$binary" --jsonl <"$evidence/records.jsonl" >"$evidence/responses.jsonl" 2>"$evidence/jsonl-stderr.txt"
 jq -se '. == [{id:"one",spans:[{start:0,end:11,label:"ssn"}],redacted:"[SSN_1]"},{id:"two",spans:[],redacted:"clean"}]' "$evidence/responses.jsonl"
 test ! -s "$evidence/jsonl-stderr.txt"

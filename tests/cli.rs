@@ -6,7 +6,7 @@ use std::thread;
 use std::time::Duration;
 
 fn invoke(input: &[u8], arguments: &[&str]) -> Output {
-    let mut child = Command::new(env!("CARGO_BIN_EXE_privacy-hygiene"))
+    let mut child = Command::new(env!("CARGO_BIN_EXE_redakt"))
         .args(arguments)
         .env("PATH", "")
         .stdin(Stdio::piped())
@@ -144,16 +144,16 @@ fn malformed_models_are_rejected() {
         valid[..20].to_vec(),
         [valid.as_slice(), b"extra"].concat(),
     ] {
-        assert!(privacy_hygiene::Detector::from_bytes(&malformed).is_err());
+        assert!(redakt::Detector::from_bytes(&malformed).is_err());
     }
     let mut invalid_magic = valid.to_vec();
     invalid_magic[..4].copy_from_slice(b"BAD!");
-    assert!(privacy_hygiene::Detector::from_bytes(&invalid_magic).is_err());
+    assert!(redakt::Detector::from_bytes(&invalid_magic).is_err());
 }
 
 #[test]
 fn native_model_matches_frozen_rules() {
-    let model = privacy_hygiene::Detector::embedded().unwrap();
+    let model = redakt::Detector::embedded().unwrap();
     for line in include_str!("fixtures/rules-parity.jsonl").lines() {
         let expected: Value = serde_json::from_str(line).unwrap();
         let text = expected["text"].as_str().unwrap();
@@ -169,7 +169,7 @@ fn native_model_matches_frozen_rules() {
 
 #[test]
 fn jsonl_flushes_each_record_before_eof() {
-    let mut child = Command::new(env!("CARGO_BIN_EXE_privacy-hygiene"))
+    let mut child = Command::new(env!("CARGO_BIN_EXE_redakt"))
         .arg("--jsonl")
         .env("PATH", "")
         .stdin(Stdio::piped())
@@ -231,7 +231,7 @@ fn rejects_private_jsonl() {
         assert!(output.stdout.is_empty());
         assert_eq!(
             String::from_utf8(output.stderr).unwrap(),
-            "privacy-hygiene: Invalid JSONL record\n"
+            "redakt: Invalid JSONL record\n"
         );
     }
 }
@@ -255,7 +255,7 @@ fn weights_control_predictions() {
         "a@example.test 212-555-0123 123-45-6789 4111111111111111 ",
         "GB82WEST12345698765432 Name: Nora Chen Address: 123 Main Street"
     );
-    let baseline = privacy_hygiene::Detector::embedded().unwrap().detect(text);
+    let baseline = redakt::Detector::embedded().unwrap().detect(text);
     let labels: std::collections::BTreeSet<_> =
         baseline.iter().map(|span| span.label.as_str()).collect();
     assert_eq!(
@@ -271,7 +271,7 @@ fn weights_control_predictions() {
             *byte = json!(0);
         }
     }
-    let detector = privacy_hygiene::Detector::from_bytes(&model_bytes(&model)).unwrap();
+    let detector = redakt::Detector::from_bytes(&model_bytes(&model)).unwrap();
     assert!(detector.detect(text).is_empty());
 
     let mut model = model_json();
@@ -280,7 +280,7 @@ fn weights_control_predictions() {
             *byte = json!(0);
         }
     }
-    let detector = privacy_hygiene::Detector::from_bytes(&model_bytes(&model)).unwrap();
+    let detector = redakt::Detector::from_bytes(&model_bytes(&model)).unwrap();
     let expected: Vec<_> = baseline
         .into_iter()
         .filter(|span| span.label != "card" && span.label != "iban")
@@ -320,7 +320,7 @@ fn malformed_model_programs_are_rejected() {
     model["instructions"] = json!(instructions);
     invalid_models.push(("Assertion nesting exceeds model limit", model));
     for (reason, model) in invalid_models {
-        let error = privacy_hygiene::Detector::from_bytes(&model_bytes(&model))
+        let error = redakt::Detector::from_bytes(&model_bytes(&model))
             .err()
             .expect("malformed model was accepted");
         assert_eq!(error, reason);

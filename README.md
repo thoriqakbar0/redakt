@@ -1,22 +1,22 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="privacy-hygiene logo" width="240">
+  <img src="assets/logo.svg" alt="redakt logo" width="240">
 </p>
 
-# privacy-hygiene
+# redakt
 
 Redact personal data locally with a standalone Rust CLI. The binary embeds the model and runs offline after installation.
 
 ## Install the CLI
 
-Install the latest published version from crates.io with [Rust and Cargo](https://rustup.rs/).
+Install this checkout with [Rust and Cargo](https://rustup.rs/).
 
 ```bash
-cargo install privacy-hygiene --locked
+cargo install --path . --locked
 ```
 
-To install from the current development branch, run `cargo install --git https://github.com/thoriqakbar0/privacy-hygiene.git --locked`.
+After the first crates.io release under the new name, use `cargo install redakt --locked`.
 
-For a prebuilt binary, download the archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/privacy-hygiene/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
+For a prebuilt binary, choose a release that includes `redakt` and download the archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/redakt/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
 
 ## Try it
 
@@ -27,7 +27,7 @@ printf '%s\n' \
   'Emails: nora@example.test, ada@example.test, jo@example.test' \
   'Address: 12 Oak Lane' \
   'Address: 48 Cedar Road' \
-  'Password: demo-password' | privacy-hygiene
+  'Password: demo-password' | redakt
 ```
 
 Version 0.0.4 and later print numbered labels. Version 0.0.3 replaces each matched character with `█`.
@@ -42,7 +42,7 @@ Password: [SECRET_1]
 To save the output for a UTF-8 text file, redirect it to a separate file.
 
 ```bash
-privacy-hygiene < sample.txt > result
+redakt < sample.txt > result
 ```
 
 The CLI writes redacted text to stdout and errors to stderr. Each category starts at 1 in each document. The same value and category reuse the same label within that document. Text outside detected spans, including line endings, is preserved.
@@ -51,7 +51,7 @@ The CLI writes redacted text to stdout and errors to stderr. Each category start
 
 Install the CLI, then paste this prompt into Claude Code or Codex and tell it which file to redact. Any filename works as long as the file contains UTF-8 plain text.
 
-> Use `privacy-hygiene` on this machine to redact the UTF-8 text file I specify. If I haven't given you the file path, ask me for it. Pass the file directly to the CLI through stdin and save its output to a new file only my account can access. Leave the original alone and use a filename that isn't already taken. Keep both files' contents out of chat, tool output, and external services. If it works, tell me where to find the copy. If it fails, tell me what went wrong without quoting either file.
+> Use `redakt` on this machine to redact the UTF-8 text file I specify. If I haven't given you the file path, ask me for it. Pass the file directly to the CLI through stdin and save its output to a new file only my account can access. Leave the original alone and use a filename that isn't already taken. Keep both files' contents out of chat, tool output, and external services. If it works, tell me where to find the copy. If it fails, tell me what went wrong without quoting either file.
 
 Review the new file locally before sharing it.
 
@@ -60,26 +60,26 @@ Review the new file locally before sharing it.
 Use `--jsonl` for match locations or to process multiple documents with one model load. Each input line must contain exactly `id` and `text`. Each response contains `id`, `spans`, and `redacted` and is flushed immediately. Span offsets count Unicode code points in the original text, starting at zero, with an exclusive end. Placeholder numbering restarts for each record.
 
 ```bash
-printf '%s\n' '{"id":"one","text":"SSN 123-45-6789"}' '{"id":"two","text":"a@example.test"}' | privacy-hygiene --jsonl
+printf '%s\n' '{"id":"one","text":"SSN 123-45-6789"}' '{"id":"two","text":"a@example.test"}' | redakt --jsonl
 ```
 
 Blank lines are ignored. An invalid record stops processing with a nonzero exit after any earlier complete responses.
 
-Run `privacy-hygiene --help` for usage or `privacy-hygiene --version` to check the installed version. Use `--weights PATH` to load another native artifact. Version 1 weights require recompilation for the current version 2 format.
+Run `redakt --help` for usage or `redakt --version` to check the installed version. Use `--weights PATH` to load another native artifact. Version 1 weights require recompilation for the current version 2 format.
 
 ### Remove cued private values
 
 The CLI detects cued names, addresses, secrets, bank account numbers, and dates of birth in plain stdin and JSONL.
 
 ```bash
-printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene
+printf 'API_KEY=synthetic_example_key_123456' | redakt
 ```
 
 If you used `--contextual` in version 0.0.2, remove it from your commands. The CLI replaces both native model spans and cue-based spans. See [cue-based coverage and its limits](docs/contextual.md).
 
 ## How the ternary matcher works
 
-privacy-hygiene detects personal data locally using a compiled rule model with 14,237 fixed ternary weights. The binary embeds the model from [models/weights.bin](models/weights.bin). The matcher uses weights in `{-1, 0, +1}` to test character classes and boundaries. Five ternary weights fit in each packed byte.
+redakt detects personal data locally using a compiled rule model with 14,237 fixed ternary weights. The binary embeds the model from [models/weights.bin](models/weights.bin). The matcher uses weights in `{-1, 0, +1}` to test character classes and boundaries. Five ternary weights fit in each packed byte.
 
 The model stores character masks, an ordered instruction graph, capture metadata, Unicode tables, and sparse checksum transitions. The Rust runtime executes that graph to find spans and redact text. It makes no regex-engine calls during inference. Luhn and IBAN checks use compiled transition tables.
 

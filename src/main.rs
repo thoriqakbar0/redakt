@@ -1,10 +1,10 @@
-use privacy_hygiene::{redact, Detector, Span};
+use redakt::{redact, Detector, Span};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::io::{self, BufRead, Read, Write};
 
 const HELP: &str = concat!(
-    "privacy-hygiene [--weights PATH] [--jsonl]\n",
+    "redakt [--weights PATH] [--jsonl]\n",
     "Read UTF-8 stdin and write plain redacted text to stdout.\n",
     "Replaces private values with numbered labels such as [EMAIL_1].\n",
     "Detects email, phone, SSN, card, IBAN, and cued private values.\n",
@@ -65,7 +65,7 @@ fn run() -> Result<(), String> {
                 return Ok(());
             }
             "--version" | "-V" => {
-                println!("privacy-hygiene {}", env!("CARGO_PKG_VERSION"));
+                println!("redakt {}", env!("CARGO_PKG_VERSION"));
                 return Ok(());
             }
             "--weights" if weights.is_none() => {
@@ -102,7 +102,7 @@ fn run() -> Result<(), String> {
 
 fn main() {
     if let Err(error) = run() {
-        eprintln!("privacy-hygiene: {error}");
+        eprintln!("redakt: {error}");
         std::process::exit(1);
     }
 }

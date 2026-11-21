@@ -5,6 +5,7 @@
 - Add a privacy-hygiene website with CLI install instructions, an interactive redaction example,
   and copyable prompts for Codex and Claude Code. The site serves Markdown on request and
   publishes a sitemap and agent guide. Thanks @thoriqakbar0.
+- Rename the crate and CLI from `privacy-hygiene` to `redakt`.
 - Replace the Claude Code and Codex plugins with a copy-paste README prompt for any UTF-8 text file. Thanks @thoriqakbar0.
 
 ## 0.0.4 - 2026-11-20

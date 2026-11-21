@@ -11,7 +11,7 @@ Users pipe text into the CLI and receive redacted text.
 
 ## How to get to it (user POV)
 
-Run `privacy-hygiene` with UTF-8 stdin. Use `--help` or `--version` for command information.
+Run `redakt` with UTF-8 stdin. Use `--help` or `--version` for command information.
 
 ## Driving it with shell
 

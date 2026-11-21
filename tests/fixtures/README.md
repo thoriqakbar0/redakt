@@ -2,7 +2,7 @@
 
 `rules-parity.jsonl` freezes 289 synthetic cases with their original rules-detector spans and redacted text. It includes the 64-document corpus, seeded mixed-category cases, Unicode boundaries and whitespace, long variable-length matches, greedy and lazy captures, invalid checksums, and card length boundaries.
 
-Expected values were produced by the independent `detector.py`, not the native implementation under test. The generator and rules source are preserved in [reproduction commit 6ba3e585](https://github.com/thoriqakbar0/privacy-hygiene/tree/6ba3e5850af6b2b13a22b81f27bd9df619df30d5). The rules source SHA-256 is `f29be211597b0801a232ee6e1a7c0a8bf724695c4bc157631ced410c11bc6160`. Generation used Python 3.10 and Unicode 13.0.0, matching the checked-in native model's classification tables.
+Expected values were produced by the independent `detector.py`, not the native implementation under test. The generator and rules source are preserved in [reproduction commit 6ba3e585](https://github.com/thoriqakbar0/redakt/tree/6ba3e5850af6b2b13a22b81f27bd9df619df30d5). The rules source SHA-256 is `f29be211597b0801a232ee6e1a7c0a8bf724695c4bc157631ced410c11bc6160`. Generation used Python 3.10 and Unicode 13.0.0, matching the checked-in native model's classification tables.
 
 Rust tests run each record's `text` through the native detector and compare its spans against the frozen `spans`. The archived `redacted` field records the original rules detector's block masking. The CLI tests in `tests/cli.rs` use independent examples to check numbered placeholders. No Python runtime is required.
 

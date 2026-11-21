@@ -20,8 +20,8 @@ Activate the environment again in each new shell before building.
 ```bash
 source target/macos-toolchain/bin/activate
 cargo zigbuild --release --locked --target x86_64-apple-darwin --target aarch64-apple-darwin
-file target/x86_64-apple-darwin/release/privacy-hygiene
-file target/aarch64-apple-darwin/release/privacy-hygiene
+file target/x86_64-apple-darwin/release/redakt
+file target/aarch64-apple-darwin/release/redakt
 ```
 
 Expect a Mach-O x86_64 executable and a Mach-O arm64 executable. [cargo-zigbuild](https://github.com/rust-cross/cargo-zigbuild) uses Zig as the linker. Both targets linked on Linux with Rust 1.100.0 and these tool versions without a separate macOS SDK.
@@ -33,9 +33,9 @@ Rust can warn that `xcrun` is unavailable while locating a macOS SDK. This warni
 Copy the executable for your Mac's architecture to that Mac, then run it there.
 
 ```bash
-chmod +x privacy-hygiene
-./privacy-hygiene --version
-printf 'SSN 123-45-6789' | ./privacy-hygiene
+chmod +x redakt
+./redakt --version
+printf 'SSN 123-45-6789' | ./redakt
 ```
 
 Expect the version listed in `Cargo.toml` and the plain text output `SSN [SSN_1]`.

@@ -18,7 +18,7 @@ Preconditions. Complete the parent's stdin Drive first.
 
 ```bash
 sha256sum models/weights.bin >"$evidence/model-before.sha256"
-printf '%s\n' 'privacy-hygiene --weights models/weights.bin < stdin.txt' >"$evidence/weights-action.txt"
+printf '%s\n' 'redakt --weights models/weights.bin < stdin.txt' >"$evidence/weights-action.txt"
 "$binary" --weights models/weights.bin <"$evidence/stdin.txt" >"$evidence/weights.txt" 2>"$evidence/weights-stderr.txt"
 cmp "$evidence/stdout.txt" "$evidence/weights.txt"
 test ! -s "$evidence/weights-stderr.txt"
