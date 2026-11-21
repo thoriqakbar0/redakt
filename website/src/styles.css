@@ -368,7 +368,9 @@ h2 { font-size: clamp(26px, 3.1vw, 34px); line-height: 1.2; letter-spacing: -.03
 .install .copy-feedback { min-height: 20px; font-size: 13px; margin-top: 6px; }
 
 .prompts { border-top: 1px solid var(--slate); padding-block: 64px; }
-.prompt-fallback { max-width: 72ch; margin-top: 16px; white-space: pre-line; color: var(--ash); }
+.prompt-fallback { max-width: 72ch; margin-top: 16px; color: var(--ash); }
+.prompt-fallback summary { cursor: pointer; }
+.prompt-fallback p { margin-top: 12px; white-space: pre-line; }
 .prompt-action {
   display: flex;
   flex-wrap: wrap;

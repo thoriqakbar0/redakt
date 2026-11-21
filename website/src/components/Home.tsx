@@ -262,7 +262,10 @@ function Prompts() {
         <button type="button" class="button primary" onClick={copy}>Copy prompt</button>
         <span class="copy-feedback" role="status">{feedback()}</span>
       </div>
-      <Show when={copyFailed()}><p class="prompt-fallback">{prompt}</p></Show>
+      <details class="prompt-fallback" open={copyFailed()}>
+        <summary>Read the setup prompt</summary>
+        <p>{prompt}</p>
+      </details>
     </section>
   );
 }
@@ -343,7 +346,7 @@ export default function Home() {
             <p class="workflow-command">
               <code>
                 <span aria-hidden="true">$</span>
-                {" redakt < .env > .env.redacted"}
+                {" (umask 077; set -C; redakt < .env > .env.redacted)"}
               </code>
             </p>
             <PromptFlow />

@@ -23,6 +23,8 @@ test("the same homepage URL serves HTML and Markdown", async () => {
   assert.match(markup, /<h1[^>]*><span[^>]*>redakt<\/span> before you prompt\./);
   assert.match(markup, /https:\/\/redakt\.ta-0\.com\/install\.sh/);
   assert.match(markup, /PASSWORD=<mark\b[^>]*>\[SECRET_1\]<\/mark>/);
+  assert.match(markup, /umask 077; set -C; redakt/);
+  assert.match(markup, /<summary>Read the setup prompt<\/summary>/);
 
   const document = await request("/", markdown);
   assert.equal(document.status, 200);
@@ -30,7 +32,7 @@ test("the same homepage URL serves HTML and Markdown", async () => {
   const body = await document.text();
   assert.match(body, /^# redakt/);
   assert.match(body, /built-in model runs offline on your CPU/);
-  assert.match(body, /redakt < \.env > \.env\.redacted/);
+  assert.match(body, /umask 077; set -C; redakt < \.env > \.env\.redacted/);
   assert.match(body, /cargo install redakt --locked/);
   assert.match(body, /Version 0\.0\.6 and later include the trained detector/);
 });
