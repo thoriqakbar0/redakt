@@ -136,6 +136,58 @@ fn alternate_model_and_private_errors() {
     }
 }
 
+#[cfg(unix)]
+#[test]
+fn non_utf8_weights_path() {
+    use std::ffi::OsStr;
+    use std::os::unix::ffi::OsStrExt;
+    use std::os::unix::fs::symlink;
+
+    let dir = std::env::temp_dir().join(format!("redakt-weights-{}", std::process::id()));
+    std::fs::create_dir(&dir).unwrap();
+    let path = dir.join(OsStr::from_bytes(b"synthetic-\xff"));
+    let run = || {
+        Command::new(env!("CARGO_BIN_EXE_redakt"))
+            .arg("--weights")
+            .arg(&path)
+            .output()
+            .unwrap()
+    };
+    let missing = run();
+    symlink(
+        concat!(env!("CARGO_MANIFEST_DIR"), "/models/weights.bin"),
+        &path,
+    )
+    .unwrap();
+    let valid = run();
+    std::fs::remove_file(path).unwrap();
+    std::fs::remove_dir(dir).unwrap();
+
+    assert_eq!(missing.status.code(), Some(1));
+    assert_eq!(missing.stderr, b"redakt: Could not read native model\n");
+    assert!(missing.stdout.is_empty());
+    assert!(valid.status.success());
+    assert!(valid.stderr.is_empty());
+}
+
+#[test]
+fn information_commands_report_closed_stdout() {
+    for flag in ["--help", "-h", "--version", "-V"] {
+        let (reader, writer) = std::io::pipe().unwrap();
+        drop(reader);
+        let output = Command::new(env!("CARGO_BIN_EXE_redakt"))
+            .arg(flag)
+            .stdout(writer)
+            .output()
+            .unwrap();
+        assert_eq!(output.status.code(), Some(1), "{flag}");
+        assert_eq!(
+            output.stderr,
+            b"redakt: Could not write command information\n"
+        );
+    }
+}
+
 #[test]
 fn malformed_models_are_rejected() {
     let valid = include_bytes!("../models/weights.bin");
