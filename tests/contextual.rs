@@ -19,15 +19,21 @@ fn invoke(text: &str, arguments: &[&str]) -> Output {
     child.wait_with_output().unwrap()
 }
 
-fn response(text: &str) -> Value {
+const RULE_WEIGHTS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/models/weights.bin");
+
+fn json_response(text: &str, arguments: &[&str]) -> Value {
     let input = format!("{}\n", json!({"id":1,"text":text}));
-    let output = invoke(&input, &["--jsonl"]);
+    let output = invoke(&input, arguments);
     assert!(
         output.status.success(),
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
     serde_json::from_slice(&output.stdout).unwrap()
+}
+
+fn rule_response(text: &str) -> Value {
+    json_response(text, &["--jsonl", "--weights", RULE_WEIGHTS])
 }
 
 #[test]
@@ -70,7 +76,7 @@ fn contextual_values_and_unicode_offsets() {
         ("SHIP TO: 42 Maple Street.", "42 Maple Street", "address"),
         ("lives at 42 Maple Street", "42 Maple Street", "address"),
     ] {
-        let actual = response(text);
+        let actual = json_response(text, &["--jsonl"]);
         let byte_start = text.find(value).unwrap();
         let start = text[..byte_start].chars().count();
         let end = start + value.chars().count();
@@ -102,10 +108,10 @@ fn rejects_invalid_values() {
         "account number: 12345",
         "account number: 12345678901234567890123456789012345",
     ] {
-        assert_eq!(response(text)["spans"], json!([]), "{text}");
+        assert_eq!(rule_response(text)["spans"], json!([]), "{text}");
     }
     assert_eq!(
-        response(&format!("password: {}", "x".repeat(300)))["spans"],
+        rule_response(&format!("password: {}", "x".repeat(300)))["spans"],
         json!([])
     );
 }
@@ -141,7 +147,7 @@ fn aliases_quotes_and_adjacent_fields() {
     ] {
         for separator in [":", "=", " is "] {
             let text = format!("\"{cue}\"{separator}\"abc.def+/==\"");
-            let actual = response(&text);
+            let actual = rule_response(&text);
             let start = text.find("abc").unwrap();
             assert_eq!(
                 actual["spans"],
@@ -151,7 +157,7 @@ fn aliases_quotes_and_adjacent_fields() {
     }
     for cue in ["DOB", "date of birth", "birth date"] {
         assert_eq!(
-            response(&format!("{cue} is 2024-02-29"))["spans"]
+            rule_response(&format!("{cue} is 2024-02-29"))["spans"]
                 .as_array()
                 .unwrap()
                 .len(),
@@ -159,13 +165,13 @@ fn aliases_quotes_and_adjacent_fields() {
         );
     }
     let text = "name: ada lovelace password: abc.def== DOB: 2024-02-29\r\nname: 李 明  \r\n";
-    let actual = response(text);
+    let actual = rule_response(text);
     assert_eq!(actual["spans"].as_array().unwrap().len(), 4);
     assert_eq!(
         actual["redacted"],
         "name: [NAME_1] password: [SECRET_1] DOB: [DATE_1]\r\nname: [NAME_2]  \r\n"
     );
-    let spans = response("Name: Nora Chen")["spans"]
+    let spans = rule_response("Name: Nora Chen")["spans"]
         .as_array()
         .unwrap()
         .clone();
@@ -216,7 +222,7 @@ fn complete_secret_values() {
     ] {
         let start = text.find(secret).unwrap();
         let end = start + secret.len();
-        let actual = response(text);
+        let actual = rule_response(text);
         assert_eq!(
             actual["spans"],
             json!([{"start":start,"end":end,"label":"secret"}])
@@ -231,7 +237,7 @@ fn complete_secret_values() {
         "api_key=abc\"def",
         "password=\"abc\"def",
     ] {
-        assert_eq!(response(text)["spans"], json!([]));
+        assert_eq!(rule_response(text)["spans"], json!([]));
     }
 }
 
@@ -239,7 +245,7 @@ fn complete_secret_values() {
 fn bounded_values_and_overlapping_labels() {
     for length in [256, 257] {
         let text = format!("password: {}", "x".repeat(length));
-        let actual = response(&text);
+        let actual = rule_response(&text);
         let expected = if length == 256 {
             json!([{"start":10,"end":266,"label":"secret"}])
         } else {
@@ -247,7 +253,7 @@ fn bounded_values_and_overlapping_labels() {
         };
         assert_eq!(actual["spans"], expected);
     }
-    let actual = response("password: a@example.test");
+    let actual = rule_response("password: a@example.test");
     assert_eq!(
         actual["spans"],
         json!([

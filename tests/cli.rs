@@ -41,6 +41,38 @@ fn update_uses_a_separate_argument_list() {
 }
 
 #[test]
+fn pii_redacts_prose() {
+    let input = concat!(
+        "🦊 Sarah called this morning.\n",
+        "Email: sarah@example.test\nPhone: 212-555-0123\nAddress: 12 Oak Lane\n"
+    );
+    let plain = invoke(input.as_bytes(), &[]);
+    assert!(plain.status.success());
+    let redacted = String::from_utf8(plain.stdout).unwrap();
+    for value in ["Sarah", "sarah@example.test", "212-555-0123", "12 Oak Lane"] {
+        assert!(!redacted.contains(value), "unmasked value {value}");
+    }
+    let request = json!({"id": "record", "text": input}).to_string();
+    let output = invoke(request.as_bytes(), &["--jsonl"]);
+    assert!(output.status.success());
+    let record: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(record["redacted"], redacted);
+    assert_eq!(record["id"], "record");
+    let spans = record["spans"].as_array().unwrap();
+    for (label, value) in [
+        ("name", "Sarah"),
+        ("email", "sarah@example.test"),
+        ("phone", "212-555-0123"),
+        ("address", "12 Oak Lane"),
+    ] {
+        let byte_start = input.find(value).unwrap();
+        let start = input[..byte_start].chars().count();
+        let end = start + value.chars().count();
+        assert!(spans.contains(&json!({"start": start, "end": end, "label": label})));
+    }
+}
+
+#[test]
 fn detects_supported_layouts() {
     for (sample, placeholder) in [
         ("123-45-6789", "[SSN_1]"),
@@ -106,6 +138,7 @@ fn address_boundaries() {
 
 #[test]
 fn exclusions_and_boundaries() {
+    let model = concat!(env!("CARGO_MANIFEST_DIR"), "/models/weights.bin");
     for input in [
         "",
         "000-12-1234",
@@ -121,7 +154,7 @@ fn exclusions_and_boundaries() {
         "212-155-0123",
         "Ⅷ212-555-0123",
     ] {
-        let output = invoke(input.as_bytes(), &[]);
+        let output = invoke(input.as_bytes(), &["--weights", model]);
         assert!(output.status.success());
         assert_eq!(output.stdout, input.as_bytes());
     }
@@ -272,18 +305,27 @@ fn jsonl_flushes_each_record_before_eof() {
         }
         let line = response.unwrap().unwrap();
         let actual: Value = serde_json::from_str(&line).unwrap();
-        assert_eq!(
-            actual,
-            json!({
-                "id": id,
-                "spans": [
-                    {"start": 12, "end": 26, "label": "email"},
-                    {"start": 12, "end": 26, "label": "secret"},
-                    {"start": 27, "end": 41, "label": "email"}
-                ],
-                "redacted": "🦊 password: [EMAIL_1] [EMAIL_2]"
+        assert_eq!(actual["id"], id);
+        assert_eq!(actual["redacted"], "🦊 password: [EMAIL_1] [EMAIL_2]");
+        let spans = actual["spans"].as_array().unwrap();
+        for expected in [
+            json!({"start": 12, "end": 26, "label": "email"}),
+            json!({"start": 12, "end": 26, "label": "secret"}),
+            json!({"start": 27, "end": 41, "label": "email"}),
+        ] {
+            assert!(spans.contains(&expected));
+        }
+        let ordered: Vec<_> = spans
+            .iter()
+            .map(|span| {
+                (
+                    span["start"].as_u64().unwrap(),
+                    span["end"].as_u64().unwrap(),
+                    span["label"].as_str().unwrap(),
+                )
             })
-        );
+            .collect();
+        assert!(ordered.windows(2).all(|pair| pair[0] < pair[1]));
     }
     drop(stdin);
     assert!(child.wait_with_output().unwrap().status.success());

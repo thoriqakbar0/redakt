@@ -4,7 +4,7 @@
 
 # redakt
 
-Redact personal data locally with a standalone Rust CLI. The binary embeds the model and processes documents on your machine.
+Redact personal data locally with a standalone Rust CLI. The binary embeds the trained detector and the rules model and processes documents on your machine.
 
 ## Install the CLI
 
@@ -58,6 +58,16 @@ redakt < sample.txt > result
 
 The CLI writes redacted text to stdout and errors to stderr. Each category starts at 1 in each document. The same value and category reuse the same label within that document. Text outside detected spans, including line endings, is preserved.
 
+### Redact PII in prose
+
+Redakt runs the trained English PII detector alongside the built-in rules by default. It looks for names in ordinary prose, contact details, locations, identifiers, and other annotated personal information. The detector runs locally and works with both plain text and `--jsonl`.
+
+```bash
+printf '%s\n' 'Sarah called this morning. Her email is sarah@example.test.' | redakt
+```
+
+The learned detector can miss private text or mask ordinary words. Review the output before sharing it. The training data comes from NVIDIA's [Nemotron-PII dataset](https://huggingface.co/datasets/nvidia/Nemotron-PII), available under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
 ### Redact a text file with Claude Code or Codex
 
 Install the CLI, then paste this prompt into Claude Code or Codex and tell it which file to redact. Any filename works as long as the file contains UTF-8 plain text.
@@ -76,7 +86,7 @@ printf '%s\n' '{"id":"one","text":"SSN 123-45-6789"}' '{"id":"two","text":"a@exa
 
 Blank lines are ignored. An invalid record stops processing with a nonzero exit after any earlier complete responses.
 
-Run `redakt --help` for usage or `redakt --version` to check the installed version. Use `--weights PATH` to load another native artifact. Version 1 weights require recompilation for the current version 2 format.
+Run `redakt --help` for usage or `redakt --version` to check the installed version. Use `--weights PATH` to select a native rules artifact and the built-in cue-based detector. For example, `redakt --weights models/weights.bin` runs the original seven-category rule model with cue-based detection. Version 1 rules weights require recompilation for the current version 2 format.
 
 ### Remove cued private values
 
@@ -86,11 +96,13 @@ The CLI detects cued names, addresses, secrets, bank account numbers, and dates 
 printf 'API_KEY=synthetic_example_key_123456' | redakt
 ```
 
-If you used `--contextual` in version 0.0.2, remove it from your commands. The CLI replaces both native model spans and cue-based spans. See [cue-based coverage and its limits](docs/contextual.md).
+If you used `--contextual` in version 0.0.2, remove it from your commands. Cue-based detection runs automatically. See [cue-based coverage and its limits](docs/contextual.md).
 
-## How the ternary matcher works
+## How the detectors work
 
-redakt detects personal data locally using a compiled rule model with 14,237 fixed ternary weights. The binary embeds the model from [models/weights.bin](models/weights.bin). The matcher uses weights in `{-1, 0, +1}` to test character classes and boundaries. Five ternary weights fit in each packed byte.
+The default CLI combines a supervised sequence tagger, learned field patterns, and the native rules. The tagger uses scaled ternary weights to label tokens using the surrounding text. See [training, evaluation, and reproduction](experiments/pii/README.md).
+
+The compiled rule model has 14,237 fixed ternary weights. The binary embeds the model from [models/weights.bin](models/weights.bin). The matcher uses weights in `{-1, 0, +1}` to test character classes and boundaries. Five ternary weights fit in each packed byte.
 
 The model stores character masks, an ordered instruction graph, capture metadata, Unicode tables, and sparse checksum transitions. The Rust runtime executes that graph to find spans and redact text. It makes no regex-engine calls during inference. Luhn and IBAN checks use compiled transition tables.
 
@@ -98,11 +110,11 @@ The weights encode rules at compile time. See [the ternary architecture and mode
 
 ## Coverage and measurements
 
-The CLI detects emails, phone numbers, US SSNs, payment card numbers, supported IBANs, and cued private values. Names and addresses require [explicit cues](docs/contextual.md#supplemental-coverage). IBAN coverage is limited to GB, DE, FR, ES, NL, and IT. Checksums do not establish assignment, ownership, or privacy.
+The rule-based detector covers emails, phone numbers, US SSNs, payment card numbers, supported IBANs, and cued private values. Its name and address rules require [explicit cues](docs/contextual.md#supplemental-coverage). The trained detector can also recognize names and addresses in prose. IBAN rule coverage is limited to GB, DE, FR, ES, NL, and IT. Checksums do not establish assignment, ownership, or privacy.
 
 For anonymization, treat the detector as one step in the process. The rules can miss personal data outside the formats they cover. The detector has no tested worst-case time or memory guarantee for hostile inputs.
 
-The native model is 57,811 bytes. The previously measured Linux executable was 830,384 bytes with the model embedded. Artifact size is separate from runtime RAM and depends on the build target.
+The compiled rules model is 57,811 bytes. The previously measured Linux executable was 830,384 bytes before it included the learned detector. Artifact size is separate from runtime RAM and depends on the build target.
 
 A matched five-trial CPU comparison verified exact native/rules outputs. Native RAM was lower, while native/rules timing ranges overlapped on both short and long documents. See [the benchmark findings and raw evidence](docs/fair-benchmark.md) and [the architecture and format](docs/ternary.md).
 
@@ -131,6 +143,9 @@ To build macOS executables from Linux, follow [the macOS cross-compilation guide
 | [src/](src/) | Compiled ternary-gated matching, redaction, and CLI |
 | [website/](website/) | Astro and SolidJS homepage and Cloudflare deployment setup |
 | [models/weights.bin](models/weights.bin) | Embedded version 2 model |
+| [models/pii.bin](models/pii.bin) | Embedded trained PII sequence model |
+| [models/pii-cues.bin](models/pii-cues.bin) | Learned cue and value patterns |
+| [models/pii-cues.bin](models/pii-cues.bin) | Learned cues for PII span refinement |
 | [tests/](tests/) | Rust CLI, model, and frozen parity checks |
 | [docs/ternary.md](docs/ternary.md) | Architecture, matching contract, and native format |
 | [docs/fair-benchmark.md](docs/fair-benchmark.md) | Matched comparison and external reproduction source |

@@ -1,4 +1,6 @@
 mod contextual;
+mod pii;
+pub use pii::PiiTagger;
 
 use serde::{Deserialize, Serialize};
 use std::cmp::Reverse;

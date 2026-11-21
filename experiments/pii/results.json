@@ -1,0 +1,537 @@
+{
+  "documents": 100000,
+  "micro": {
+    "gold": 803713,
+    "predicted": 885896,
+    "correct": 736388,
+    "fully_covered": 759755,
+    "precision": 0.8312352691512322,
+    "recall": 0.9162325357434806,
+    "coverage": 0.9453063469173698
+  },
+  "per_class": {
+    "account_number": {
+      "gold": 16693,
+      "predicted": 17140,
+      "correct": 14505,
+      "fully_covered": 16210,
+      "precision": 0.8462660443407235,
+      "recall": 0.8689270951896004,
+      "coverage": 0.9710657161684538
+    },
+    "address": {
+      "gold": 16879,
+      "predicted": 18365,
+      "correct": 15975,
+      "fully_covered": 16168,
+      "precision": 0.8698611489245848,
+      "recall": 0.9464423247822739,
+      "coverage": 0.9578766514603946
+    },
+    "age": {
+      "gold": 7167,
+      "predicted": 7800,
+      "correct": 6486,
+      "fully_covered": 6627,
+      "precision": 0.8315384615384616,
+      "recall": 0.9049811636668061,
+      "coverage": 0.9246546672247803
+    },
+    "bank_routing_number": {
+      "gold": 8354,
+      "predicted": 7939,
+      "correct": 7901,
+      "fully_covered": 8254,
+      "precision": 0.9952135029600705,
+      "recall": 0.9457744792913574,
+      "coverage": 0.9880296863777831
+    },
+    "biometric_identifier": {
+      "gold": 11379,
+      "predicted": 11317,
+      "correct": 11249,
+      "fully_covered": 11281,
+      "precision": 0.993991340461253,
+      "recall": 0.9885754459970121,
+      "coverage": 0.9913876439054399
+    },
+    "blood_type": {
+      "gold": 5539,
+      "predicted": 6108,
+      "correct": 5378,
+      "fully_covered": 5381,
+      "precision": 0.8804846103470858,
+      "recall": 0.9709333814768009,
+      "coverage": 0.9714749954865499
+    },
+    "card": {
+      "gold": 12867,
+      "predicted": 14191,
+      "correct": 12782,
+      "fully_covered": 12825,
+      "precision": 0.9007117186949475,
+      "recall": 0.9933939535245201,
+      "coverage": 0.9967358358591746
+    },
+    "certificate_license_number": {
+      "gold": 3002,
+      "predicted": 3816,
+      "correct": 2839,
+      "fully_covered": 2960,
+      "precision": 0.7439727463312369,
+      "recall": 0.9457028647568287,
+      "coverage": 0.9860093271152565
+    },
+    "city": {
+      "gold": 18347,
+      "predicted": 22961,
+      "correct": 16806,
+      "fully_covered": 17837,
+      "precision": 0.7319367623361351,
+      "recall": 0.9160080667139042,
+      "coverage": 0.9722025399247833
+    },
+    "company_name": {
+      "gold": 54837,
+      "predicted": 51197,
+      "correct": 42180,
+      "fully_covered": 43454,
+      "precision": 0.8238763990077543,
+      "recall": 0.7691886864708135,
+      "coverage": 0.7924211754837063
+    },
+    "coordinate": {
+      "gold": 7659,
+      "predicted": 7840,
+      "correct": 7584,
+      "fully_covered": 7601,
+      "precision": 0.9673469387755103,
+      "recall": 0.990207598903251,
+      "coverage": 0.9924272098185142
+    },
+    "country": {
+      "gold": 23475,
+      "predicted": 24095,
+      "correct": 22757,
+      "fully_covered": 23312,
+      "precision": 0.9444698070139033,
+      "recall": 0.9694142705005325,
+      "coverage": 0.9930564430244941
+    },
+    "county": {
+      "gold": 8465,
+      "predicted": 8578,
+      "correct": 7658,
+      "fully_covered": 8038,
+      "precision": 0.892748892515738,
+      "recall": 0.9046662728883639,
+      "coverage": 0.9495569994093326
+    },
+    "customer_id": {
+      "gold": 20502,
+      "predicted": 21507,
+      "correct": 20022,
+      "fully_covered": 20247,
+      "precision": 0.9309527130701633,
+      "recall": 0.9765876499853673,
+      "coverage": 0.9875621890547264
+    },
+    "cvv": {
+      "gold": 4843,
+      "predicted": 5542,
+      "correct": 4771,
+      "fully_covered": 4792,
+      "precision": 0.8608805485384338,
+      "recall": 0.985133181912038,
+      "coverage": 0.9894693371876936
+    },
+    "date": {
+      "gold": 91946,
+      "predicted": 94204,
+      "correct": 87122,
+      "fully_covered": 88542,
+      "precision": 0.9248227251496751,
+      "recall": 0.9475344223783525,
+      "coverage": 0.9629782698540448
+    },
+    "date_time": {
+      "gold": 13221,
+      "predicted": 15557,
+      "correct": 12278,
+      "fully_covered": 12670,
+      "precision": 0.78922671466221,
+      "recall": 0.928674079116557,
+      "coverage": 0.958323878677861
+    },
+    "device_identifier": {
+      "gold": 2507,
+      "predicted": 4188,
+      "correct": 1906,
+      "fully_covered": 2438,
+      "precision": 0.4551098376313276,
+      "recall": 0.7602712405265257,
+      "coverage": 0.9724770642201835
+    },
+    "education_level": {
+      "gold": 9378,
+      "predicted": 10685,
+      "correct": 7779,
+      "fully_covered": 8735,
+      "precision": 0.728029948525971,
+      "recall": 0.8294945617402432,
+      "coverage": 0.9314352740456388
+    },
+    "email": {
+      "gold": 53930,
+      "predicted": 54208,
+      "correct": 53594,
+      "fully_covered": 53659,
+      "precision": 0.9886732585596222,
+      "recall": 0.9937697014648619,
+      "coverage": 0.9949749675505285
+    },
+    "employee_id": {
+      "gold": 8878,
+      "predicted": 9034,
+      "correct": 8726,
+      "fully_covered": 8812,
+      "precision": 0.9659065751605047,
+      "recall": 0.9828790268078396,
+      "coverage": 0.9925658932191935
+    },
+    "employment_status": {
+      "gold": 11018,
+      "predicted": 13818,
+      "correct": 10776,
+      "fully_covered": 10943,
+      "precision": 0.7798523664785063,
+      "recall": 0.9780359411871483,
+      "coverage": 0.9931929569794881
+    },
+    "fax_number": {
+      "gold": 6423,
+      "predicted": 7592,
+      "correct": 5073,
+      "fully_covered": 6386,
+      "precision": 0.6682033719704953,
+      "recall": 0.7898178421298458,
+      "coverage": 0.9942394519694847
+    },
+    "gender": {
+      "gold": 7645,
+      "predicted": 8006,
+      "correct": 7592,
+      "fully_covered": 7621,
+      "precision": 0.9482887834124407,
+      "recall": 0.9930673642903859,
+      "coverage": 0.996860693263571
+    },
+    "health_plan_beneficiary_number": {
+      "gold": 10558,
+      "predicted": 11670,
+      "correct": 10416,
+      "fully_covered": 10508,
+      "precision": 0.8925449871465295,
+      "recall": 0.9865504830460314,
+      "coverage": 0.9952642545936731
+    },
+    "http_cookie": {
+      "gold": 4892,
+      "predicted": 5760,
+      "correct": 4259,
+      "fully_covered": 4490,
+      "precision": 0.7394097222222222,
+      "recall": 0.8706050695012265,
+      "coverage": 0.9178250204415372
+    },
+    "iban": {
+      "gold": 0,
+      "predicted": 6,
+      "correct": 0,
+      "fully_covered": 0,
+      "precision": 0.0,
+      "recall": null,
+      "coverage": null
+    },
+    "ipv4": {
+      "gold": 6078,
+      "predicted": 6222,
+      "correct": 6041,
+      "fully_covered": 6051,
+      "precision": 0.9709096753455481,
+      "recall": 0.993912471207634,
+      "coverage": 0.9955577492596249
+    },
+    "ipv6": {
+      "gold": 3139,
+      "predicted": 4364,
+      "correct": 3112,
+      "fully_covered": 3129,
+      "precision": 0.7131072410632447,
+      "recall": 0.9913985345651481,
+      "coverage": 0.996814272061166
+    },
+    "language": {
+      "gold": 8651,
+      "predicted": 9646,
+      "correct": 7985,
+      "fully_covered": 8404,
+      "precision": 0.8278042712004976,
+      "recall": 0.9230146803837707,
+      "coverage": 0.9714483874696567
+    },
+    "license_plate": {
+      "gold": 4078,
+      "predicted": 4927,
+      "correct": 3973,
+      "fully_covered": 4016,
+      "precision": 0.8063730464785874,
+      "recall": 0.974252084355076,
+      "coverage": 0.984796468857283
+    },
+    "mac_address": {
+      "gold": 4250,
+      "predicted": 4454,
+      "correct": 4239,
+      "fully_covered": 4250,
+      "precision": 0.9517287831162999,
+      "recall": 0.9974117647058823,
+      "coverage": 1.0
+    },
+    "medical_record_number": {
+      "gold": 11098,
+      "predicted": 11916,
+      "correct": 10704,
+      "fully_covered": 10997,
+      "precision": 0.8982880161127895,
+      "recall": 0.9644981077671653,
+      "coverage": 0.9908992611281312
+    },
+    "name": {
+      "gold": 97012,
+      "predicted": 105095,
+      "correct": 92469,
+      "fully_covered": 93946,
+      "precision": 0.8798610780722204,
+      "recall": 0.9531707417639055,
+      "coverage": 0.9683956623922814
+    },
+    "national_id": {
+      "gold": 2847,
+      "predicted": 2910,
+      "correct": 1879,
+      "fully_covered": 2635,
+      "precision": 0.6457044673539519,
+      "recall": 0.6599929750614683,
+      "coverage": 0.9255356515630488
+    },
+    "occupation": {
+      "gold": 36888,
+      "predicted": 44160,
+      "correct": 22284,
+      "fully_covered": 24234,
+      "precision": 0.5046195652173913,
+      "recall": 0.6040988939492518,
+      "coverage": 0.6569616135328562
+    },
+    "phone": {
+      "gold": 23930,
+      "predicted": 31370,
+      "correct": 23189,
+      "fully_covered": 23711,
+      "precision": 0.739209435766656,
+      "recall": 0.9690346844964479,
+      "coverage": 0.9908483075637275
+    },
+    "pin": {
+      "gold": 6456,
+      "predicted": 5958,
+      "correct": 5803,
+      "fully_covered": 6076,
+      "precision": 0.9739845585767036,
+      "recall": 0.8988537794299876,
+      "coverage": 0.9411400247831475
+    },
+    "political_view": {
+      "gold": 6402,
+      "predicted": 12199,
+      "correct": 5759,
+      "fully_covered": 6189,
+      "precision": 0.47208787605541436,
+      "recall": 0.8995626366760388,
+      "coverage": 0.9667291471415183
+    },
+    "postcode": {
+      "gold": 6279,
+      "predicted": 6416,
+      "correct": 5988,
+      "fully_covered": 6125,
+      "precision": 0.933291770573566,
+      "recall": 0.9536550406115624,
+      "coverage": 0.9754738015607581
+    },
+    "race_ethnicity": {
+      "gold": 9248,
+      "predicted": 10103,
+      "correct": 8509,
+      "fully_covered": 9076,
+      "precision": 0.8422250816589132,
+      "recall": 0.920090830449827,
+      "coverage": 0.981401384083045
+    },
+    "religious_belief": {
+      "gold": 6257,
+      "predicted": 7886,
+      "correct": 5924,
+      "fully_covered": 6150,
+      "precision": 0.7512046664975907,
+      "recall": 0.9467796068403388,
+      "coverage": 0.9828991529486975
+    },
+    "secret": {
+      "gold": 11652,
+      "predicted": 15099,
+      "correct": 10284,
+      "fully_covered": 11064,
+      "precision": 0.6811047089211206,
+      "recall": 0.88259526261586,
+      "coverage": 0.9495365602471678
+    },
+    "sexuality": {
+      "gold": 3312,
+      "predicted": 3710,
+      "correct": 3253,
+      "fully_covered": 3260,
+      "precision": 0.8768194070080862,
+      "recall": 0.9821859903381642,
+      "coverage": 0.9842995169082126
+    },
+    "ssn": {
+      "gold": 6062,
+      "predicted": 10668,
+      "correct": 6037,
+      "fully_covered": 6054,
+      "precision": 0.5658980127484065,
+      "recall": 0.9958759485318377,
+      "coverage": 0.9986803035301881
+    },
+    "state": {
+      "gold": 18318,
+      "predicted": 18801,
+      "correct": 16442,
+      "fully_covered": 17581,
+      "precision": 0.8745279506409234,
+      "recall": 0.8975870728245442,
+      "coverage": 0.9597663500382138
+    },
+    "swift_bic": {
+      "gold": 5559,
+      "predicted": 5560,
+      "correct": 5305,
+      "fully_covered": 5376,
+      "precision": 0.954136690647482,
+      "recall": 0.9543083288361216,
+      "coverage": 0.9670804101457097
+    },
+    "tax_id": {
+      "gold": 1302,
+      "predicted": 2563,
+      "correct": 1077,
+      "fully_covered": 1238,
+      "precision": 0.4202106905969567,
+      "recall": 0.8271889400921659,
+      "coverage": 0.9508448540706606
+    },
+    "time": {
+      "gold": 24506,
+      "predicted": 36021,
+      "correct": 21239,
+      "fully_covered": 22192,
+      "precision": 0.5896282723966575,
+      "recall": 0.8666857096221333,
+      "coverage": 0.9055741451073207
+    },
+    "unique_id": {
+      "gold": 1777,
+      "predicted": 3775,
+      "correct": 1051,
+      "fully_covered": 1678,
+      "precision": 0.27841059602649004,
+      "recall": 0.5914462577377603,
+      "coverage": 0.9442881260551491
+    },
+    "url": {
+      "gold": 37847,
+      "predicted": 39282,
+      "correct": 37020,
+      "fully_covered": 37338,
+      "precision": 0.9424163739117153,
+      "recall": 0.9781488625254313,
+      "coverage": 0.9865511136946126
+    },
+    "user_name": {
+      "gold": 15800,
+      "predicted": 14969,
+      "correct": 13922,
+      "fully_covered": 14653,
+      "precision": 0.9300554479257132,
+      "recall": 0.8811392405063291,
+      "coverage": 0.9274050632911393
+    },
+    "vehicle_identifier": {
+      "gold": 4561,
+      "predicted": 4698,
+      "correct": 4486,
+      "fully_covered": 4541,
+      "precision": 0.9548744146445296,
+      "recall": 0.9835562376671783,
+      "coverage": 0.9956149967112475
+    }
+  },
+  "smoke": [
+    {
+      "input": "I met Nora Chen yesterday.",
+      "output": "I met [NAME_1] yesterday.",
+      "gold": 1,
+      "predicted": 1,
+      "correct": 1,
+      "fully_covered": 1,
+      "precision": 1.0,
+      "recall": 1.0,
+      "coverage": 1.0
+    },
+    {
+      "input": "Email me at alex@example.org or call 415-555-0198.",
+      "output": "Email me at [EMAIL_1] or call [PHONE_1].",
+      "gold": 2,
+      "predicted": 2,
+      "correct": 2,
+      "fully_covered": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "coverage": 1.0
+    },
+    {
+      "input": "🦊 Ship to 42 Maple Street. DOB: 1990-04-12.",
+      "output": "🦊 Ship to [ADDRESS_1]. DOB: [DATE_1].",
+      "gold": 2,
+      "predicted": 2,
+      "correct": 2,
+      "fully_covered": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "coverage": 1.0
+    },
+    {
+      "input": "Please send the revised report tomorrow.",
+      "output": "Please send the revised report tomorrow.",
+      "gold": 0,
+      "predicted": 0,
+      "correct": 0,
+      "fully_covered": 0,
+      "precision": null,
+      "recall": null,
+      "coverage": null
+    }
+  ]
+}

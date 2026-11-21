@@ -3,3 +3,10 @@ Copyright 2026 redakt contributors
 
 The artifact in models/weights.bin contains compiled ternary circuit weights.
 It is not an OpenAI Privacy Filter checkpoint.
+
+The trained PII detector uses annotations from NVIDIA's Nemotron-PII
+synthetic English dataset (CC BY 4.0).
+Dataset: https://huggingface.co/datasets/nvidia/Nemotron-PII
+License: https://creativecommons.org/licenses/by/4.0/
+Redakt extracted and normalized labeled spans, trained sequence taggers,
+and quantized the resulting weights for local inference.

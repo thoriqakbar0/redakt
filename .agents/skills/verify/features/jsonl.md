@@ -7,7 +7,7 @@ Users stream records through one process and receive a flushed response for each
 - Preserve IDs, count span offsets in Unicode code points, and ignore blank lines.
 - Flush responses before EOF.
 - Reject malformed records without exposing their input.
-- Detect additional cued values automatically with embedded or alternate native weights.
+- Detect learned PII in default JSONL records. Explicit native weights select rules and cue-based detection.
 
 ## How to get to it (user POV)
 
@@ -18,10 +18,10 @@ Run `redakt --jsonl` and write one object containing exactly `id` and `text` per
 Preconditions. Run Launch and Doctor in the parent skill.
 
 ```bash
-printf '%s\n' '{"id":"one","text":"123-45-6789"}' '' '{"id":"two","text":"clean"}' >"$evidence/records.jsonl"
+printf '%s\n' '{"id":"one","text":"🦊 Sarah called this morning."}' '' '{"id":"two","text":"clean"}' >"$evidence/records.jsonl"
 printf '%s\n' 'redakt --jsonl < records.jsonl' >"$evidence/jsonl-action.txt"
 "$binary" --jsonl <"$evidence/records.jsonl" >"$evidence/responses.jsonl" 2>"$evidence/jsonl-stderr.txt"
-jq -se '. == [{id:"one",spans:[{start:0,end:11,label:"ssn"}],redacted:"[SSN_1]"},{id:"two",spans:[],redacted:"clean"}]' "$evidence/responses.jsonl"
+jq -se '. == [{id:"one",spans:[{start:2,end:7,label:"name"}],redacted:"🦊 [NAME_1] called this morning."},{id:"two",spans:[],redacted:"clean"}]' "$evidence/responses.jsonl"
 test ! -s "$evidence/jsonl-stderr.txt"
 cargo test --locked --test cli jsonl >"$evidence/jsonl-tests.log" 2>&1
 ```
