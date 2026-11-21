@@ -5,8 +5,10 @@ description: How the website demo and CLI handle your data.
 ---
 # Privacy and data handling
 
-The homepage terminal shows synthetic examples. It lets you switch between text and JSONL examples and copy commands or prompts, and it has no upload form. Cloudflare serves the website and processes the requests needed to deliver its pages and assets. External links lead to services with their own privacy policies.
+The website demo shows synthetic examples and accepts no file uploads. Cloudflare handles the requests needed to serve the website. External sites have their own privacy policies.
 
-After installation, the Rust CLI processes file contents on your machine without an internet connection. It reads the input you provide and writes the result to standard output. When saving a copy, use a separate path and restrict access to it. The detector can miss personal data outside supported formats and context cues, so review the output locally before sharing it with another person or service.
+The CLI reads and redacts your text on your machine, even offline. If you save the output, use a new file and restrict access to your account. Review the copy locally for anything the detector missed before you share it.
 
-When stderr is attached to a terminal, the CLI can request release metadata from GitHub after redaction, at most once every 24 hours per local cache. The request contains no document contents. Set `REDAKT_UPDATE_NOTIFY=0` to disable these checks.
+Run redakt before you send a prompt or attachment. Any text you submit is handled under the AI provider's policies, and redakt cannot recall text you already sent.
+
+After a successful redaction with stderr attached to a terminal, redakt can request release metadata from GitHub at most once every 24 hours per local cache. The request contains no document contents. Set `REDAKT_UPDATE_NOTIFY=0` to disable automatic checks.

@@ -19,12 +19,22 @@ test("the same homepage URL serves HTML and Markdown", async () => {
   const page = await request("/", html);
   assert.equal(page.status, 200);
   assertFormat(page, html);
-  assert.match(await page.text(), /<h1[^>]*>Redact your LLM calls\./);
+  const markup = await page.text();
+  assert.match(markup, /<h1[^>]*><span[^>]*>redakt<\/span> before you prompt\./);
+  assert.match(markup, /https:\/\/redakt\.ta-0\.com\/install\.sh/);
+  assert.match(markup, /PASSWORD=<mark\b[^>]*>\[SECRET_1\]<\/mark>/);
+  assert.match(markup, /mktemp \.env\.redacted\.XXXXXX/);
+  assert.match(markup, /<summary>Read the setup prompt<\/summary>/);
 
   const document = await request("/", markdown);
   assert.equal(document.status, 200);
   assertFormat(document, markdown);
-  assert.match(await document.text(), /^# redakt/);
+  const body = await document.text();
+  assert.match(body, /^# redakt/);
+  assert.match(body, /built-in model runs offline on your CPU/);
+  assert.match(body, /mktemp \.env\.redacted\.XXXXXX\) && redakt < \.env > "\$copy"/);
+  assert.match(body, /cargo install redakt --locked/);
+  assert.match(body, /Version 0\.0\.6 and later include the trained detector/);
 });
 
 test("a missing URL keeps its 404 status in either format", async () => {

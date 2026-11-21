@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Refresh the redakt website with animated examples for environment secrets and personal data, a local prompt workflow, and one copyable setup prompt. Thanks @thoriqakbar0.
+
 - Install prebuilt redakt binaries on Linux, macOS, and Windows with scripts that verify release checksums. Thanks @thoriqakbar0.
 
 ## 0.0.6 - 2026-11-21

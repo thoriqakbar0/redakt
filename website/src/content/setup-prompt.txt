@@ -1,7 +1,7 @@
 Set up redakt for this project. Check whether the CLI is already on PATH. If it's missing on macOS or Linux, download https://redakt.ta-0.com/install.sh to a temporary directory and run it with sh. The binary installs to ~/.local/bin by default. If the installer is unavailable and Cargo is installed, run `cargo install redakt --locked`.
 
-Add a short rule to this project’s existing assistant instructions. Use AGENTS.md for Codex or CLAUDE.md for Claude Code. Preserve the instructions already there.
+Add the rule below to this project’s assistant instructions. Use AGENTS.md for Codex or CLAUDE.md for Claude Code. Keep the existing instructions.
 
-The rule: When I ask you to share or analyze a potentially sensitive log or text file, send it directly to the local redakt CLI through stdin before opening it. Save stdout to a new file readable only by my account and leave the original untouched. Keep both files out of chat and tool output. Give me the redacted file path so I can review it and decide what to share.
+When I ask you to share or analyze a potentially sensitive log or text file, pass it to redakt through stdin before opening it. Save stdout to a new local file that only my account can access. Leave the original untouched. Keep both files’ contents out of chat, tool output, and external services. Give me the redacted file path so I can review the copy before sharing.
 
 Verify the setup with a synthetic email address. Tell me which instruction file you updated and whether the test passed.

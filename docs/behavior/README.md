@@ -11,6 +11,7 @@ This specification follows the user from launching redakt to receiving redacted 
 - Run from the source checkout with `cargo build --release --locked`, then use `target/release/redakt`. Use synthetic data.
 - The website, agent prompt, Rust library API, installation and release workflows, cross-platform behavior, model compilation, and performance benchmarking are outside this CLI specification. The library and the model are sources for observed CLI behavior.
 - The spec lives here under `docs/behavior/` alongside the source. The source commit in each feature footer pins the behavior being described. The coverage table records the level of verification.
+- Proposed behavior is tracked separately from the pinned CLI spec.
 
 ## Conventions
 
@@ -57,6 +58,8 @@ Read the command entry point, the matching source and tests, and then exercise t
   - [JSONL](cli/jsonl.md) follows the record loop from first response to EOF or failure.
   - [Detection](cli/detection.md) describes which values are recognized.
   - [Alternate weights](cli/weights.md) follows choosing and loading a model from a file.
+- Proposed
+  - [Restore placeholders in a reply](proposed/restore.md) describes the local workflow and acceptance checks.
 - Verification
   - [Protocol](verification/README.md) describes setup and evidence.
   - [Foundations](verification/foundations.md) checks startup and the document model.
@@ -65,7 +68,7 @@ Read the command entry point, the matching source and tests, and then exercise t
 - [Bug triage](bug-triage.md) gathers findings for product decisions.
 
 ## Coverage
-Use `not started`, `drafted`, or `verified` for each entry. See the [verification protocol](verification/README.md#how-to-run-a-pass) before moving a document to `verified`.
+Use `not started`, `drafted`, or `verified` for current behavior and `proposed` for unimplemented features. See the [verification protocol](verification/README.md#how-to-run-a-pass) before moving a document to `verified`.
 
 | Document | Status |
 | --- | --- |
@@ -76,6 +79,7 @@ Use `not started`, `drafted`, or `verified` for each entry. See the [verificatio
 | CLI / JSONL | drafted |
 | CLI / Detection | drafted |
 | CLI / Alternate weights | drafted |
+| Proposed / Restore placeholders in a reply | proposed |
 | Glossary | drafted |
 | Verification protocol and three checklists | drafted |
 | Bug triage | drafted |

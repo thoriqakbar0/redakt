@@ -14,6 +14,11 @@
 - **Flush** — send buffered stdout data to its destination so the reader can receive it. This does not promise persistence on disk.
 - **Diagnostic** — an error message sent to stderr with the `redakt:` prefix.
 
+## Proposed restore
+
+- **Restore** — replace exact placeholders in a local reply with the original values from one explicitly selected redaction.
+- **Restore source** — the local input that associates a placeholder with its original value. The choice between re-reading the prompt and using a saved mapping is open.
+
 ## Events that end or interrupt
 
 | Event | Meaning |

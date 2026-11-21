@@ -1,6 +1,8 @@
 # redakt
 
-redakt is a local log redaction CLI. Run it on text before sending a log or document to a language model, a support ticket, or another person.
+Run logs and .env excerpts through redakt before sending them to an AI provider. Its built-in model runs offline on your CPU and masks detected passwords and access tokens.
+
+The published release also detects supported credit card numbers and names or addresses with labels such as `Name:` and `Address:`.
 
 ## Install
 
@@ -10,17 +12,40 @@ On macOS or Linux, run the shell installer.
 curl -fsSL https://redakt.ta-0.com/install.sh -o install.sh && sh install.sh
 ```
 
-[View project releases](https://github.com/thoriqakbar0/redakt/releases) or inspect the [source and usage examples](https://github.com/thoriqakbar0/redakt#try-it).
-
-## Redact a file
-
-Write the result to a fresh path and inspect it before sharing. The original file stays intact.
+With Rust and Cargo installed, use this command.
 
 ```sh
-redakt < support.log > support.redacted.log
+cargo install redakt --locked
 ```
 
-For example, `Email: ops@example.test` becomes `Email: [EMAIL_1]`. Matches for the same value and category reuse a label within a document. The CLI processes text locally. Detection is limited to supported formats and cues and can miss private information.
+[View project releases](https://github.com/thoriqakbar0/redakt/releases). Version 0.0.6 and later include the trained detector.
+
+## How it works
+
+Redakt replaces detected secrets with labels before you send text to AI. Its model has about 2 million nonzero weights and runs offline on your CPU. It trained on 100,000 synthetic English documents from [NVIDIA’s Nemotron-PII dataset](https://huggingface.co/datasets/nvidia/Nemotron-PII).
+
+The rules look for patterns such as card numbers and labels such as `PASSWORD`. Redakt replaces matches with numbered labels and writes the result to standard output.
+
+This command creates a new private copy and prints its path. Check the copy for tokens, passwords, and database connection strings the model may have missed. Paste only what the AI needs.
+
+```sh
+copy=$(mktemp .env.redacted.XXXXXX) && redakt < .env > "$copy" && printf '%s\n' "$copy"
+```
+
+For example, `PASSWORD=demo-db-password` becomes `PASSWORD=[SECRET_1]`. Repeated matches for the same value and category share a label within a document.
+
+### From prompt to reply
+
+1. Write the prompt locally. `Draft a note to ops@example.test.`
+2. Run it through redakt and send the result. `Draft a note to [EMAIL_1].`
+3. The AI can use the placeholder in its reply. `To: [EMAIL_1]`
+4. If the reply preserves the placeholder, fill in the original value locally. `To: ops@example.test`
+
+Redakt handles the redaction step. Keep the association between the value and its label on your machine.
+
+## Redact personal data in prose
+
+The trained detector can find names in English prose. For example, `Sarah called this morning.` becomes `[NAME_1] called this morning.` Review the output for missed or unintended redactions.
 
 ## Process JSONL
 
