@@ -63,14 +63,15 @@ function stampScene(state, palette) {
   return shadow + parts;
 }
 
-function pressStamp(figure) {
+function pressStamp(figure, isCurrent, onFinish) {
   const state = figure.st;
   let elapsed = 0;
   const contact = .24;
   const release = .48;
   const finish = .9;
-  state.phase = "pressing";
+  Object.assign(state, { phase: "pressing", press: 0, slide: 0 });
   figure.animate(delta => {
+    if (!isCurrent()) return false;
     elapsed = Math.min(elapsed + delta, finish);
     if (elapsed < contact) {
       state.phase = "pressing";
@@ -83,7 +84,9 @@ function pressStamp(figure) {
       state.slide = ease((elapsed - release) / (finish - release));
       state.phase = elapsed < finish ? "sliding" : "revealed";
     }
-    return elapsed < finish;
+    if (elapsed < finish) return true;
+    onFinish();
+    return false;
   });
 }
 
@@ -101,14 +104,44 @@ const stampFigure = mountFigure({
   scene: stampScene,
 });
 
-if (!stampReducedMotion.matches) {
-  const stampVisibility = new IntersectionObserver(([entry], observer) => {
-    if (entry.intersectionRatio < .55) return;
-    observer.disconnect();
-    pressStamp(stampFigure);
-  }, { threshold: .55 });
-  stampVisibility.observe(document.getElementById("fig"));
+let stampVisible = false;
+let stampPaused = false;
+let stampTimer;
+let stampRun = 0;
+
+function updateStamp() {
+  clearTimeout(stampTimer);
+  const run = ++stampRun;
+  if (stampPaused || stampReducedMotion.matches) {
+    Object.assign(stampFigure.st, { phase: "revealed", press: 0, slide: 1 });
+    stampFigure.render();
+    return;
+  }
+  if (!stampVisible || document.hidden) return;
+
+  const replay = () => {
+    pressStamp(stampFigure, () => run === stampRun, () => {
+      stampTimer = setTimeout(replay, 3500);
+    });
+  };
+  replay();
 }
+
+const stampVisibility = new IntersectionObserver(([entry]) => {
+  stampVisible = entry.intersectionRatio >= .55;
+  updateStamp();
+}, { threshold: .55 });
+stampVisibility.observe(document.getElementById("fig"));
+
+stampReducedMotion.addEventListener("change", updateStamp);
+document.addEventListener("visibilitychange", updateStamp);
+addEventListener("message", event => {
+  if (event.source !== parent || event.origin !== location.origin) return;
+  const playing = event.data?.redaktAnimations;
+  if (typeof playing !== "boolean" || stampPaused === !playing) return;
+  stampPaused = !playing;
+  updateStamp();
+});
 
 const stampStyles = document.createElement("style");
 stampStyles.textContent = `

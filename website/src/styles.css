@@ -158,14 +158,15 @@ a:focus-visible, button:focus-visible {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .hero-strike::after {
-    animation: strike-headline 760ms cubic-bezier(0.23, 1, 0.32, 1) 450ms both;
+  .hero[data-playing="true"] .hero-strike::after {
+    animation: strike-headline 5.5s cubic-bezier(0.23, 1, 0.32, 1) 450ms infinite both;
   }
 }
 
 @keyframes strike-headline {
-  from { transform: rotate(-4deg) scaleX(.01); }
-  to { transform: rotate(-4deg) scaleX(1); }
+  0% { transform: rotate(-4deg) scaleX(.01); }
+  14%, 93% { transform: rotate(-4deg) scaleX(1); opacity: 1; }
+  100% { transform: rotate(-4deg) scaleX(1); opacity: 0; }
 }
 h1 {
   font-size: clamp(40px, 5.2vw, 65px);
@@ -262,7 +263,7 @@ code { font: 400 13px/1.55 var(--mono); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .terminal mark::after {
+  .hero[data-playing="true"] .terminal mark::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -273,7 +274,7 @@ code { font: 400 13px/1.55 var(--mono); }
     animation: reveal-redaction 260ms cubic-bezier(0.23, 1, 0.32, 1);
   }
 
-  .terminal mark:nth-of-type(2n)::after { animation-delay: 65ms; }
+  .hero[data-playing="true"] .terminal mark:nth-of-type(2n)::after { animation-delay: 65ms; }
 }
 
 @keyframes reveal-redaction {
@@ -365,6 +366,7 @@ h2 { font-size: clamp(26px, 3.1vw, 36px); line-height: 1.17; }
   gap: 8px 12px;
 }
 .prompt-action .copy-feedback { font-size: 13px; color: var(--ash); }
+.prompt-logos { display: inline-flex; align-items: center; gap: 8px; }
 
 .site-footer { background: var(--carbon); }
 .footer-content {
@@ -456,5 +458,5 @@ summary:focus-visible { outline: 2px solid var(--bone); outline-offset: 4px; }
 }
 
 .install-options summary { cursor: pointer; color: var(--bone); }
-.install-options pre { margin-top: 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.install-options .install-command { margin-top: 8px; }
 .install-options a { text-decoration: underline; }

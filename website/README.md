@@ -3,6 +3,13 @@
 Astro builds the homepage and SolidJS renders it. The terminal displays
 synthetic input and output from the Rust CLI.
 
+The homepage demos repeat when motion is enabled. Use **Pause animations**
+to stop them. Selecting a terminal example keeps that example on screen.
+The setup prompt works with Codex, Claude Code, Cursor, and Gemini CLI.
+Open **Windows and Cargo** to copy either install command.
+
+The [assistant logos](https://github.com/lobehub/lobe-icons/tree/9752d967494e48d8f83f2808feb2b0207bf70997/packages/static-svg/icons) are bundled with their [license](public/assistant-logos/LICENSE).
+
 From this directory, run the development server with Node.js 22.23.4 or later.
 
 ```sh

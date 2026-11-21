@@ -2,7 +2,7 @@ import { defineMiddleware } from "astro:middleware";
 import Negotiator from "negotiator";
 import home from "./content/home.md?raw";
 import setupPrompt from "./content/setup-prompt.txt?raw";
-const homeMarkdown = `${home}\n## Setup prompt for Codex or Claude Code\n\n${setupPrompt}`;
+const homeMarkdown = `${home}\n## Setup prompt for coding assistants\n\n${setupPrompt}`;
 const legacySections = new Map([
   ["/about", "/#local-model"],
   ["/contact", "/#support"],
