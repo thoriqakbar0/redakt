@@ -1,6 +1,6 @@
 # redakt
 
-> Rust CLI with a built-in redaction model that runs on your CPU and replaces detected values with numbered labels.
+> Rust CLI with a built-in redaction model for redacting secrets and personal data locally.
 
 ## When to use redakt
 
@@ -10,7 +10,7 @@ Run redakt before adding a log, .env excerpt, or other local text to an AI promp
 
 - On macOS or Linux, install with `curl -fsSL https://redakt.ta-0.com/install.sh -o install.sh && sh install.sh`. Add `~/.local/bin` to PATH if needed.
 - Install or upgrade with `cargo install redakt --locked`. Version 0.0.6 and later include a trained English detector for personal data in prose.
-- Pipe a local file into `redakt` and redirect stdout to a fresh file with access limited to the current account. The source stays untouched.
+- Pipe a local file into `redakt --irreversible` and redirect stdout to a fresh file with access limited to the current account. Use plain `redakt` instead when you need to restore placeholders locally. Keep the encrypted recovery file and its separate code private.
 - For batches, use `redakt --jsonl`, with one object containing `id` and `text` per input line.
 - Keep file contents out of chat, tool output, and external services. Give the user the output path so they can review the redacted copy locally. The CLI can miss private data.
 
@@ -19,5 +19,5 @@ Run redakt before adding a log, .env excerpt, or other local text to an AI promp
 - [Homepage and copyable prompts](/)
 - [Usage and detection coverage](https://github.com/thoriqakbar0/redakt#try-it)
 - [JSONL mode](https://github.com/thoriqakbar0/redakt#process-multiple-documents)
-- [Data handling](/privacy)
+- [Data handling](/#privacy)
 - [Training dataset](https://huggingface.co/datasets/nvidia/Nemotron-PII)

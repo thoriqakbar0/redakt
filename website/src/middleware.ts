@@ -2,15 +2,11 @@ import { defineMiddleware } from "astro:middleware";
 import Negotiator from "negotiator";
 import home from "./content/home.md?raw";
 import setupPrompt from "./content/setup-prompt.txt?raw";
-import about from "./pages/about.md?raw";
-import contact from "./pages/contact.md?raw";
-import privacy from "./pages/privacy.md?raw";
-
-const markdownPages = new Map([
-  ["/", `${home}\n## Setup prompt for Codex or Claude Code\n\n${setupPrompt}`],
-  ["/about", about],
-  ["/contact", contact],
-  ["/privacy", privacy],
+const homeMarkdown = `${home}\n## Setup prompt for Codex or Claude Code\n\n${setupPrompt}`;
+const legacySections = new Map([
+  ["/about", "/#local-model"],
+  ["/contact", "/#support"],
+  ["/privacy", "/#privacy"],
 ]);
 
 const notFound = [
@@ -37,13 +33,16 @@ export const onRequest = defineMiddleware(async ({ request, url }, next) => {
   if (method !== "GET" && method !== "HEAD") return next();
 
   const path = url.pathname.replace(/\/$/, "") || "/";
-  const body = markdownPages.get(path);
+  const section = legacySections.get(path);
+  if (section) return new Response(null, { status: 308, headers: { Location: section } });
+
+  const body = path === "/" ? homeMarkdown : undefined;
   const accept = request.headers.get("accept") ?? "*/*";
   const format = new Negotiator({ headers: { accept } })
     .mediaType(["text/html", "text/markdown"]);
 
   if (body && format === "text/markdown") {
-    return markdown(body.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n+/, ""), 200, method);
+    return markdown(body, 200, method);
   }
 
   if (body && !format) {
