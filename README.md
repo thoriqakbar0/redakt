@@ -118,6 +118,7 @@ To build macOS executables from Linux, follow [the macOS cross-compilation guide
 | Path | Purpose |
 | --- | --- |
 | [src/](src/) | Compiled ternary-gated matching, redaction, and CLI |
+| [website/](website/) | Astro and SolidJS homepage and Cloudflare deployment setup |
 | [models/weights.bin](models/weights.bin) | Embedded version 2 model |
 | [tests/](tests/) | Rust CLI, model, and frozen parity checks |
 | [docs/ternary.md](docs/ternary.md) | Architecture, matching contract, and native format |
