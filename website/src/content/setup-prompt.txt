@@ -1,4 +1,4 @@
-Set up redakt for this project. Check whether the CLI is already on PATH. If it’s missing and Cargo is available, run `cargo install --git https://github.com/thoriqakbar0/redakt --locked`.
+Set up redakt for this project. Check whether the CLI is already on PATH. If it's missing on macOS or Linux, download https://redakt.ta-0.com/install.sh to a temporary directory and run it with sh. The binary installs to ~/.local/bin by default. If the installer is unavailable and Cargo is installed, run `cargo install redakt --locked`.
 
 Add a short rule to this project’s existing assistant instructions. Use AGENTS.md for Codex or CLAUDE.md for Claude Code. Preserve the instructions already there.
 

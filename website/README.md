@@ -13,16 +13,18 @@ npm run dev
 ## Deploy to Cloudflare Workers
 
 Authenticate with `npx cf auth login` or set `CLOUDFLARE_API_TOKEN` in CI.
-Build and deploy the Astro Worker with the [Cloudflare CLI](https://developers.cloudflare.com/cf/projects/).
+Sign in to `gh` with an account that can read the repository. The deploy
+command stages and verifies all published Redakt binary releases before
+uploading the site. It keeps the versioned URLs available and serves the
+current checksum manifest at `/releases/latest/download/SHA256SUMS`.
 
 ```sh
 npm run check
-npx cf deploy --dry-run
-npx cf deploy
+npm run deploy -- --dry-run
+npm run deploy
 ```
 
-`npm run deploy` uses the same deployment command. The Rust CLI is
-distributed separately through Cargo and GitHub Releases.
+The Rust CLI is also distributed through Cargo and GitHub Releases.
 
 The homepage and project information pages serve HTML by default and Markdown
 when requested with `Accept: text/markdown`. The Worker sets `Vary: Accept` and

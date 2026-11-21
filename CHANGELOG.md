@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Install prebuilt redakt binaries on Linux, macOS, and Windows with scripts that verify release checksums. Thanks @thoriqakbar0.
+
 ## 0.0.6 - 2026-11-21
 
 - Redact personal information in English prose by default with a trained detector alongside the existing rules. This applies to both plain text and JSONL. Supplying `--weights PATH` runs the selected rules model with cue-based detection. Thanks @thoriqakbar0.

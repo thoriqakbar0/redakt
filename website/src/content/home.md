@@ -4,8 +4,10 @@ redakt is a local log redaction CLI. Run it on text before sending a log or docu
 
 ## Install
 
+On macOS or Linux, run the shell installer.
+
 ```sh
-cargo install --git https://github.com/thoriqakbar0/redakt --locked
+curl -fsSL https://redakt.ta-0.com/install.sh -o install.sh && sh install.sh
 ```
 
 [View project releases](https://github.com/thoriqakbar0/redakt/releases) or inspect the [source and usage examples](https://github.com/thoriqakbar0/redakt#try-it).

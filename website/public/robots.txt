@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://privacy-hygiene.thoriqakbar00.workers.dev/sitemap.xml
+Sitemap: https://redakt.ta-0.com/sitemap.xml

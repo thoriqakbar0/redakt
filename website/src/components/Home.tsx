@@ -2,7 +2,8 @@ import { createSignal, For } from "solid-js";
 import setupPrompt from "../content/setup-prompt.txt?raw";
 
 const repository = "https://github.com/thoriqakbar0/redakt";
-const installCommand = "cargo install --git https://github.com/thoriqakbar0/redakt --locked";
+const installCommand =
+  "curl -fsSL https://redakt.ta-0.com/install.sh -o install.sh && sh install.sh";
 
 const promptInstructions = [
   "Feed the source file directly to stdin and write stdout to a separate local file.",
@@ -172,7 +173,7 @@ function Install() {
     <section class="install" id="install" aria-labelledby="install-title">
       <div>
         <h2 id="install-title">Install the CLI</h2>
-        <p>Install from source with Cargo.</p>
+        <p>Install a prebuilt binary on macOS or Linux.</p>
         <a class="inline-link" href={repository + "/releases"}>View releases</a>
       </div>
       <div class="install-shell">

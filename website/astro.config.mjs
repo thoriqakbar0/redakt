@@ -3,7 +3,7 @@ import solid from "@astrojs/solid-js";
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
-  site: "https://privacy-hygiene.thoriqakbar00.workers.dev",
+  site: "https://redakt.ta-0.com",
   output: "server",
   adapter: cloudflare({ imageService: "passthrough" }),
   session: false,
