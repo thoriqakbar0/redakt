@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::io::{self, BufRead, Read, Write};
 
+mod update;
+
 const HELP: &str = concat!(
     "redakt [--weights PATH] [--jsonl]\n",
     "Read UTF-8 stdin and write plain redacted text to stdout.\n",
@@ -10,7 +12,10 @@ const HELP: &str = concat!(
     "Detects email, phone, SSN, card, IBAN, and cued private values.\n",
     "Cued values include names, addresses, secrets, accounts and birth dates.\n",
     "--jsonl reads one {id, text} record per line and flushes each JSON response.\n",
-    "JSONL span offsets count Unicode code points."
+    "JSONL span offsets count Unicode code points.\n\n",
+    "redakt update [--check]\n",
+    "Check GitHub Releases or update a standalone Linux or macOS binary.\n",
+    "Set REDAKT_UPDATE_NOTIFY=0 to disable daily update notices."
 );
 
 #[derive(Deserialize)]
@@ -62,7 +67,15 @@ fn write_info(message: &str) -> Result<(), String> {
 }
 
 fn run() -> Result<(), String> {
-    let mut arguments = std::env::args_os().skip(1);
+    let mut arguments = std::env::args_os().skip(1).peekable();
+    if arguments.next_if_eq(&"update").is_some() {
+        let check_only = match arguments.next() {
+            None => false,
+            Some(flag) if flag == "--check" && arguments.next().is_none() => true,
+            _ => return Err("Usage: redakt update [--check]".into()),
+        };
+        return write_info(&update::run(check_only)?);
+    }
     let mut weights = None;
     let mut jsonl = false;
     while let Some(argument) = arguments.next() {
@@ -85,8 +98,15 @@ fn run() -> Result<(), String> {
         Detector::embedded()?
     };
     if jsonl {
-        return stream(&model);
+        stream(&model)?;
+    } else {
+        redact_stdin(&model)?;
     }
+    update::notify();
+    Ok(())
+}
+
+fn redact_stdin(model: &Detector) -> Result<(), String> {
     let mut text = String::new();
     io::stdin()
         .read_to_string(&mut text)

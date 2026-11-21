@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add `redakt update --check` and daily update notices on terminal stderr. Set `REDAKT_UPDATE_NOTIFY=0` to turn off automatic checks. Standalone Linux and macOS binaries can install verified GitHub updates in place. Windows checks provide a download link.
+
 ## 0.0.5 - 2026-11-21
 
 - Add a redakt website with CLI install instructions, an interactive redaction example,

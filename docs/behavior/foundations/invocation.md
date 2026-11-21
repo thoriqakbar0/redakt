@@ -29,7 +29,7 @@ stateDiagram-v2
 
 Redakt reads arguments from left to right. It accepts `--jsonl` once and `--weights PATH` once, in either order. A weights option consumes the next token verbatim as the path. Relative paths are relative to the working directory. Everything else is an error unless recognized as [help or version](../cli/information.md).
 
-There are no subcommands, positional input filenames, built-in shell completion, or `--` end-of-options marker. Use `--weights PATH` as two tokens, without an equals sign. A flag or environment change made in the calling shell after launch does not reconfigure the process.
+`redakt update [--check]` has a separate argument list and does not read stdin. See [Update redakt](../../../README.md#update-redakt). Redaction takes no positional filenames, built-in shell completion, or `--` end-of-options marker. Use `--weights PATH` as two tokens, without an equals sign. A flag or environment change made in the calling shell after launch does not reconfigure the process.
 
 ### Exit immediately
 
@@ -87,7 +87,7 @@ Redakt creates no output file itself. A shell can create or truncate a path befo
 
 **Concurrency.** Invocations do not coordinate access to a shared destination. The caller controls how concurrent streams are combined.
 
-**Offline use.** The executable makes no network requests or update checks during these operations.
+**Offline use.** Redaction works offline. When stderr is attached to a terminal, redakt can check GitHub Releases after writing its output. Set `REDAKT_UPDATE_NOTIFY=0` to disable automatic checks. Help and version remain available offline.
 
 ## Edge cases
 

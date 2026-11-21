@@ -18,7 +18,7 @@ Write the result to a fresh path and inspect it before sharing. The original fil
 redakt < support.log > support.redacted.log
 ```
 
-For example, `Email: ops@example.test` becomes `Email: [EMAIL_1]`. Matches for the same value and category reuse a label within a document. The CLI runs offline after installation. Detection is limited to supported formats and cues and can miss private information.
+For example, `Email: ops@example.test` becomes `Email: [EMAIL_1]`. Matches for the same value and category reuse a label within a document. The CLI processes text locally. Detection is limited to supported formats and cues and can miss private information.
 
 ## Process JSONL
 
