@@ -8,7 +8,31 @@ Redact personal data locally with a standalone Rust CLI. The binary embeds the t
 
 ## Install the CLI
 
-Install redakt 0.0.5 or later from crates.io with [Rust and Cargo](https://rustup.rs/).
+The Linux and macOS installer downloads a prebuilt binary from the Redakt website and verifies its SHA-256 checksum. The website serves the same archives as [GitHub Releases](https://github.com/thoriqakbar0/redakt/releases).
+
+### Linux and macOS
+
+Use this command on macOS or glibc-based Linux with an x86-64 or ARM64 processor.
+
+```sh
+curl -fsSL https://redakt.ta-0.com/install.sh -o install.sh && sh install.sh
+```
+
+The installer puts `redakt` in `~/.local/bin` by default. To choose another directory, run `REDAKT_INSTALL_DIR=/path/to/bin sh install.sh`. Add the install directory to your `PATH` if needed, then run `redakt --version`.
+
+### Windows
+
+On 64-bit x86 Windows, download [install.ps1](install.ps1) from GitHub or open PowerShell in a checkout of this repository. Run the script from the directory that contains it.
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+The installer puts `redakt.exe` in `%LOCALAPPDATA%\redakt\bin` by default. To choose another directory, pass `-InstallDir` to the script. Add the install directory to your user `Path` in Windows, open a new terminal, and run `redakt --version`.
+
+### Install with Cargo
+
+Install from crates.io with [Rust and Cargo](https://rustup.rs/).
 
 ```bash
 cargo install redakt --locked
@@ -16,7 +40,7 @@ cargo install redakt --locked
 
 To install from a local checkout, run `cargo install --path . --locked`.
 
-For a prebuilt binary, choose a release that includes `redakt` and download the archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/redakt/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
+To install a prebuilt binary by hand, download the archive for your platform. Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See the [release guide](docs/releasing.md#build-the-archives) for binary compatibility.
 
 ### Update redakt
 

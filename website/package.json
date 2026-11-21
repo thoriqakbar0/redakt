@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "deploy": "cf deploy",
+    "deploy": "sh scripts/stage-releases.sh && cf deploy",
     "test": "node --test"
   },
   "dependencies": {
