@@ -2,11 +2,13 @@
 
 ## Unreleased
 
+## 0.0.5 - 2026-11-21
+
 - Add a redakt website with CLI install instructions, an interactive redaction example,
   and copyable prompts for Codex and Claude Code. The site serves Markdown on request and
   publishes a sitemap and agent guide. Thanks @thoriqakbar0.
-- Rename the crate and CLI from `privacy-hygiene` to `redakt`.
-- Accept non-UTF-8 model paths on Unix and omit unreadable paths from diagnostics. Help and version now report a closed output pipe with exit status 1.
+- Rename the crate and CLI from `privacy-hygiene` to `redakt`. Thanks @thoriqakbar0.
+- Accept non-UTF-8 model paths on Unix and omit unreadable paths from diagnostics. Help and version now report a closed output pipe with exit status 1. Thanks @thoriqakbar0.
 - Replace the Claude Code and Codex plugins with a copy-paste README prompt for any UTF-8 text file. Thanks @thoriqakbar0.
 
 ## 0.0.4 - 2026-11-20
