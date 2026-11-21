@@ -35,7 +35,7 @@ Copy the executable for your Mac's architecture to that Mac, then run it there.
 ```bash
 chmod +x redakt
 ./redakt --version
-printf 'SSN 123-45-6789' | ./redakt
+printf 'SSN 123-45-6789' | ./redakt --irreversible
 ```
 
 Expect the version listed in `Cargo.toml` and the plain text output `SSN [SSN_1]`.
