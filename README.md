@@ -8,13 +8,13 @@ Redact personal data locally with a standalone Rust CLI. The binary embeds the m
 
 ## Install the CLI
 
-Install this checkout with [Rust and Cargo](https://rustup.rs/).
+Install redakt 0.0.5 or later from crates.io with [Rust and Cargo](https://rustup.rs/).
 
 ```bash
-cargo install --path . --locked
+cargo install redakt --locked
 ```
 
-After the first crates.io release under the new name, use `cargo install redakt --locked`.
+To install from a local checkout, run `cargo install --path . --locked`.
 
 For a prebuilt binary, choose a release that includes `redakt` and download the archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/redakt/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
 
