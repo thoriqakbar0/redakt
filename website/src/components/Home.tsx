@@ -346,7 +346,8 @@ export default function Home() {
             <p class="workflow-command">
               <code>
                 <span aria-hidden="true">$</span>
-                {" (umask 077; set -C; redakt < .env > .env.redacted)"}
+                {' copy=$(mktemp .env.redacted.XXXXXX) && ' +
+                 'redakt < .env > "$copy" && printf \'%s\\n\' "$copy"'}
               </code>
             </p>
             <PromptFlow />

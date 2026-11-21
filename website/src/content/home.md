@@ -26,10 +26,10 @@ Redakt replaces detected secrets with labels before you send text to AI. Its mod
 
 The rules look for patterns such as card numbers and labels such as `PASSWORD`. Redakt replaces matches with numbered labels and writes the result to standard output.
 
-This command creates a copy only your account can access and refuses to overwrite an existing file. Check the copy for tokens, passwords, and database connection strings the model may have missed. Paste only what the AI needs.
+This command creates a new private copy and prints its path. Check the copy for tokens, passwords, and database connection strings the model may have missed. Paste only what the AI needs.
 
 ```sh
-(umask 077; set -C; redakt < .env > .env.redacted)
+copy=$(mktemp .env.redacted.XXXXXX) && redakt < .env > "$copy" && printf '%s\n' "$copy"
 ```
 
 For example, `PASSWORD=demo-db-password` becomes `PASSWORD=[SECRET_1]`. Repeated matches for the same value and category share a label within a document.
