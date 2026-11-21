@@ -27,6 +27,20 @@ fn invoke(input: &[u8], arguments: &[&str]) -> Output {
 }
 
 #[test]
+fn update_uses_a_separate_argument_list() {
+    let help = invoke(b"", &["--help"]);
+    assert!(help.status.success());
+    let help = String::from_utf8(help.stdout).unwrap();
+    assert!(help.contains("redakt update [--check]"));
+    assert!(help.contains("REDAKT_UPDATE_NOTIFY=1"));
+
+    let invalid = invoke(b"", &["update", "--check", "--jsonl"]);
+    assert!(!invalid.status.success());
+    assert!(invalid.stdout.is_empty());
+    assert_eq!(invalid.stderr, b"redakt: Usage: redakt update [--check]\n");
+}
+
+#[test]
 fn detects_supported_layouts() {
     for (sample, placeholder) in [
         ("123-45-6789", "[SSN_1]"),

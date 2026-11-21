@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add `redakt update --check` and opt-in daily update notices. Standalone Linux and macOS binaries can install verified GitHub updates in place. Windows checks provide a download link.
+
 ## 0.0.5 - 2026-11-21
 
 - Add a redakt website with CLI install instructions, an interactive redaction example,

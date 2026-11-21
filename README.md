@@ -4,7 +4,7 @@
 
 # redakt
 
-Redact personal data locally with a standalone Rust CLI. The binary embeds the model and runs offline after installation.
+Redact personal data locally with a standalone Rust CLI. The binary embeds the model and redacts offline by default.
 
 ## Install the CLI
 
@@ -17,6 +17,15 @@ cargo install redakt --locked
 To install from a local checkout, run `cargo install --path . --locked`.
 
 For a prebuilt binary, choose a release that includes `redakt` and download the archive for your platform from [GitHub Releases](https://github.com/thoriqakbar0/redakt/releases). Verify it against `SHA256SUMS`, extract it, and put the executable on your `PATH`. See [binary compatibility and checksum instructions](docs/releasing.md#build-the-archives).
+
+### Update redakt
+
+- Run `redakt update --check` to check GitHub for a newer stable release for your platform.
+- On Linux and macOS, run `redakt update` to replace a standalone GitHub binary in place. Redakt verifies the archive against GitHub's SHA-256 digest before replacing the executable. The installation directory must be writable.
+- On Windows, use the download link from `redakt update --check` and replace the executable after redakt exits.
+- For a Cargo installation, run `cargo install redakt --locked` to upgrade from crates.io.
+
+Set `REDAKT_UPDATE_NOTIFY=1` in your shell to get update notices. After a successful redaction, redakt can check GitHub once per day and print a notice on terminal stderr. The check sends a release metadata request. Redacted output stays on stdout.
 
 ## Try it
 
