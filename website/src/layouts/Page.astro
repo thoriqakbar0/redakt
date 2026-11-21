@@ -1,0 +1,44 @@
+---
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/ibm-plex-mono/latin-400.css";
+import "../styles.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  frontmatter?: { title: string; description: string };
+  noindex?: boolean;
+}
+
+const { frontmatter, noindex } = Astro.props;
+const title = Astro.props.title ?? frontmatter?.title ?? "privacy-hygiene";
+const description = Astro.props.description ?? frontmatter?.description;
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, "") || "/", Astro.site);
+const socialImage = new URL("/share.png", Astro.site);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b0e12" />
+    {description && <meta name="description" content={description} />}
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <slot name="head" />
+  </head>
+  <body>
+    {frontmatter ? (
+      <main class="section-width reference">
+        <a class="inline-link" href="/">← privacy-hygiene</a>
+        <slot />
+      </main>
+    ) : <slot />}
+  </body>
+</html>
