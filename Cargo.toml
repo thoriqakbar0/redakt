@@ -1,6 +1,6 @@
 [package]
 name = "redakt"
-version = "0.0.5"
+version = "0.0.6"
 edition = "2021"
 description = "Offline PII redaction with trained and rule-based detectors"
 include = ["/src/**", "/tests/**", "/models/weights.bin", "/models/pii.bin", "/models/pii-cues.bin", "/assets/logo.svg", "/Cargo.lock", "/README.md", "/LICENSE", "/NOTICE"]

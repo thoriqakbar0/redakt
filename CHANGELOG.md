@@ -2,8 +2,10 @@
 
 ## Unreleased
 
+## 0.0.6 - 2026-11-21
+
 - Redact personal information in English prose by default with a trained detector alongside the existing rules. This applies to both plain text and JSONL. Supplying `--weights PATH` runs the selected rules model with cue-based detection. Thanks @thoriqakbar0.
-- Add `redakt update --check` and daily update notices on terminal stderr. Set `REDAKT_UPDATE_NOTIFY=0` to turn off automatic checks. Standalone Linux and macOS binaries can install verified GitHub updates in place. Windows checks provide a download link.
+- Add `redakt update --check` and daily update notices on terminal stderr. Set `REDAKT_UPDATE_NOTIFY=0` to turn off automatic checks. Standalone Linux and macOS binaries can install verified GitHub updates in place. Windows checks provide a download link. Thanks @thoriqakbar0.
 
 ## 0.0.5 - 2026-11-21
 
