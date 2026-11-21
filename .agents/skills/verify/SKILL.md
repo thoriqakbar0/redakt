@@ -49,8 +49,8 @@ Exercise the real stdin path and verify the redacted text byte for byte, includi
 ```bash
 printf '🦊 123-45-6789\r\n' >"$evidence/stdin.txt"
 printf '🦊 [SSN_1]\r\n' >"$evidence/expected.txt"
-printf '%s\n' 'redakt < stdin.txt > stdout.txt' >"$evidence/action.txt"
-"$binary" <"$evidence/stdin.txt" >"$evidence/stdout.txt" 2>"$evidence/stderr.txt"
+printf '%s\n' 'redakt --irreversible < stdin.txt > stdout.txt' >"$evidence/action.txt"
+"$binary" --irreversible <"$evidence/stdin.txt" >"$evidence/stdout.txt" 2>"$evidence/stderr.txt"
 cmp "$evidence/expected.txt" "$evidence/stdout.txt"
 test ! -s "$evidence/stderr.txt"
 cargo test --locked >"$evidence/tests.log" 2>&1

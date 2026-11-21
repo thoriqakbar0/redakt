@@ -6,7 +6,7 @@ The default invocation reads one UTF-8 document from stdin and returns redacted 
 
 ## The simple case
 
-Run `printf 'Email: a@example.test\n' | redakt`. Redakt prints `Email: [EMAIL_1]` followed by the original newline. The shell sees status 0.
+Run `printf 'Email: a@example.test\n' | redakt`. Redakt prints `Email:` followed by a random placeholder and the original newline. Pass `--irreversible` for the numbered label `[EMAIL_1]`. The shell sees status 0.
 
 ## The interaction, event by event
 
@@ -41,9 +41,9 @@ If the input contains invalid UTF-8 or the read fails, the invocation exits 1 wi
 
 ### Finish
 
-On EOF, redakt detects values and writes the resulting bytes, then flushes stdout. An empty document succeeds with empty stdout. A document with no matches is copied. Redakt adds no newline.
+On EOF, redakt detects values and saves the [encrypted recovery mapping](restore.md) before writing and flushing stdout. Pass `--irreversible` to skip recovery. An empty document succeeds with empty stdout. A document with no matches is copied. Redakt adds no newline.
 
-A write or flush error exits 1 with the corresponding redacted-text diagnostic. Output already accepted by the destination can remain. A retry starts a new invocation and numbers from the beginning.
+A write or flush error exits 1 with the corresponding redacted-text diagnostic. Output already accepted by the destination can remain. A retry creates a new mapping by default. Reuse the same `--recovery` path to retain placeholders.
 
 ## Modifiers
 
@@ -93,4 +93,4 @@ A write or flush error exits 1 with the corresponding redacted-text diagnostic. 
 
 - The specification gives no upper bound for document size or runtime. Large inputs are buffered through EOF.
 
-Verified against redakt commit `6ba6de0`
+Numbered-label behavior was verified against redakt commit `6ba6de0`. The current recovery workflow is covered by [CLI tests](../../../tests/recovery.rs).

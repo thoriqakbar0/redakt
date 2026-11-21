@@ -567,6 +567,23 @@ impl Detector {
 /// label, with longer spans and then alphabetical labels breaking ties.
 /// Identical replaced text with the same label reuses its number in this call.
 pub fn redact(text: &str, spans: &[Span]) -> Result<String, String> {
+    let mut numbers: HashMap<String, HashMap<&str, usize>> = HashMap::new();
+    redact_with(text, spans, |output, label, value| {
+        let label = label.to_ascii_uppercase();
+        let values = numbers.entry(label.clone()).or_default();
+        let next = values.len() + 1;
+        let number = values.entry(value).or_insert(next);
+        write!(output, "[{label}_{number}]").expect("writing to a String cannot fail");
+        Ok(())
+    })
+}
+
+#[doc(hidden)]
+pub fn redact_with<'a>(
+    text: &'a str,
+    spans: &[Span],
+    mut replace: impl FnMut(&mut String, &str, &'a str) -> Result<(), String>,
+) -> Result<String, String> {
     if spans.is_empty() {
         return Ok(text.to_owned());
     }
@@ -586,7 +603,6 @@ pub fn redact(text: &str, spans: &[Span]) -> Result<String, String> {
     let mut ordered: Vec<_> = spans.iter().collect();
     ordered.sort_unstable_by_key(|span| (span.start, Reverse(span.end), &span.label));
     let mut ordered = ordered.into_iter().peekable();
-    let mut numbers: HashMap<String, HashMap<&str, usize>> = HashMap::new();
     let mut redacted = String::with_capacity(text.len());
     let mut cursor = 0;
     while let Some(span) = ordered.next() {
@@ -597,12 +613,8 @@ pub fn redact(text: &str, spans: &[Span]) -> Result<String, String> {
 
         let start = offsets[span.start];
         let end = offsets[end];
-        let label = span.label.to_ascii_uppercase();
-        let values = numbers.entry(label.clone()).or_default();
-        let next = values.len() + 1;
-        let number = values.entry(&text[start..end]).or_insert(next);
         redacted.push_str(&text[cursor..start]);
-        write!(redacted, "[{label}_{number}]").expect("writing to a String cannot fail");
+        replace(&mut redacted, &span.label, &text[start..end])?;
         cursor = end;
     }
     redacted.push_str(&text[cursor..]);

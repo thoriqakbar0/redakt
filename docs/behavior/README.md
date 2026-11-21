@@ -58,8 +58,7 @@ Read the command entry point, the matching source and tests, and then exercise t
   - [JSONL](cli/jsonl.md) follows the record loop from first response to EOF or failure.
   - [Detection](cli/detection.md) describes which values are recognized.
   - [Alternate weights](cli/weights.md) follows choosing and loading a model from a file.
-- Proposed
-  - [Restore placeholders in a reply](proposed/restore.md) describes the local workflow and acceptance checks.
+  - [Restore placeholders in a reply](cli/restore.md) describes the local workflow and acceptance checks.
 - Verification
   - [Protocol](verification/README.md) describes setup and evidence.
   - [Foundations](verification/foundations.md) checks startup and the document model.
@@ -79,7 +78,7 @@ Use `not started`, `drafted`, or `verified` for current behavior and `proposed` 
 | CLI / JSONL | drafted |
 | CLI / Detection | drafted |
 | CLI / Alternate weights | drafted |
-| Proposed / Restore placeholders in a reply | proposed |
+| CLI / Restore placeholders in a reply | drafted |
 | Glossary | drafted |
 | Verification protocol and three checklists | drafted |
 | Bug triage | drafted |

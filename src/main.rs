@@ -1,14 +1,21 @@
+use recovery::Recovery;
 use redakt::{redact, Detector, PiiTagger, Span};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::io::{self, BufRead, Read, Write};
+use std::path::PathBuf;
 
+mod recovery;
 mod update;
 
 const HELP: &str = concat!(
     "redakt [--weights PATH] [--jsonl]\n",
     "Read UTF-8 stdin and write plain redacted text to stdout.\n",
-    "Replaces private values with numbered labels such as [EMAIL_1].\n",
+    "Saves encrypted recovery data and a separate code file by default.\n",
+    "redakt --reverse [--recovery PATH] [--code-file PATH]\n",
+    "--recovery PATH selects or creates a mapping for one conversation.\n",
+    "--code-file PATH selects the recovery code file.\n",
+    "--irreversible uses numbered labels and writes no recovery files.\n",
     "Detects names, contact details, identifiers and other PII using trained and rule-based detectors.\n",
     "--weights runs the supplied native rules model with cue-based detection.\n",
     "--jsonl reads one {id, text} record per line and flushes each JSON response.\n",
@@ -85,6 +92,12 @@ fn run() -> Result<(), String> {
     }
     let mut weights = None;
     let mut jsonl = false;
+
+    let mut reverse = false;
+    let mut irreversible = false;
+
+    let mut recovery_path = None;
+    let mut code_path = None;
     while let Some(argument) = arguments.next() {
         match argument.to_str() {
             Some("--help" | "-h") => return write_info(HELP),
@@ -95,9 +108,33 @@ fn run() -> Result<(), String> {
                 weights = Some(arguments.next().ok_or("--weights requires a path")?);
             }
             Some("--jsonl") if !jsonl => jsonl = true,
+            Some("--reverse") if !reverse => reverse = true,
+            Some("--irreversible") if !irreversible => irreversible = true,
+            Some("--recovery") if recovery_path.is_none() => {
+                recovery_path = Some(PathBuf::from(
+                    arguments.next().ok_or("--recovery requires a path")?,
+                ));
+            }
+            Some("--code-file") if code_path.is_none() => {
+                code_path = Some(PathBuf::from(
+                    arguments.next().ok_or("--code-file requires a path")?,
+                ));
+            }
             _ => return Err("Unknown or repeated argument; use --help".into()),
         }
     }
+
+    if (jsonl || irreversible) && (reverse || recovery_path.is_some() || code_path.is_some()) {
+        return Err("Recovery options require reversible plain text".into());
+    }
+    if reverse {
+        if weights.is_some() {
+            return Err("--reverse does not use weights".into());
+        }
+        let recovery = Recovery::select(recovery_path, code_path, true)?;
+        return write_text(&recovery.reverse(&read_text()?)?);
+    }
+
     let (model, tagger) = if let Some(path) = weights {
         let bytes = std::fs::read(path).map_err(|_| "Could not read native model")?;
         (Detector::from_bytes(&bytes)?, None)
@@ -107,22 +144,31 @@ fn run() -> Result<(), String> {
     if jsonl {
         stream(&model, tagger.as_ref())?;
     } else {
-        redact_stdin(&model, tagger.as_ref())?;
+        let text = read_text()?;
+        let spans = detect(&model, tagger.as_ref(), &text);
+        let masked = if irreversible {
+            redact(&text, &spans)?
+        } else {
+            Recovery::select(recovery_path, code_path, false)?.mask(&text, spans)?
+        };
+        write_text(&masked)?;
     }
     update::notify();
     Ok(())
 }
 
-fn redact_stdin(model: &Detector, tagger: Option<&PiiTagger>) -> Result<(), String> {
+fn read_text() -> Result<String, String> {
     let mut text = String::new();
     io::stdin()
         .read_to_string(&mut text)
         .map_err(|_| "Could not read UTF-8 stdin")?;
-    let spans = detect(model, tagger, &text);
-    let redacted = redact(&text, &spans)?;
+    Ok(text)
+}
+
+fn write_text(text: &str) -> Result<(), String> {
     let mut output = io::stdout().lock();
     output
-        .write_all(redacted.as_bytes())
+        .write_all(text.as_bytes())
         .map_err(|_| "Could not write redacted text")?;
     output
         .flush()
