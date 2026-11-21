@@ -52,6 +52,22 @@ test("a missing URL keeps its 404 status in either format", async () => {
   }
 });
 
+test("the HTML homepage offers prompt and install copy controls", async () => {
+  const page = await request("/", html);
+  const markup = await page.text();
+  assert.match(markup, /<button[^>]*>\s*Copy prompt/);
+  assert.match(markup, /aria-label="Copy Windows command"/);
+  assert.match(markup, /aria-label="Copy Cargo command"/);
+  assert.match(markup, /Use AGENTS\.md for Codex or Cursor, CLAUDE\.md for Claude Code, or GEMINI\.md/);
+  for (const logo of ["openai", "claude", "cursor", "gemini"]) {
+    const path = `/assistant-logos/${logo}.svg`;
+    assert.ok(markup.includes(`src="${path}"`));
+    const response = await request(path, "image/svg+xml");
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("content-type") ?? "", /^image\/svg\+xml\b/);
+  }
+});
+
 test("Accept priorities are respected for HEAD requests", async () => {
   const accept = "text/markdown;q=0.5, text/html;q=0.9";
   const preferred = await request("/", accept, "HEAD");

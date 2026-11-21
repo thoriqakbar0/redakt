@@ -1,36 +1,33 @@
-import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { TextMorph } from "torph";
 import setupPrompt from "../content/setup-prompt.txt?raw";
 
 const repository = "https://github.com/thoriqakbar0/redakt";
 const installCommand =
   "curl -fsSL https://redakt.ta-0.com/install.sh -o install.sh && sh install.sh";
+const windowsInstallCommand = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\install.ps1";
+const cargoInstallCommand = "cargo install redakt --locked";
 const sensitiveValues = ["passwords", "access tokens", "names", "addresses", "card numbers"];
+const assistantLogos = ["openai", "claude", "cursor", "gemini"];
 
-function HeroCopy() {
+function HeroCopy(props: { playing: boolean }) {
   let rollingText: HTMLSpanElement | undefined;
 
   onMount(() => {
     if (!rollingText) return;
 
-    const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    if (motion.matches) return;
-
     const morph = new TextMorph({ element: rollingText, duration: 350 });
     morph.update(sensitiveValues[0]);
     let index = 0;
-    const timer = window.setInterval(() => {
-      index += 1;
-      morph.update(sensitiveValues[index]);
-      if (index === sensitiveValues.length - 1) window.clearInterval(timer);
-    }, 1100);
-    const stop = () => window.clearInterval(timer);
-    motion.addEventListener("change", stop);
-    onCleanup(() => {
-      stop();
-      motion.removeEventListener("change", stop);
-      morph.destroy();
+    createEffect(() => {
+      if (!props.playing) return;
+      const timer = window.setInterval(() => {
+        index = (index + 1) % sensitiveValues.length;
+        morph.update(sensitiveValues[index]);
+      }, 1100);
+      onCleanup(() => window.clearInterval(timer));
     });
+    onCleanup(() => morph.destroy());
   });
 
   return (
@@ -111,40 +108,29 @@ function PromptFlow() {
   );
 }
 
-function Terminal() {
+function Terminal(props: { playing: boolean }) {
   const [example, setExample] = createSignal(examples[0]);
   const [selectedByReader, setSelectedByReader] = createSignal(false);
+  const [autoplay, setAutoplay] = createSignal(true);
+  const [visible, setVisible] = createSignal(false);
   let terminal: HTMLDivElement | undefined;
-  let stopAutoplay = () => {};
 
   onMount(() => {
     if (!terminal) return;
-    const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    if (motion.matches) return;
-
-    let timer: number | undefined;
     let index = 0;
-
     const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      observer.disconnect();
-      timer = window.setInterval(() => {
-        index += 1;
-        setExample(examples[index]);
-        if (index === examples.length - 1) stopAutoplay();
-      }, 1500);
+      setVisible(entry.isIntersecting);
     });
-
-    stopAutoplay = () => {
-      observer.disconnect();
-      window.clearInterval(timer);
-    };
-
     observer.observe(terminal);
-    motion.addEventListener("change", stopAutoplay);
-    onCleanup(() => {
-      stopAutoplay();
-      motion.removeEventListener("change", stopAutoplay);
+    onCleanup(() => observer.disconnect());
+
+    createEffect(() => {
+      if (!props.playing || !autoplay() || !visible()) return;
+      const timer = window.setInterval(() => {
+        index = (index + 1) % examples.length;
+        setExample(examples[index]);
+      }, 1500);
+      onCleanup(() => window.clearInterval(timer));
     });
   });
 
@@ -158,9 +144,9 @@ function Terminal() {
                 type="button"
                 aria-pressed={example() === option ? "true" : "false"}
                 aria-controls="terminal-output"
-                onFocus={() => stopAutoplay()}
+                onFocus={() => setAutoplay(false)}
                 onClick={() => {
-                  stopAutoplay();
+                  setAutoplay(false);
                   setSelectedByReader(true);
                   setExample(option);
                 }}
@@ -221,13 +207,20 @@ function Prompts() {
   return (
     <section class="prompts" id="prompts" aria-labelledby="prompts-title">
       <div class="workflow-intro">
-        <h2 id="prompts-title">Run redakt from Codex or Claude Code</h2>
+        <h2 id="prompts-title">Set up redakt in your coding assistant</h2>
         <p>
-          Paste this prompt into your assistant to set up redakt for sensitive files.
+          Paste this prompt into Codex, Claude Code, Cursor, or Gemini CLI.
         </p>
       </div>
       <div class="prompt-action" id="setup-prompt">
-        <button type="button" class="button primary" onClick={copy}>Copy prompt</button>
+        <button type="button" class="button primary" onClick={copy}>
+          Copy prompt
+          <span class="prompt-logos" aria-hidden="true">
+            <For each={assistantLogos}>
+              {(logo) => <img src={`/assistant-logos/${logo}.svg`} alt="" width="16" height="16" />}
+            </For>
+          </span>
+        </button>
         <span class="copy-feedback" role="status">{feedback()}</span>
       </div>
       <details class="prompt-fallback" open={copyFailed()}>
@@ -238,9 +231,28 @@ function Prompts() {
   );
 }
 
-function Install() {
-  const { copy, feedback } = createClipboard(installCommand, "Command");
+function InstallCommand(props: { command: string; platform: string; shellPrompt?: boolean }) {
+  const { copy, feedback } = createClipboard(props.command, "Command");
 
+  return (
+    <>
+      <div class="install-command">
+        <code>{props.shellPrompt && <span aria-hidden="true">$ </span>}{props.command}</code>
+        <button
+          type="button"
+          class="button ghost"
+          aria-label={`Copy ${props.platform} command`}
+          onClick={copy}
+        >
+          {feedback() === "Command copied." ? "Copied" : "Copy"}
+        </button>
+      </div>
+      <p class="copy-feedback" role="status">{feedback()}</p>
+    </>
+  );
+}
+
+function Install() {
   return (
     <section class="install" id="install" aria-labelledby="install-title">
       <div>
@@ -252,13 +264,7 @@ function Install() {
         <a class="inline-link" href={repository + "/releases"}>Browse GitHub releases</a>
       </div>
       <div class="install-shell">
-        <div class="install-command">
-          <code><span aria-hidden="true">$</span> {installCommand}</code>
-          <button type="button" class="button ghost" onClick={copy}>
-            {feedback() === "Command copied." ? "Copied" : "Copy"}
-          </button>
-        </div>
-        <p class="copy-feedback" role="status">{feedback()}</p>
+        <InstallCommand command={installCommand} platform="macOS and Linux" shellPrompt />
         <details class="install-options">
           <summary>Windows and Cargo</summary>
           <p>
@@ -266,9 +272,9 @@ function Install() {
               install.ps1
             </a> and run this from its folder in PowerShell.
           </p>
-          <pre><code>powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1</code></pre>
+          <InstallCommand command={windowsInstallCommand} platform="Windows" />
           <p>With Rust and Cargo installed, run:</p>
-          <pre><code>cargo install redakt --locked</code></pre>
+          <InstallCommand command={cargoInstallCommand} platform="Cargo" />
         </details>
       </div>
     </section>
@@ -319,6 +325,24 @@ function Faq() {
 }
 
 export default function Home() {
+  const [allowsMotion, setAllowsMotion] = createSignal(false);
+  const [paused, setPaused] = createSignal(false);
+  const playing = () => allowsMotion() && !paused();
+  let stamp: HTMLIFrameElement | undefined;
+
+  const syncStamp = () => {
+    stamp?.contentWindow?.postMessage({ redaktAnimations: playing() }, window.location.origin);
+  };
+
+  onMount(() => {
+    const motion = matchMedia("(prefers-reduced-motion: no-preference)");
+    const syncMotion = () => setAllowsMotion(motion.matches);
+    syncMotion();
+    motion.addEventListener("change", syncMotion);
+    onCleanup(() => motion.removeEventListener("change", syncMotion));
+    createEffect(syncStamp);
+  });
+
   return (
     <>
       <a class="skip-link" href="#main">Skip to content</a>
@@ -337,17 +361,28 @@ export default function Home() {
       </header>
       <main id="main">
         <div class="section-width">
-          <section class="hero" aria-labelledby="hero-title">
+          <section class="hero" aria-labelledby="hero-title" data-playing={playing()}>
             <div class="hero-copy">
               <h1 id="hero-title"><span class="hero-strike">redakt</span> before you prompt.</h1>
-              <HeroCopy />
+              <HeroCopy playing={playing()} />
               <div class="hero-actions">
                 <a class="button primary" href="#install">Install redakt</a>
                 <a class="inline-link" href="#local-model">How the local model works</a>
+                <Show when={allowsMotion()}>
+                  <button
+                    type="button"
+                    class="button ghost"
+                    onClick={() => setPaused(!paused())}
+                  >
+                    {paused() ? "Resume animations" : "Pause animations"}
+                  </button>
+                </Show>
               </div>
             </div>
-            <Terminal />
+            <Terminal playing={playing()} />
             <iframe
+              ref={stamp}
+              onLoad={syncStamp}
               class="hero-figure"
               src="/redaction-stamp.html"
               title="Redaction stamp illustration"
