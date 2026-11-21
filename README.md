@@ -62,10 +62,10 @@ printf '%s\n' \
   'Emails: nora@example.test, ada@example.test, jo@example.test' \
   'Address: 12 Oak Lane' \
   'Address: 48 Cedar Road' \
-  'Password: demo-password' | redakt
+  'Password: demo-password' | redakt --irreversible
 ```
 
-Version 0.0.4 and later print numbered labels. Version 0.0.3 replaces each matched character with `█`.
+`--irreversible` prints numbered labels and saves no recovery files.
 
 ```text
 Emails: [EMAIL_1], [EMAIL_2], [EMAIL_3]
@@ -74,13 +74,40 @@ Address: [ADDRESS_2]
 Password: [SECRET_1]
 ```
 
-To save the output for a UTF-8 text file, redirect it to a separate file.
+### Mask and restore text
 
 ```bash
-redakt < sample.txt > result
+redakt < prompt.txt > masked.txt
+redakt --reverse < reply.txt > restored.txt
 ```
 
-The CLI writes redacted text to stdout and errors to stderr. Each category starts at 1 in each document. The same value and category reuse the same label within that document. Text outside detected spans, including line endings, is preserved.
+Plain-text redaction writes random placeholders to stdout and automatically saves encrypted recovery data. Keep the `.recovery` file and its separate `.recovery.code` file private. To restore offline on another machine, transfer the recovery file and code separately, and supply them to redakt there. The code is reusable for that mapping. Redakt never prints the code.
+
+Redakt uses `REDAKT_STATE_DIR` when set. Otherwise it uses `$XDG_STATE_HOME/redakt`, `%LOCALAPPDATA%\redakt` on Windows, or `~/.local/state/redakt`. Each default masking invocation creates a new mapping. If the state directory contains more than one mapping, reverse requires `--recovery PATH`. The default code path adds `.code` to the recovery path. Use `--code-file PATH` to store the code separately.
+
+Use one explicit path per conversation to keep placeholders stable across requests.
+
+```bash
+redakt --recovery session.recovery < prompt.txt > masked.txt
+redakt --reverse --recovery session.recovery --code-file /private/session.code < reply.txt
+```
+
+In the second command, `/private/session.code` stands for the location where you placed the code on the restoring machine. If you kept the code at the default path, omit `--code-file`.
+
+Reverse accepts arbitrary UTF-8 text. It replaces exact placeholders from the selected mapping once per occurrence and preserves the surrounding bytes. Unknown placeholders and placeholders edited by a model pass through. Redakt authenticates the complete mapping before output. If the code is lost, generate a new mapping for future redaction. Existing placeholders still need their original code.
+
+### Filter model requests and replies
+
+Run the first command in a pre-request hook on the text that will reach the model, including replayed history and file or tool text. Run the reverse command only in a local post-response hook. Whenever the app resends displayed content, mask it again. Your app can keep its regular local history.
+
+The [OpenAI-compatible example](examples/openai_filter.py) demonstrates text requests for Chat Completions and Responses. It reads JSON on stdin, masks supported text fields and sends the request, then writes the restored reply text locally. It buffers streamed replies through completion so split placeholders can be recognized. Unsupported request shapes fail before a network request. This example requires a client hook or an application that calls it.
+
+```bash
+python3 examples/openai_filter.py --recovery session.recovery \
+  --url https://api.openai.com/v1/responses --model YOUR_MODEL < request.json
+```
+
+Set `OPENAI_API_KEY` in the environment for endpoints that require it. Keep the recovery file and code out of model requests. Detection coverage depends on redakt's models and the fields your integration passes to the filter.
 
 ### Redact PII in prose
 
@@ -96,13 +123,13 @@ The learned detector can miss private text or mask ordinary words. Review the ou
 
 Install the CLI, then paste this prompt into Claude Code or Codex and tell it which file to redact. Any filename works as long as the file contains UTF-8 plain text.
 
-> Use `redakt` on this machine to redact the UTF-8 text file I specify. If I haven't given you the file path, ask me for it. Pass the file directly to the CLI through stdin and save its output to a new file only my account can access. Leave the original alone and use a filename that isn't already taken. Keep both files' contents out of chat, tool output, and external services. If it works, tell me where to find the copy. If it fails, tell me what went wrong without quoting either file.
+> Use `redakt` on this machine to redact the UTF-8 text file I specify. If I haven't given you the file path, ask me for it. Pass the file directly to the CLI through stdin using `redakt --irreversible` and save its output to a new file only my account can access. Leave the original alone and use a filename that isn't already taken. Keep both files' contents out of chat, tool output, and external services. If it works, tell me where to find the copy. If it fails, tell me what went wrong without quoting either file.
 
 Review the new file locally before sharing it.
 
 ### Process multiple documents
 
-Use `--jsonl` for match locations or to process multiple documents with one model load. Each input line must contain exactly `id` and `text`. Each response contains `id`, `spans`, and `redacted` and is flushed immediately. Span offsets count Unicode code points in the original text, starting at zero, with an exclusive end. Placeholder numbering restarts for each record.
+Use `--jsonl` for match locations or to process multiple documents with one model load. Each input line must contain exactly `id` and `text`. Each response contains `id`, `spans`, and `redacted` and is flushed immediately. JSONL uses numbered labels and saves no recovery files. Span offsets count Unicode code points in the original text, starting at zero, with an exclusive end. Placeholder numbering restarts for each record.
 
 ```bash
 printf '%s\n' '{"id":"one","text":"SSN 123-45-6789"}' '{"id":"two","text":"a@example.test"}' | redakt --jsonl

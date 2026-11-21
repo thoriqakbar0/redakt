@@ -6,6 +6,7 @@ Users stream records through one process and receive a flushed response for each
 
 - Preserve IDs, count span offsets in Unicode code points, and ignore blank lines.
 - Flush responses before EOF.
+- Use numbered labels and write no recovery files. Reject recovery options.
 - Reject malformed records without exposing their input.
 - Detect learned PII in default JSONL records. Explicit native weights select rules and cue-based detection.
 
@@ -20,9 +21,16 @@ Preconditions. Run Launch and Doctor in the parent skill.
 ```bash
 printf '%s\n' '{"id":"one","text":"🦊 Sarah called this morning."}' '' '{"id":"two","text":"clean"}' >"$evidence/records.jsonl"
 printf '%s\n' 'redakt --jsonl < records.jsonl' >"$evidence/jsonl-action.txt"
-"$binary" --jsonl <"$evidence/records.jsonl" >"$evidence/responses.jsonl" 2>"$evidence/jsonl-stderr.txt"
+REDAKT_STATE_DIR="$scratch/jsonl-state" "$binary" --jsonl <"$evidence/records.jsonl" >"$evidence/responses.jsonl" 2>"$evidence/jsonl-stderr.txt"
 jq -se '. == [{id:"one",spans:[{start:2,end:7,label:"name"}],redacted:"🦊 [NAME_1] called this morning."},{id:"two",spans:[],redacted:"clean"}]' "$evidence/responses.jsonl"
 test ! -s "$evidence/jsonl-stderr.txt"
+test ! -e "$scratch/jsonl-state"
+if "$binary" --jsonl --recovery "$scratch/invalid.recovery" <"$evidence/records.jsonl" \
+    >"$evidence/jsonl-invalid-mode.out" 2>"$evidence/jsonl-invalid-mode.err"; then
+  exit 1
+fi
+test ! -s "$evidence/jsonl-invalid-mode.out"
+test ! -e "$scratch/invalid.recovery"
 cargo test --locked --test cli jsonl >"$evidence/jsonl-tests.log" 2>&1
 ```
 

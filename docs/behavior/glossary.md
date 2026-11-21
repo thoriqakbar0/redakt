@@ -7,17 +7,18 @@
 - **Document** — all plain text supplied to one invocation, or the `text` of one JSONL record.
 - **JSONL** — newline-delimited JSON. A **record** is one parsed input value. A **response** is one JSON object followed by a newline. An **ID** is the supplied JSON value echoed in that response.
 - **Span** — a category label and half-open range in the original document. **Code point** means a Unicode scalar value here. A single visible character can contain more than one code point.
-- **Category** — the kind of value a span identifies, such as `email`. A **placeholder** is the numbered text that replaces a matched range, such as `[EMAIL_1]`.
+- **Category** — the kind of value a span identifies, such as `email`. A **placeholder** is the text that replaces a matched range. Reversible redaction uses random tokens. JSONL and irreversible mode use numbered labels.
 - **Overlap** — two spans share at least one code point. **Adjacent** spans meet at a boundary without sharing a code point.
 - **Weights** — the native model artifact the CLI loads. **Embedded weights** are already in the executable. **File weights** are chosen by passing a path.
 - **Cue** — a recognizable word or phrase introducing a private value, such as `date of birth:`. **Cue-based recognition** applies built-in format checks to that value.
 - **Flush** — send buffered stdout data to its destination so the reader can receive it. This does not promise persistence on disk.
 - **Diagnostic** — an error message sent to stderr with the `redakt:` prefix.
 
-## Proposed restore
+## Restore
 
-- **Restore** — replace exact placeholders in a local reply with the original values from one explicitly selected redaction.
-- **Restore source** — the local input that associates a placeholder with its original value. The choice between re-reading the prompt and using a saved mapping is open.
+- **Restore** — replace exact placeholders in arbitrary local text with original values from the selected recovery mapping.
+- **Recovery mapping** — the encrypted file associating placeholders with their original values. Its separate recovery code unlocks it.
+- **Recovery code file** — the file holding the code that unlocks one recovery mapping. By default its path is the mapping path with `.code` appended.
 
 ## Events that end or interrupt
 

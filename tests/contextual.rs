@@ -38,7 +38,7 @@ fn rule_response(text: &str) -> Value {
 
 #[test]
 fn plain_stdin_replaces_cued_values() {
-    let output = invoke("🦊 DOB: 2000-02-29\r\npassword: abc", &[]);
+    let output = invoke("🦊 DOB: 2000-02-29\r\npassword: abc", &["--irreversible"]);
     assert!(output.status.success());
     assert!(output.stderr.is_empty());
     assert_eq!(

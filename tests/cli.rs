@@ -46,7 +46,7 @@ fn pii_redacts_prose() {
         "🦊 Sarah called this morning.\n",
         "Email: sarah@example.test\nPhone: 212-555-0123\nAddress: 12 Oak Lane\n"
     );
-    let plain = invoke(input.as_bytes(), &[]);
+    let plain = invoke(input.as_bytes(), &["--irreversible"]);
     assert!(plain.status.success());
     let redacted = String::from_utf8(plain.stdout).unwrap();
     for value in ["Sarah", "sarah@example.test", "212-555-0123", "12 Oak Lane"] {
@@ -84,7 +84,7 @@ fn detects_supported_layouts() {
         ("+1 (212) 555-0123", "[PHONE_1]"),
     ] {
         let input = format!("🦊 {sample}\r\n");
-        let output = invoke(input.as_bytes(), &[]);
+        let output = invoke(input.as_bytes(), &["--irreversible"]);
         assert!(output.status.success());
         assert_eq!(output.stdout, format!("🦊 {placeholder}\r\n").as_bytes());
     }
@@ -101,7 +101,7 @@ fn numbers_distinct_values_by_category() {
         "Phone: 212-555-0123\r\nSSN: 123-45-6789\r\nCard: 4111111111111111\r\n",
         "IBAN: GB82WEST12345698765432\r\nBank account: 1234 5678 9012\r\nDOB: 2000-02-29"
     );
-    let output = invoke(input.as_bytes(), &[]);
+    let output = invoke(input.as_bytes(), &["--irreversible"]);
     assert!(output.status.success());
     assert!(output.stderr.is_empty());
     assert_eq!(
@@ -126,7 +126,7 @@ fn address_boundaries() {
         "!", "?", ":", ")", "\"", "。", " ", "\t", "\r", "\r\n", "  !",
     ] {
         let input = format!("Address: {street}{ending}");
-        let output = invoke(input.as_bytes(), &[]);
+        let output = invoke(input.as_bytes(), &["--irreversible"]);
         assert!(output.status.success());
         assert_eq!(
             output.stdout,
@@ -154,7 +154,7 @@ fn exclusions_and_boundaries() {
         "212-155-0123",
         "Ⅷ212-555-0123",
     ] {
-        let output = invoke(input.as_bytes(), &["--weights", model]);
+        let output = invoke(input.as_bytes(), &["--irreversible", "--weights", model]);
         assert!(output.status.success());
         assert_eq!(output.stdout, input.as_bytes());
     }
@@ -163,9 +163,12 @@ fn exclusions_and_boundaries() {
 #[test]
 fn alternate_model_and_private_errors() {
     let model = concat!(env!("CARGO_MANIFEST_DIR"), "/models/weights.bin");
-    let output = invoke(b"123-45-6789", &["--weights", model]);
+    let output = invoke(b"123-45-6789", &["--irreversible", "--weights", model]);
     assert!(output.status.success());
-    assert_eq!(output.stdout, invoke(b"123-45-6789", &[]).stdout);
+    assert_eq!(
+        output.stdout,
+        invoke(b"123-45-6789", &["--irreversible"]).stdout
+    );
 
     let private_input = "private".repeat(1024 * 1024);
     for argument in ["--weights", "--unknown", "--contextual"] {
@@ -192,7 +195,7 @@ fn non_utf8_weights_path() {
     let filename = OsStr::from_bytes(b"synthetic-\xff");
     let run = |path: &std::path::Path| {
         Command::new(env!("CARGO_BIN_EXE_redakt"))
-            .arg("--weights")
+            .args(["--irreversible", "--weights"])
             .arg(path)
             .output()
             .unwrap()

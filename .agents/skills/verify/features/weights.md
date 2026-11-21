@@ -10,7 +10,7 @@ Users can load a native artifact instead of the embedded model.
 
 ## How to get to it (user POV)
 
-Pass `--weights models/weights.bin` to the CLI.
+Pass `--weights models/weights.bin` to use the native rules model with cue-based detection.
 
 ## Driving it with shell
 
@@ -18,16 +18,24 @@ Preconditions. Complete the parent's stdin Drive first.
 
 ```bash
 sha256sum models/weights.bin >"$evidence/model-before.sha256"
-printf '%s\n' 'redakt --weights models/weights.bin < stdin.txt' >"$evidence/weights-action.txt"
-"$binary" --weights models/weights.bin <"$evidence/stdin.txt" >"$evidence/weights.txt" 2>"$evidence/weights-stderr.txt"
+printf '%s\n' 'redakt --irreversible --weights models/weights.bin < stdin.txt' >"$evidence/weights-action.txt"
+"$binary" --irreversible --weights models/weights.bin <"$evidence/stdin.txt" >"$evidence/weights.txt" 2>"$evidence/weights-stderr.txt"
 cmp "$evidence/stdout.txt" "$evidence/weights.txt"
 test ! -s "$evidence/weights-stderr.txt"
 sha256sum --check "$evidence/model-before.sha256" >"$evidence/model-check.txt"
+printf 'invalid model' >"$scratch/invalid-weights.bin"
+for kind in invalid missing; do
+  if "$binary" --irreversible --weights "$scratch/$kind-weights.bin" <"$evidence/stdin.txt" \
+      >"$evidence/weights-$kind.out" 2>"$evidence/weights-$kind.err"; then
+    exit 1
+  fi
+  test ! -s "$evidence/weights-$kind.out"
+done
 cargo test --locked --test cli model >"$evidence/model-tests.log" 2>&1
 cargo test --locked --test cli weights >"$evidence/weights-tests.log" 2>&1
 ```
 
-Require identical embedded and file-loaded output, an unchanged checksum, and passing malformed-model and weights tests.
+Require identical output for the synthetic SSN fixture, an unchanged checksum, and passing malformed-model and weights tests.
 
 ## Gotchas
 

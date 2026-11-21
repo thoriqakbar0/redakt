@@ -2,11 +2,11 @@
 
 ## Summary
 
-A document is the unit of recognition and numbering. It is the entire plain text input or the text of one JSONL record. The result preserves all text outside the ranges replaced by placeholders.
+A document is the unit of recognition. JSONL and irreversible mode number placeholders by document. Reversible redaction uses a [recovery mapping](../cli/restore.md). It is the entire plain text input or the text of one JSONL record. The result preserves all text outside the ranges replaced by placeholders.
 
 ## The simple case
 
-Put `a@example.test b@example.test a@example.test` in a single document. The first email becomes `[EMAIL_1]`, the second becomes `[EMAIL_2]`, and the repetition becomes `[EMAIL_1]` again. A detected value in another category starts numbering in that category at 1.
+In JSONL or irreversible mode, put `a@example.test b@example.test a@example.test` in a single document. The first email becomes `[EMAIL_1]`, the second becomes `[EMAIL_2]`, and the repetition becomes `[EMAIL_1]` again. A detected value in another category starts numbering in that category at 1.
 
 ## The interaction, event by event
 

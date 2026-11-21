@@ -127,7 +127,7 @@ jobs:
           assert version == f'redakt {tag.removeprefix("v")}', version
 
           result = subprocess.run(
-              [str(executable)], input='SSN 123-45-6789', encoding='utf-8',
+              [str(executable), '--irreversible'], input='SSN 123-45-6789', encoding='utf-8',
               capture_output=True, check=True,
           )
           assert result.stdout == 'SSN [SSN_1]', result.stdout

@@ -47,7 +47,7 @@ Stdin supplies UTF-8 input, stdout carries results, and stderr carries diagnosti
 
 Exit status 0 means the selected operation completed and writes were flushed. Exit status 1 means redakt reported an ordinary error. Diagnostics start with `redakt: ` and go to stderr without echoing the input document, JSONL record, or weights filename. Signal termination follows the shell's conventions. Check the status even if some output is present.
 
-Redakt creates no output file itself. A shell can create or truncate a path before redakt starts, even if the invocation then fails. Use a separate destination for redacted output.
+Redakt saves [recovery files](../cli/restore.md) for default plain-text redaction. Result text goes to stdout. A shell can create or truncate a path before redakt starts, even if the invocation then fails. Use a separate destination for redacted output.
 
 ## Modifiers
 
@@ -70,7 +70,7 @@ Redakt creates no output file itself. A shell can create or truncate a path befo
 | Network drops | No effect for local inputs and outputs. | No effect for local inputs and outputs. |
 | Disk full or file inaccessible | The shell can fail a redirection. Redakt can fail a model read. | A read, write, or flush can fail. |
 | Source file changes | Results depend on what bytes can be opened and read. | No snapshot of stdin is promised. Already loaded weights stay active. |
-| Second invocation | Starts independently. | Separate streams have no shared redakt state. |
+| Second invocation | Starts independently. | An explicit recovery path can share a mapping across invocations. |
 | Process killed outright | The process stops immediately. | Bytes already written remain. |
 
 > Technical note: These signal cases assume Linux and normal foreground shell handling. Redakt does not manage process groups or install an application-level cancellation protocol.
