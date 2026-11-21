@@ -1,0 +1,36 @@
+# Foundations
+
+Use the [verification setup](README.md#how-to-run-a-pass). Run each row in a fresh invocation. The command snippets assume Bash from the repository root and a writable scratch directory.
+
+## foundations/invocation.md
+
+| ID | P | Device | Claim | Setup | Steps | Expected | Result |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| INV-01 | P1 | Linux, redirected streams | Reject a positional filename ([spec](../foundations/invocation.md#invoke)). | Release binary and scratch directory. | 1. Run `r INV-01 '' example.txt`. | Status 1. Empty stdout. Unknown argument diagnostic. | pass |
+| INV-02 | P1 | Linux, redirected streams | Reject a repeated JSONL option ([spec](../foundations/invocation.md#invoke)). | Release binary and scratch directory. | 1. Run `r INV-02 '' --jsonl --jsonl`. | Status 1. Empty stdout. Unknown argument diagnostic. | pass |
+| INV-03 | P2 | Linux, redirected streams | Reject the end-of-options marker ([spec](../foundations/invocation.md#invoke)). | Release binary and scratch directory. | 1. Run `r INV-03 '' --`. | Status 1. Empty stdout. Unknown argument diagnostic. | pass |
+| INV-04 | P2 | Linux, redirected streams | Reject an equals-style weights option ([spec](../foundations/invocation.md#invoke)). | Release binary and scratch directory. | 1. Run `r INV-04 '' --weights=models/weights.bin`. | Status 1. Empty stdout. Unknown argument diagnostic. | pass |
+| INV-05 | P1 | Linux, redirected streams | Report a missing weights token ([spec](../foundations/invocation.md#exit-immediately)). | Release binary and scratch directory. | 1. Run `r INV-05 '' --weights`. | Status 1. Empty stdout. Missing path diagnostic. | pass |
+| INV-06 | P2 | Linux, redirected streams | Keep input out of diagnostics ([spec](../foundations/invocation.md#finish)). | Release binary and scratch directory. | 1. Run `r INV-06 synthetic_input_marker --unknown`. | Unknown argument diagnostic contains no input. | pass |
+| INV-07 | P2 | Linux, redirected streams | Shell owns file truncation ([spec](../foundations/invocation.md#finish)). | Release binary and scratch directory. | 1. Run `printf stale > "$scratch/out"; "$binary" --unknown > "$scratch/out" 2> "$scratch/err"; rc=$?; test "$rc" = 1 && test ! -s "$scratch/out"`. | Output file is empty even though redakt rejects the arguments. | pass |
+| INV-08 | P2 | Linux, redirected streams | Resolve a relative weights path ([spec](../foundations/invocation.md#invoke)). | Release binary and scratch directory. | 1. Run `(cd models && printf %s a@example.test > "$scratch/in" && "$binary" --weights weights.bin < "$scratch/in" > "$scratch/out" && test "$(cat "$scratch/out")" = '[EMAIL_1]')`. | The file loads and the email is replaced. | pass |
+| INV-09 | P2 | Linux, redirected streams | Independent invocations have separate results ([spec](../foundations/invocation.md#cancel-and-interrupt)). | Release binary and scratch directory. | 1. Run `"$binary" < "$scratch/email" > "$scratch/one" & first=$!; "$binary" < "$scratch/email" > "$scratch/two" & second=$!; wait "$first" && wait "$second" && cmp -s "$scratch/one" "$scratch/two" && test "$(cat "$scratch/one")" = '[EMAIL_1]'`. | Both invocations exit 0 with `[EMAIL_1]`. | pass |
+| INV-10 | P2 | Linux terminal | Terminal has no input prompt ([spec](../foundations/invocation.md#while-running)). | Fresh terminal session. | 1. Launch redakt in a terminal, type an email and press Enter, wait, then press Ctrl+D | Only terminal input echo appears before EOF. | pass (terminal) |
+| INV-11 | P2 | Linux, held pipe | SIGTERM, SIGHUP, and SIGKILL follow the process lifecycle ([spec](../foundations/invocation.md#cancel-and-interrupt)). | Release binary and scratch directory. | 1. Start a separate JSONL run for each signal with stdin held open. Wait for a response, then deliver the signal to that redakt process and wait for exit | Bash reports 143, 129, and 137, respectively. The flushed response remains. | pass (live pipe) |
+| INV-12 | P1 | Linux, /dev/full | Unwritable stderr changes the failure status (suspected bug) ([spec](../foundations/invocation.md#finish)). | Release binary and scratch directory. | 1. Run `"$binary" --unknown 2>/dev/full; rc=$?; test "$rc" = 101`. | Record the status. The observed status is 101. | pass |
+| INV-13 | P2 | Linux, mutable source | Concurrent source edits can affect unread input ([spec](../foundations/invocation.md#cancel-and-interrupt)). | Release binary and scratch directory. | 1. Feed a large local file into the command and edit an unread part during the read | Behavior reflects bytes actually received. Record which bytes changed before delivery. | — |
+
+## foundations/documents.md
+
+| ID | P | Device | Claim | Setup | Steps | Expected | Result |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| DOC-01 | P1 | Linux, redirected streams | Number distinct values in encounter order and reuse exact duplicates ([spec](../foundations/documents.md#while-running)). | Release binary and scratch directory. | 1. Run `r DOC-01 'a@example.test b@example.test a@example.test'`. | `[EMAIL_1] [EMAIL_2] [EMAIL_1]`. | pass |
+| DOC-02 | P1 | Linux, redirected streams | Start at 1 in each category ([spec](../foundations/documents.md#while-running)). | Release binary and scratch directory. | 1. Run `r DOC-02 'a@example.test 123-45-6789'`. | `[EMAIL_1] [SSN_1]`. | pass |
+| DOC-03 | P2 | Linux, redirected streams | Case variants remain distinct values ([spec](../foundations/documents.md#while-running)). | Release binary and scratch directory. | 1. Run `r DOC-03 'a@example.test A@example.test'`. | `[EMAIL_1] [EMAIL_2]`. | pass |
+| DOC-04 | P1 | Linux, redirected streams | Offsets count original Unicode code points ([spec](../foundations/documents.md#begin-running)). | Release binary and scratch directory. | 1. Run `r DOC-04 '{"id":1,"text":"🦊 a@example.test"}' --jsonl`. | Email span starts at 2 and ends at 16. | pass |
+| DOC-05 | P1 | Linux, redirected streams | Keep overlapping categories while using one replacement ([spec](../foundations/documents.md#while-running)). | Release binary and scratch directory. | 1. Run `r DOC-05 '{"id":1,"text":"password: a@example.test"}' --jsonl`. | Two coincident spans ordered email then secret. One email placeholder. | pass |
+| DOC-06 | P2 | Linux, redirected streams | Longest range wins a shared start ([spec](../foundations/documents.md#while-running)). | Release binary and scratch directory. | 1. Run `r DOC-06 '{"id":1,"text":"password: a@example.test!"}' --jsonl`. | Email and longer secret spans start at 10. Output is `password: [SECRET_1]`. | pass |
+| DOC-07 | P2 | Rust test | Adjacent ranges stay separate ([spec](../foundations/documents.md#while-running)). | Rust toolchain and checkout. | 1. Run `cargo test --locked --lib redact_union_and_bounds` | The overlap and adjacent-range assertion passes. | pass (unit test) |
+| DOC-08 | P2 | Linux, redirected streams | Literal placeholder remains intact ([spec](../foundations/documents.md#edge-cases)). | Release binary and scratch directory. | 1. Run `r DOC-08 '[EMAIL_1] a@example.test'`. | `[EMAIL_1] [EMAIL_1]`. | pass |
+
+Not checkable directly through the CLI: forcing arbitrary spans into the redaction step. DOC-07 uses the existing Rust test for that case.
