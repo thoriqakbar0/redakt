@@ -21,3 +21,4 @@ Use the root checkout at the documented source commit. Read the [entry point](..
 - [Help and version](cli/information.md) owns the startup short path and its output errors.
 - [Plain text](cli/plain-text.md) owns buffering through EOF and writing one result. [JSONL](cli/jsonl.md) owns validation, per-line output, flush, and partial success.
 - [Detection](cli/detection.md) owns recognition coverage. [Alternate weights](cli/weights.md) owns artifact choice, validation, and startup failure.
+- [Proposed restore](proposed/restore.md) owns the proposed reply workflow and its pending acceptance checks.

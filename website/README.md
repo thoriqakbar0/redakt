@@ -12,6 +12,8 @@ npm run dev
 
 ## Deploy to Cloudflare Workers
 
+The `redakt` Worker serves the public site at <https://redakt.ta-0.com>.
+
 Authenticate with `npx cf auth login` or set `CLOUDFLARE_API_TOKEN` in CI.
 Sign in to `gh` with an account that can read the repository. The deploy
 command stages and verifies all published Redakt binary releases before

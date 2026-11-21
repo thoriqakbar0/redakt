@@ -117,9 +117,49 @@ a:focus-visible, button:focus-visible {
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  grid-template-areas: "copy terminal" "figure terminal";
   align-items: center;
   gap: clamp(24px, 4vw, 56px);
   padding-block: 80px;
+}
+
+.hero-copy { grid-area: copy; }
+.hero > .terminal { grid-area: terminal; }
+.hero-figure {
+  grid-area: figure;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+.hero-strike {
+  display: inline-block;
+  position: relative;
+}
+
+.hero-strike::after {
+  content: "";
+  position: absolute;
+  inset: 52% -.025em auto;
+  height: .085em;
+  border-radius: 60% 35% 55% 45%;
+  background: var(--green);
+  transform: rotate(-4deg);
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-strike::after {
+    animation: strike-headline 760ms cubic-bezier(0.23, 1, 0.32, 1) 450ms both;
+  }
+}
+
+@keyframes strike-headline {
+  from { transform: rotate(-4deg) scaleX(.01); }
+  to { transform: rotate(-4deg) scaleX(1); }
 }
 
 h1 {
@@ -134,6 +174,25 @@ h1 {
   font-size: 16px;
   line-height: 1.6;
   color: var(--ash);
+}
+
+.hero-rolling { display: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-rolling {
+    display: inline-block;
+    color: var(--green);
+    white-space: nowrap;
+  }
+
+  .hero-types {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 .hero-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 24px; }
@@ -155,7 +214,7 @@ h1 {
   padding-right: 14px;
 }
 
-.terminal-controls { display: flex; }
+.terminal-controls { display: flex; flex-wrap: wrap; }
 .terminal-controls button {
   background: transparent;
   color: var(--ash);
@@ -167,7 +226,6 @@ h1 {
 
 .terminal-controls button:hover { color: var(--bone); }
 .terminal-controls button[aria-pressed="true"] { color: var(--green); border-color: var(--green); }
-.terminal-caption { color: var(--ash); font-size: 12px; text-align: right; }
 
 .terminal-body {
   display: grid;
@@ -190,7 +248,32 @@ code { font: 400 13px/1.55 var(--mono); }
 }
 .command span, .install-command code span, .workflow-command span { color: var(--steel); }
 .terminal-body pre { white-space: pre-wrap; font: 400 13px/1.55 var(--mono); }
-mark { background: var(--graphite); color: var(--bone); }
+.terminal mark {
+  position: relative;
+  display: inline-block;
+  background: var(--teal);
+  color: var(--green);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .terminal mark::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--green);
+    opacity: 0;
+    transform-origin: left;
+    animation: reveal-redaction 260ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .terminal mark:nth-of-type(2n)::after { animation-delay: 65ms; }
+}
+
+@keyframes reveal-redaction {
+  from { opacity: .65; transform: scaleX(.94); }
+  to { opacity: 0; transform: scaleX(1); }
+}
 
 .workflow { border-top: 1px solid var(--slate); padding-block: 64px; }
 .workflow-intro { margin-bottom: 32px; }
@@ -202,6 +285,50 @@ h2 { font-size: clamp(26px, 3.1vw, 34px); line-height: 1.2; letter-spacing: -.03
   padding: 12px 16px;
   overflow-wrap: anywhere;
   background: var(--carbon);
+}
+
+.prompt-flow { margin: 0 0 32px; }
+.prompt-flow figcaption { margin-bottom: 12px; color: var(--bone); }
+.prompt-flow ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.prompt-flow li {
+  position: relative;
+  padding: 12px;
+  border: 1px solid var(--slate);
+  background: var(--carbon);
+}
+.prompt-flow li span { color: var(--green); font-size: 13px; }
+.prompt-flow pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.prompt-flow p { margin-top: 10px; color: var(--ash); font-size: 14px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .prompt-flow .flow-in-view li::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border: 1px solid var(--green);
+    opacity: 0;
+    animation: trace-prompt 850ms ease-out;
+  }
+  .prompt-flow li:nth-child(2)::after { animation-delay: 800ms; }
+  .prompt-flow li:nth-child(3)::after { animation-delay: 1600ms; }
+  .prompt-flow li:nth-child(4)::after { animation-delay: 2400ms; }
+}
+
+@keyframes trace-prompt {
+  0%, 45% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 760px) {
+  .prompt-flow ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .capabilities { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
@@ -225,7 +352,7 @@ h2 { font-size: clamp(26px, 3.1vw, 34px); line-height: 1.2; letter-spacing: -.03
   padding-block: 64px;
 }
 
-.install .inline-link { display: inline-block; margin-top: 14px; }
+.install > div > .inline-link { display: inline-block; margin-top: 14px; }
 
 .install-command {
   display: flex;
@@ -241,24 +368,12 @@ h2 { font-size: clamp(26px, 3.1vw, 34px); line-height: 1.2; letter-spacing: -.03
 .install .copy-feedback { min-height: 20px; font-size: 13px; margin-top: 6px; }
 
 .prompts { border-top: 1px solid var(--slate); padding-block: 64px; }
-.prompt-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
-.prompt {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border-top: 1px solid var(--slate);
-  padding-top: 20px;
-}
-.prompt h3 { font-size: 18px; }
-.prompt p { font-size: 14px; color: var(--ash); }
-#setup-prompt { grid-column: 1 / -1; }
-#setup-prompt p { max-width: 72ch; white-space: pre-line; }
+.prompt-fallback { max-width: 72ch; margin-top: 16px; white-space: pre-line; color: var(--ash); }
 .prompt-action {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 12px;
-  margin-top: auto;
 }
 .prompt-action .copy-feedback { font-size: 13px; color: var(--ash); }
 
@@ -281,12 +396,17 @@ h2 { font-size: clamp(26px, 3.1vw, 34px); line-height: 1.2; letter-spacing: -.03
   .header-content { gap: 4px 20px; padding-block: 12px; }
   .header-content nav { gap: 8px 16px; }
   .wordmark { font-size: 17px; }
-  .hero { grid-template-columns: minmax(0, 1fr); gap: 28px; padding-block: 36px 40px; }
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "copy" "terminal" "figure";
+    gap: 28px;
+    padding-block: 36px 40px;
+  }
+  .terminal-controls button { padding-inline: 8px; }
   .workflow { padding-block: 48px; }
   .capabilities { grid-template-columns: 1fr; }
   .install { grid-template-columns: 1fr; padding-block: 48px; }
   .prompts { padding-block: 48px; }
-  .prompt-grid { grid-template-columns: 1fr; }
 }
 
 .reference { max-width: 720px; padding-block: 64px; }

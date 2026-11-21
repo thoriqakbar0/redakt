@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Redaction stamp</title>
+</head>
+<body>
+<script src="core.js"></script>
+<script>
+/*
+ * A pre-inked stamp presses an inked pad against a sheet, leaving a solid bar.
+ * Releasing the handle lets the return springs lift the pad off the paper.
+ * Visible parts: paper tray and sheet, orange handle, case, and black ink pad.
+ */
+const stampProfile = rrUV(13, 12, 59, 45, 6);
+const stampInk = { l: "#4f4841", m: "#302824", d: "#211a18" };
+const stampPaper = { l: "#fff7df", m: "#e9d9ad", d: "#c7b98d" };
+const stampSteel = { l: "#9fd2d0", m: "#599194", d: "#385f64" };
+const stampTravel = 8;
+const stampHeight = 3;
+const stampTextLines = [18, 35, 43];
+const stampPaperShape = (left, right, near, far, color, slide) => shape(
+  [[left + slide, near, stampHeight], [right + slide, near, stampHeight],
+    [right + slide, far, stampHeight], [left + slide, far, stampHeight]],
+  color,
+  0.7,
+);
+
+function stampScene(state, palette) {
+  const travel = stampTravel * state.press;
+  const slide = 28 * state.slide;
+  const caseEnds = [
+    { depth: 30, normal: [-1, 0, 0] },
+    { depth: 58, normal: [1, 0, 0] },
+  ];
+  const caseCaps = caseEnds.filter(({ normal }) => vis(normal))
+    .map(({ depth, normal }) => shape(on(PX(depth), stampProfile), tone(normal, palette), 1.1));
+  const caseBody = extrude(stampProfile, 30, 58, palette) + caseCaps.join("");
+  const caseOutline = hullInk([...on(PX(30), stampProfile), ...on(PX(58), stampProfile)], 2.8);
+  const paper = box(8 + slide, 8, 2, 82 + slide, 64, 2.8, stampPaper);
+  const lines = stampTextLines.map(row => stampPaperShape(62, 76, row, row + 1.4, "#b49965", slide));
+  const inked = state.phase !== "ready" && state.phase !== "pressing";
+  const result = inked ? "#302824" : "#a38d78";
+  const sheet = paper + lines.join("") + stampPaperShape(33, 55, 21, 52, result, slide);
+  const pad = box(33, 21, 11 - travel, 55, 52, 16 - travel, stampInk, toneI, 1.2);
+  const handle = box(33, 17, 46 - travel, 55, 55, 54 - travel, palette, tone, 1.8);
+  const feet = [15, 54].map(y => ({
+    box: [[31, y, 2], [57, y + 3, 16]],
+    svg: box(31, y, 2, 57, y + 3, 16, palette),
+  }));
+  const parts = byDepth([
+    ...feet,
+    { box: [[3, 4, 0], [114, 68, 2]], svg: box(3, 4, 0, 114, 68, 2, stampSteel) },
+    { box: [[8 + slide, 8, 2], [82 + slide, 64, 3]], svg: sheet },
+    { box: [[33, 21, 11 - travel], [55, 52, 16 - travel]], svg: pad },
+    { box: [[30, 13, 12], [58, 59, 45]], svg: caseBody + caseOutline },
+    { box: [[33, 17, 46 - travel], [55, 55, 54 - travel]], svg: handle },
+  ]);
+  const shadow = castShadow([[29, 13, 0], [59, 13, 0], [59, 59, 0], [29, 59, 0]], 0);
+
+  return shadow + parts;
+}
+
+function pressStamp(figure) {
+  const state = figure.st;
+  let elapsed = 0;
+  const contact = .24;
+  const release = .48;
+  const finish = .9;
+  state.phase = "pressing";
+  figure.animate(delta => {
+    elapsed = Math.min(elapsed + delta, finish);
+    if (elapsed < contact) {
+      state.phase = "pressing";
+      state.press = elapsed / contact;
+    } else if (elapsed < release) {
+      state.phase = "returning";
+      state.press = (release - elapsed) / (release - contact);
+    } else {
+      state.press = 0;
+      state.slide = ease((elapsed - release) / (finish - release));
+      state.phase = elapsed < finish ? "sliding" : "revealed";
+    }
+    return elapsed < finish;
+  });
+}
+
+const stampReducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+window.FIG_A = () => .75;
+const stampFigure = mountFigure({
+  fig: "01",
+  title: "Redaction stamp",
+  size: [114, 72, 54],
+  palette: "tomato",
+  credit: false,
+  state: stampReducedMotion.matches
+    ? { phase: "revealed", press: 0, slide: 1 }
+    : { phase: "ready", press: 0, slide: 0 },
+  scene: stampScene,
+});
+
+if (!stampReducedMotion.matches) {
+  const stampVisibility = new IntersectionObserver(([entry], observer) => {
+    if (entry.intersectionRatio < .55) return;
+    observer.disconnect();
+    pressStamp(stampFigure);
+  }, { threshold: .55 });
+  stampVisibility.observe(document.getElementById("fig"));
+}
+
+const stampStyles = document.createElement("style");
+stampStyles.textContent = `
+  html, body { background: transparent !important; overflow: hidden; }
+  body { padding: 0 !important; pointer-events: none; }
+  header, .controls, .zchip { display: none !important; }
+  #fig { margin: 0 !important; }
+`;
+document.head.append(stampStyles);
+</script>
+</body>
+</html>
