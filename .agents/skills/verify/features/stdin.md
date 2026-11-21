@@ -4,7 +4,7 @@ Users pipe text into the CLI and receive redacted text.
 
 ## Sub-features
 
-- Detect the seven supported categories.
+- Detect learned PII in prose and the original seven rule categories.
 - Preserve untouched whitespace and line endings.
 - Display help and the current version.
 - Detect additional cued values automatically.

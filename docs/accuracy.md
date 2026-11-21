@@ -20,7 +20,7 @@ The corpus includes supported formats, benign prose, invalid checksums, Unicode 
 
 A true positive requires an exact match of document, label, start, and exclusive end. A prediction with the wrong boundary or label counts as both an extra prediction and a missed annotation. Overlapping spans with different labels remain separate predictions. Duplicate predictions are rejected instead of improving the score.
 
-Precision is TP / (TP + FP), and recall is TP / (TP + FN). An empty denominator is reported as `n/a`. The micro result sums category counts before dividing. It includes unsupported categories such as private URLs so missing capabilities stay visible. The harness checks response IDs, counts, span labels, and bounds. The CLI integration tests check the rendered placeholders.
+Precision is TP / (TP + FP), and recall is TP / (TP + FN). An empty denominator is reported as `n/a`. The micro result sums category counts before dividing. Predictions in categories absent from the fixture also count as false positives. The harness checks response IDs, counts, label syntax, and span bounds. The CLI integration tests check the rendered placeholders.
 
 ## Observed baseline
 
@@ -45,4 +45,6 @@ Model-only micro precision was 0.941 and recall was 0.485. With cue-based recogn
 
 Both runs masked the explicitly public card-shaped product identifier. Cue-based recognition also masked `Maple Editor` in `Product name: Maple Editor` and missed an uncued person, an Indonesian address, a slash-formatted birth date, and the private profile URL. The model-only run additionally missed the lowercase and Unicode cues and supplemental categories listed in the report.
 
-The current CLI finds all four annotated dates, including slash-formatted dates. Its totals are 30 TP, 2 FP, and 3 FN (precision 0.938, recall 0.909) on the same corpus.
+The rules with updated date parsing found all four annotated dates, including slash-formatted dates. Their totals were 30 TP, 2 FP, and 3 FN (precision 0.938, recall 0.909) on this corpus.
+
+With the trained multi-category detector enabled by default, the CLI found 31 of 33 annotated spans and produced 27 extra spans (precision 0.534, recall 0.939). The two missed exact spans were an Indonesian address and a private profile URL. The broader detector also flagged values this fixture's annotation policy leaves visible, including public URLs.

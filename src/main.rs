@@ -1,4 +1,4 @@
-use redakt::{redact, Detector, Span};
+use redakt::{redact, Detector, PiiTagger, Span};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::io::{self, BufRead, Read, Write};
@@ -9,8 +9,8 @@ const HELP: &str = concat!(
     "redakt [--weights PATH] [--jsonl]\n",
     "Read UTF-8 stdin and write plain redacted text to stdout.\n",
     "Replaces private values with numbered labels such as [EMAIL_1].\n",
-    "Detects email, phone, SSN, card, IBAN, and cued private values.\n",
-    "Cued values include names, addresses, secrets, accounts and birth dates.\n",
+    "Detects names, contact details, identifiers and other PII using trained and rule-based detectors.\n",
+    "--weights runs the supplied native rules model with cue-based detection.\n",
     "--jsonl reads one {id, text} record per line and flushes each JSON response.\n",
     "JSONL span offsets count Unicode code points.\n\n",
     "redakt update [--check]\n",
@@ -32,7 +32,14 @@ struct Response {
     spans: Vec<Span>,
 }
 
-fn stream(model: &Detector) -> Result<(), String> {
+fn detect(model: &Detector, tagger: Option<&PiiTagger>, text: &str) -> Vec<Span> {
+    match tagger {
+        Some(tagger) => tagger.detect_with_rules(model, text),
+        None => model.detect_contextual(text),
+    }
+}
+
+fn stream(model: &Detector, tagger: Option<&PiiTagger>) -> Result<(), String> {
     let input = io::stdin();
     let output = io::stdout();
     let mut output = output.lock();
@@ -42,7 +49,7 @@ fn stream(model: &Detector) -> Result<(), String> {
             continue;
         }
         let record: Record = serde_json::from_str(&line).map_err(|_| "Invalid JSONL record")?;
-        let spans = model.detect_contextual(&record.text);
+        let spans = detect(model, tagger, &record.text);
         let redacted = redact(&record.text, &spans)?;
         let response = Response {
             id: record.id,
@@ -91,27 +98,27 @@ fn run() -> Result<(), String> {
             _ => return Err("Unknown or repeated argument; use --help".into()),
         }
     }
-    let model = if let Some(path) = weights {
+    let (model, tagger) = if let Some(path) = weights {
         let bytes = std::fs::read(path).map_err(|_| "Could not read native model")?;
-        Detector::from_bytes(&bytes)?
+        (Detector::from_bytes(&bytes)?, None)
     } else {
-        Detector::embedded()?
+        (Detector::embedded()?, Some(PiiTagger::embedded()?))
     };
     if jsonl {
-        stream(&model)?;
+        stream(&model, tagger.as_ref())?;
     } else {
-        redact_stdin(&model)?;
+        redact_stdin(&model, tagger.as_ref())?;
     }
     update::notify();
     Ok(())
 }
 
-fn redact_stdin(model: &Detector) -> Result<(), String> {
+fn redact_stdin(model: &Detector, tagger: Option<&PiiTagger>) -> Result<(), String> {
     let mut text = String::new();
     io::stdin()
         .read_to_string(&mut text)
         .map_err(|_| "Could not read UTF-8 stdin")?;
-    let spans = model.detect_contextual(&text);
+    let spans = detect(model, tagger, &text);
     let redacted = redact(&text, &spans)?;
     let mut output = io::stdout().lock();
     output

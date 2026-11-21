@@ -102,7 +102,7 @@ fn score(expected: &BTreeSet<Span>, actual: &BTreeSet<Span>) -> BTreeMap<String,
         }
     }
     for span in actual.difference(expected) {
-        counts.get_mut(&span.label).unwrap().extra += 1;
+        counts.entry(span.label.clone()).or_default().extra += 1;
     }
     counts
 }
@@ -171,7 +171,12 @@ fn exact_span_scoring() {
         span(6, 10, "name"),
         span(12, 16, "secret"),
     ]);
-    let actual = BTreeSet::from([span(0, 4, "name"), span(6, 9, "name"), span(12, 16, "name")]);
+    let actual = BTreeSet::from([
+        span(0, 4, "name"),
+        span(6, 9, "name"),
+        span(12, 16, "name"),
+        span(20, 22, "company_name"),
+    ]);
     let counts = score(&expected, &actual);
     assert_eq!(
         counts["name"],
@@ -191,6 +196,7 @@ fn exact_span_scoring() {
     );
     assert_eq!(ratio(0, 0), "n/a");
     assert_eq!(ratio(1, 2), "0.500");
+    assert_eq!(counts["company_name"].extra, 1);
 }
 
 #[test]
@@ -244,7 +250,11 @@ fn evaluate_accuracy() {
             case.id
         );
         for span in &actual {
-            assert!(LABELS.contains(&span.label.as_str()));
+            assert!(!span.label.is_empty());
+            assert!(span
+                .label
+                .bytes()
+                .all(|ch| ch.is_ascii_lowercase() || ch.is_ascii_digit() || ch == b'_'));
             assert!(span.start < span.end && span.end <= case.text.chars().count());
         }
         for span in expected.difference(&actual) {
@@ -254,7 +264,7 @@ fn evaluate_accuracy() {
             println!("{} EXTRA {span:?}", case.id);
         }
         for (label, count) in score(&expected, &actual) {
-            let total = totals.get_mut(&label).unwrap();
+            let total = totals.entry(label).or_default();
             total.correct += count.correct;
             total.extra += count.extra;
             total.missed += count.missed;
