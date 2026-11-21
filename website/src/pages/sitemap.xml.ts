@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 
-const pages = ["/", "/about", "/contact", "/privacy"];
+const pages = ["/"];
 const lastModified = "2026-11-21";
 
 export const prerender = true;

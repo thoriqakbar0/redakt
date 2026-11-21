@@ -21,8 +21,12 @@ test("the same homepage URL serves HTML and Markdown", async () => {
   assertFormat(page, html);
   const markup = await page.text();
   assert.match(markup, /<h1[^>]*><span[^>]*>redakt<\/span> before you prompt\./);
+  assert.match(markup, /src="\/redaction-stamp\.html"/);
+  assert.match(markup, /id="local-model"/);
+  assert.match(markup, /100,000 synthetic English documents/);
   assert.match(markup, /https:\/\/redakt\.ta-0\.com\/install\.sh/);
   assert.match(markup, /PASSWORD=<mark\b[^>]*>\[SECRET_1\]<\/mark>/);
+  assert.match(markup, /redakt --reverse --recovery session\.recovery/);
   assert.match(markup, /mktemp \.env\.redacted\.XXXXXX/);
   assert.match(markup, /<summary>Read the setup prompt<\/summary>/);
 
@@ -32,7 +36,8 @@ test("the same homepage URL serves HTML and Markdown", async () => {
   const body = await document.text();
   assert.match(body, /^# redakt/);
   assert.match(body, /built-in model runs offline on your CPU/);
-  assert.match(body, /mktemp \.env\.redacted\.XXXXXX\) && redakt < \.env > "\$copy"/);
+  assert.match(body, /mktemp \.env\.redacted\.XXXXXX\) && redakt --irreversible < \.env > "\$copy"/);
+  assert.match(body, /redakt --reverse --recovery session\.recovery/);
   assert.match(body, /cargo install redakt --locked/);
   assert.match(body, /Version 0\.0\.6 and later include the trained detector/);
 });
@@ -57,4 +62,18 @@ test("Accept priorities are respected for HEAD requests", async () => {
   const unsupported = await request("/", "application/json", "HEAD");
   assert.equal(unsupported.status, 406);
   assert.match(unsupported.headers.get("vary") ?? "", /\bAccept\b/i);
+});
+
+test("former information pages point to their homepage sections", async () => {
+  const sections = { "/about": "local-model", "/contact": "support", "/privacy": "privacy" };
+  for (const [path, section] of Object.entries(sections)) {
+    for (const accept of [html, markdown]) {
+      const response = await fetch(new URL(path, site), {
+        headers: { Accept: accept },
+        redirect: "manual",
+      });
+      assert.equal(response.status, 308);
+      assert.equal(response.headers.get("location"), `/#${section}`);
+    }
+  }
 });

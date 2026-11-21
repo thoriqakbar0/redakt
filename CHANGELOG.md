@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Bring the local model, recovery workflow, installation, privacy, and support together on the redakt homepage. Thanks @thoriqakbar0.
+
 ## 0.0.7 - 2026-11-21
 
 - Save encrypted recovery data by default for plain-text redaction. Use `redakt --reverse` to restore placeholders in local text or on another machine with the recovery file and its code. Use `--irreversible` for numbered labels without recovery files. Thanks @thoriqakbar0.

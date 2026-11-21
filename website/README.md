@@ -28,9 +28,10 @@ npm run deploy
 
 The Rust CLI is also distributed through Cargo and GitHub Releases.
 
-The homepage and project information pages serve HTML by default and Markdown
+The homepage serves HTML by default and Markdown
 when requested with `Accept: text/markdown`. The Worker sets `Vary: Accept` and
-preserves the 404 status for missing pages in both formats.
+preserves the 404 status for missing pages in both formats. Former information
+page URLs redirect to their homepage sections.
 
 With the development server running, run `SITE_URL=http://localhost:4321 npm test` to check
 content negotiation. Use the deployed URL to check production.

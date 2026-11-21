@@ -2,6 +2,6 @@ Set up redakt for this project. Check whether the CLI is already on PATH. If it'
 
 Add the rule below to this project’s assistant instructions. Use AGENTS.md for Codex or CLAUDE.md for Claude Code. Keep the existing instructions.
 
-When I ask you to share or analyze a potentially sensitive log or text file, pass it to redakt through stdin before opening it. Save stdout to a new local file that only my account can access. Leave the original untouched. Keep both files’ contents out of chat, tool output, and external services. Give me the redacted file path so I can review the copy before sharing.
+When I ask you to share or analyze a potentially sensitive log or text file, pass it to `redakt --irreversible` through stdin before opening it. Save stdout to a new local file that only my account can access. Leave the original untouched. Keep both files’ contents out of chat, tool output, and external services. Give me the redacted file path so I can review the copy before sharing.
 
 Verify the setup with a synthetic email address. Tell me which instruction file you updated and whether the test passed.

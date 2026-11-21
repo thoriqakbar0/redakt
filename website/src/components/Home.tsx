@@ -5,7 +5,7 @@ import setupPrompt from "../content/setup-prompt.txt?raw";
 const repository = "https://github.com/thoriqakbar0/redakt";
 const installCommand =
   "curl -fsSL https://redakt.ta-0.com/install.sh -o install.sh && sh install.sh";
-const sensitiveValues = ["passwords", "access tokens", "names", "addresses", "credit cards"];
+const sensitiveValues = ["passwords", "access tokens", "names", "addresses", "card numbers"];
 
 function HeroCopy() {
   let rollingText: HTMLSpanElement | undefined;
@@ -39,8 +39,8 @@ function HeroCopy() {
       <span class="hero-rolling" aria-hidden="true">
         <span ref={rollingText}>{sensitiveValues[0]}</span>
       </span>
-      <span class="hero-types">passwords, access tokens, names, addresses, and credit cards</span>
-      {" "}before sharing with AI. Redakt runs on your machine, even offline.
+      <span class="hero-types">passwords, access tokens, names, addresses, and card numbers</span>
+      {" "}in logs, .env files, and prompts on your machine before sharing.
     </p>
   );
 }
@@ -48,7 +48,7 @@ function HeroCopy() {
 const examples = [
   {
     label: ".env",
-    command: "redakt < .env.example",
+    command: "redakt --irreversible < .env.example",
     input: [
       "# Database connection",
       "PASSWORD=demo-db-password",
@@ -60,7 +60,7 @@ const examples = [
   },
   {
     label: "Text",
-    command: "redakt < support.log",
+    command: "redakt --irreversible < support.log",
     input: "Email: ops@example.test\nLevel: warning\nAccess token: demo-access-token",
     output: "Email: [EMAIL_1]\nLevel: warning\nAccess token: [SECRET_1]",
   },
@@ -75,59 +75,24 @@ const examples = [
   },
   {
     label: "Prose",
-    command: "redakt < note.txt",
+    command: "redakt --irreversible < note.txt",
     input: "Sarah called this morning. Her email is sarah@example.test.",
     output: "[NAME_1] called this morning. Her email is [EMAIL_1].",
   },
 ];
 
-const capabilities = [
-  {
-    title: "Find sensitive text",
-    description: "Rules look for card numbers and labels such as PASSWORD. They run offline.",
-    link: "See how detection works",
-    href: "/about",
-  },
-  {
-    title: "Replace matches with labels",
-    description: "An email becomes [EMAIL_1] and keeps that label throughout a document.",
-    link: "See what redakt detects",
-    href: repository + "#coverage-and-measurements",
-  },
-  {
-    title: "Review a separate copy",
-    description: "Check for missed secrets. In JSONL mode, you also get each match’s position.",
-    link: "Read the JSONL guide",
-    href: repository + "#process-multiple-documents",
-  },
-];
-
 const promptFlow = [
-  { title: "Original prompt", text: "Draft a note to ops@example.test." },
-  { title: "Send the redacted prompt", text: "Draft a note to [EMAIL_1]." },
-  { title: "AI response", text: "To: [EMAIL_1]\nThe deploy is ready." },
-  { title: "Fill in manually", text: "To: ops@example.test\nThe deploy is ready." },
+  { title: "Your prompt", text: "Draft a note to ops@example.test." },
+  { title: "What you send", text: "Draft a note to [REDAKT_…]." },
+  { title: "What AI sends back", text: "To: [REDAKT_…]\nThe deploy is ready." },
+  { title: "Your restored reply", text: "To: ops@example.test\nThe deploy is ready." },
 ];
 
 function PromptFlow() {
-  const [inView, setInView] = createSignal(false);
-  let flow: HTMLElement | undefined;
-
-  onMount(() => {
-    if (!flow) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      setInView(true);
-      observer.disconnect();
-    });
-    observer.observe(flow);
-    onCleanup(() => observer.disconnect());
-  });
-
   return (
-    <figure class="prompt-flow" ref={flow}>
+    <figure class="prompt-flow">
       <figcaption>From prompt to reply</figcaption>
-      <ol classList={{ "flow-in-view": inView() }}>
+      <ol>
         <For each={promptFlow}>
           {(step) => (
             <li>
@@ -138,8 +103,9 @@ function PromptFlow() {
         </For>
       </ol>
       <p>
-        Keep the original value local. If the AI keeps <code>[EMAIL_1]</code> in its reply,
-        replace it by hand on your machine.
+        Hide private details with <code>redakt --recovery session.recovery &lt; prompt.txt</code>.
+        To restore the reply, run <code>redakt --reverse --recovery session.recovery &lt; reply.txt</code>.
+        Keep both recovery files private. The example shows a shortened placeholder.
       </p>
     </figure>
   );
@@ -256,7 +222,9 @@ function Prompts() {
     <section class="prompts" id="prompts" aria-labelledby="prompts-title">
       <div class="workflow-intro">
         <h2 id="prompts-title">Run redakt from Codex or Claude Code</h2>
-        <p>Open your project in Codex or Claude Code and paste this prompt to set up local redaction.</p>
+        <p>
+          Paste this prompt into your assistant to set up redakt for sensitive files.
+        </p>
       </div>
       <div class="prompt-action" id="setup-prompt">
         <button type="button" class="button primary" onClick={copy}>Copy prompt</button>
@@ -277,7 +245,10 @@ function Install() {
     <section class="install" id="install" aria-labelledby="install-title">
       <div>
         <h2 id="install-title">Install redakt</h2>
-        <p>Install a verified prebuilt binary on macOS or Linux.</p>
+        <p>
+          Run this in your terminal on macOS or Linux with glibc. The installer
+          checks the download before it installs redakt.
+        </p>
         <a class="inline-link" href={repository + "/releases"}>Browse GitHub releases</a>
       </div>
       <div class="install-shell">
@@ -288,6 +259,60 @@ function Install() {
           </button>
         </div>
         <p class="copy-feedback" role="status">{feedback()}</p>
+        <details class="install-options">
+          <summary>Windows and Cargo</summary>
+          <p>
+            On 64 bit x86 Windows, download <a href={repository + "/blob/main/install.ps1"}>
+              install.ps1
+            </a> and run this from its folder in PowerShell.
+          </p>
+          <pre><code>powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1</code></pre>
+          <p>With Rust and Cargo installed, run:</p>
+          <pre><code>cargo install redakt --locked</code></pre>
+        </details>
+      </div>
+    </section>
+  );
+}
+
+const questions = [
+  {
+    question: "Does redakt send my text anywhere?",
+    answer: "Redakt handles your text on your machine. Update checks send no file contents.",
+  },
+  {
+    question: "What can redakt detect?",
+    answer:
+      "Redakt looks for email addresses, card numbers, and labeled secrets. " +
+      "It can also find names and addresses in English text.",
+  },
+  {
+    question: "Should I review the output before sharing?",
+    answer: "Yes. Check for private details redakt missed before you share the copy.",
+  },
+  {
+    question: "What if I only need a copy to share?",
+    answer: "Use redakt --irreversible to get numbered labels without saving recovery files.",
+  },
+  {
+    question: "Can redakt restore values if the AI edits a placeholder?",
+    answer: "Redakt needs the AI to leave the placeholder unchanged to put the original detail back.",
+  },
+];
+
+function Faq() {
+  return (
+    <section class="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">Common questions</h2>
+      <div class="faq-questions">
+        <For each={questions}>
+          {(item) => (
+            <details>
+              <summary>{item.question}</summary>
+              <p>{item.answer}</p>
+            </details>
+          )}
+        </For>
       </div>
     </section>
   );
@@ -305,7 +330,7 @@ export default function Home() {
           </a>
           <nav aria-label="Primary">
             <a href="#workflow">How it works</a>
-            <a href={repository + "#try-it"}>Docs</a>
+            <a href="#local-model">Local model</a>
             <a href={repository}>GitHub</a>
           </nav>
         </div>
@@ -318,7 +343,7 @@ export default function Home() {
               <HeroCopy />
               <div class="hero-actions">
                 <a class="button primary" href="#install">Install redakt</a>
-                <a class="button text-button" href="#setup-prompt">Set up Codex or Claude Code</a>
+                <a class="inline-link" href="#local-model">How the local model works</a>
               </div>
             </div>
             <Terminal />
@@ -330,50 +355,82 @@ export default function Home() {
               tabindex={-1}
             />
           </section>
+          <section class="model" id="local-model" aria-labelledby="model-title">
+            <div>
+              <h2 id="model-title">The model runs on your machine.</h2>
+              <p>
+                Redakt comes with a small model that runs on your CPU, even offline.
+                Rules catch patterns like card numbers. The model reads nearby words
+                to help spot names and addresses in English sentences.
+              </p>
+              <p>
+                It learned from 100,000 synthetic English documents.
+                Always check the copy for details it may have missed.
+              </p>
+              <a class="inline-link" href={repository + "/tree/main/experiments/pii"}>
+                Training and results
+              </a>
+            </div>
+            <div class="model-example">
+              <span>Input</span>
+              <p><mark>Sarah</mark> called this morning.</p>
+              <span>Output with <code>--irreversible</code></span>
+              <p><code>[NAME_1]</code> called this morning.</p>
+            </div>
+          </section>
           <section class="workflow" id="workflow" aria-labelledby="workflow-title">
             <div class="workflow-intro">
-              <h2 id="workflow-title">How it works</h2>
+              <h2 id="workflow-title">Redact before you share.</h2>
               <p>
-                Redakt replaces detected secrets with labels like <code>[EMAIL_1]</code>{" "}
-                before you send text to AI. Its model has about 2 million nonzero weights
-                and runs offline on your CPU. It trained on 100,000 synthetic English documents
-                from{" "}
-                <a class="inline-link" href="https://huggingface.co/datasets/nvidia/Nemotron-PII">
-                  NVIDIA’s Nemotron-PII dataset
-                </a>.
+                This command saves a copy of your .env file with private details hidden.
+                Open the copy and check it before sharing.
               </p>
             </div>
             <p class="workflow-command">
               <code>
                 <span aria-hidden="true">$</span>
                 {' copy=$(mktemp .env.redacted.XXXXXX) && ' +
-                 'redakt < .env > "$copy" && printf \'%s\\n\' "$copy"'}
+                 'redakt --irreversible < .env > "$copy" && printf \'%s\\n\' "$copy"'}
               </code>
             </p>
             <PromptFlow />
-            <div class="capabilities">
-              <For each={capabilities}>
-                {(item) => (
-                  <article>
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
-                    <a class="inline-link" href={item.href}>{item.link}</a>
-                  </article>
-                )}
-              </For>
+          </section>
+          <Prompts />
+          <Faq />
+          <Install />
+          <section class="site-info" aria-label="Project information">
+            <div id="privacy">
+              <h2>Privacy</h2>
+              <p>
+                Your files stay on your machine. Keep the encrypted recovery file and its
+                separate code private. Review redacted copies before sharing them.
+              </p>
+              <p>
+                When the CLI checks GitHub for an update, it asks for release information
+                only. Set <code>REDAKT_UPDATE_NOTIFY=0</code> to turn off automatic checks.
+              </p>
+            </div>
+            <div id="support">
+              <h2>Support</h2>
+              <p>
+                Ask a question or report a bug in <a href={repository + "/issues"}>GitHub issues</a>.
+                For bugs, include your redakt version, operating system, and a made-up example.
+              </p>
+              <p>
+                Follow the <a href={repository + "/blob/main/SECURITY.md"}>security policy</a>{" "}
+                to report a vulnerability privately.
+              </p>
             </div>
           </section>
-          <Install />
-          <Prompts />
         </div>
       </main>
       <footer class="site-footer">
         <div class="section-width footer-content">
           <a href="#top">redakt</a>
           <nav aria-label="Project">
-            <a href="/about">About</a>
-            <a href="/contact">Contact</a>
-            <a href="/privacy">Privacy</a>
+            <a href="#local-model">Local model</a>
+            <a href="#support">Support</a>
+            <a href="#privacy">Privacy</a>
             <a href={repository + "/blob/main/LICENSE"}>Apache 2.0</a>
             <a href={repository + "/blob/main/SECURITY.md"}>Security</a>
             <a href={repository}>GitHub</a>
