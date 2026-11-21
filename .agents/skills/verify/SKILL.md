@@ -1,15 +1,15 @@
 ---
 name: verify
-description: Verify redakt's real Rust CLI, JSONL streaming, alternate weights, and Linux-to-macOS compilation after behavior or build changes.
+description: Verify redakt’s CLI, encrypted recovery, OpenAI-compatible text filter, JSONL streaming, alternate weights, and macOS cross-builds.
 ---
 
 # Verify redakt
 
-Run from the repository root. Read [the feature map](features/README.md) and drive every affected entry. The primary interface is text on stdin and redacted text on stdout. Library behavior also has Rust unit tests. No server, credentials, ports, or seed data are needed. Use synthetic inputs only.
+Run from the repository root. Read [the feature map](features/README.md) and drive every affected entry. The primary interface is text on stdin and redacted text on stdout. Library behavior also has Rust unit tests. The adapter journey uses a recording mock on a temporary loopback port. Use synthetic inputs and no external credentials.
 
 ## Launch
 
-Use Bash, stable Rust, Cargo, and jq. Give each run separate build and evidence directories. Keep these variables in one shell through Cleanup.
+Use Bash, stable Rust, Cargo, and jq. The adapter journey also needs Python 3. Give each run separate build and evidence directories. Keep these variables in one shell through Cleanup.
 
 ```bash
 set -euo pipefail
@@ -17,6 +17,7 @@ mkdir -p target/verification
 evidence=$(mktemp -d "$PWD/target/verification/run.XXXXXX")
 scratch=$(mktemp -d)
 export CARGO_TARGET_DIR="$scratch/build"
+export REDAKT_UPDATE_NOTIFY=0
 trap 'rm -rf -- "$scratch"' EXIT
 printf '%s\n' "$evidence"
 (
@@ -60,7 +61,7 @@ Read the matching feature files for additional journeys. Run the macOS compilati
 
 ## Evidence
 
-Keep synthetic inputs, arguments, stdout, stderr, build logs, and test logs under `$evidence`. Record the exit status of each journey in the handoff; a nonzero command fails verification even if earlier checks passed. Exercise the real user path without internal setters or mocks. Verify side effects too. Alternate weights must remain unchanged, and cross-build artifacts must have the expected architecture and recorded hashes.
+Keep synthetic inputs, arguments, stdout, stderr, build logs, and test logs under `$evidence`. Record the exit status of each journey in the handoff; a nonzero command fails verification even if earlier checks passed. Exercise the real CLI. Use a recording mock only at the adapter’s provider boundary. Verify side effects too. Alternate weights must remain unchanged, and cross-build artifacts must have the expected architecture and recorded hashes.
 
 Report the evidence path, passed journeys, and concrete blockers. Linux cross-builds do not prove macOS execution, signing, notarization, or older OS compatibility. Do not replace native macOS release tests.
 
@@ -71,7 +72,7 @@ CLI commands exit on EOF. The existing streaming test owns and reaps its child. 
 ```bash
 rm -rf -- "$scratch"
 trap - EXIT
-unset CARGO_TARGET_DIR
+unset CARGO_TARGET_DIR REDAKT_UPDATE_NOTIFY
 test -s "$evidence/build.log"
 test -s "$evidence/stdout.txt"
 printf 'Evidence retained at %s\n' "$evidence"

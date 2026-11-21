@@ -28,17 +28,7 @@ cmp "$evidence/contextual-expected.txt" "$evidence/contextual.txt"
 cargo test --locked --test contextual
 ```
 
-Run the default CLI and reverse it in an isolated state directory.
-
-```bash
-export REDAKT_STATE_DIR="$scratch/state"
-"$binary" <"$evidence/stdin.txt" >"$evidence/masked.txt"
-! cmp -s "$evidence/stdin.txt" "$evidence/masked.txt"
-"$binary" --reverse <"$evidence/masked.txt" >"$evidence/restored.txt"
-cmp "$evidence/stdin.txt" "$evidence/restored.txt"
-cargo test --locked --test recovery
-REDAKT_BIN="$binary" python3 tests/openai_filter.py
-```
+Use the [recovery journey](recovery.md) to drive default masking and reverse.
 
 ## Gotchas
 

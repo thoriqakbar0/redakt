@@ -32,7 +32,7 @@ file "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/redakt" | tee "$evidence/ma
 deactivate
 ```
 
-Both linking and format checks must pass. Copy binaries out of scratch before Cleanup only if deliverables are requested. Logs and hashes survive cleanup. To prove execution, run each architecture on a matching Mac using the guide's version and synthetic redaction checks, and capture those actions and outputs separately.
+Both linking and format checks must pass. Copy binaries out of scratch before Cleanup only if deliverables are requested. Logs and hashes survive cleanup. To prove execution, run each architecture on a matching Mac. Check `./redakt --version` and pipe a synthetic SSN through `./redakt --irreversible` to assert the numbered label. Capture native evidence separately.
 
 ## Gotchas
 
