@@ -1,8 +1,8 @@
 import { createSignal, For } from "solid-js";
 import setupPrompt from "../content/setup-prompt.txt?raw";
 
-const repository = "https://github.com/thoriqakbar0/privacy-hygiene";
-const installCommand = "cargo install privacy-hygiene --locked";
+const repository = "https://github.com/thoriqakbar0/redakt";
+const installCommand = "cargo install --git https://github.com/thoriqakbar0/redakt --locked";
 
 const promptInstructions = [
   "Feed the source file directly to stdin and write stdout to a separate local file.",
@@ -15,12 +15,12 @@ const promptInstructions = [
 const prompts = [
   {
     title: "Redact a log file",
-    task: "Use the local privacy-hygiene CLI to redact support.log into support.redacted.log.",
+    task: "Use the local redakt CLI to redact support.log into support.redacted.log.",
   },
   {
     title: "Redact a JSONL file",
     task: [
-      "Use the local privacy-hygiene CLI with --jsonl to redact events.jsonl",
+      "Use the local redakt CLI with --jsonl to redact events.jsonl",
       "into events.redacted.jsonl.",
       "Each input line should contain an id and text.",
     ].join(" "),
@@ -30,13 +30,13 @@ const prompts = [
 const examples = [
   {
     label: "Text",
-    command: "privacy-hygiene < support.log",
+    command: "redakt < support.log",
     input: "Email: ops@example.test\nLevel: warning\nAPI_KEY=synthetic_demo_1234",
     output: "Email: [EMAIL_1]\nLevel: warning\nAPI_KEY=[SECRET_1]",
   },
   {
     label: "JSONL",
-    command: "privacy-hygiene --jsonl < events.jsonl",
+    command: "redakt --jsonl < events.jsonl",
     input: '{"id":"event-1","text":"Email: ops@example.test"}',
     output: [
       '{"id":"event-1","redacted":"Email: [EMAIL_1]",',
@@ -147,7 +147,7 @@ function Prompts() {
       <div class="prompt-grid">
         <PromptCard
           id="setup-prompt"
-          title="Set up privacy-hygiene in your project"
+          title="Set up redakt in your project"
           text={setupPrompt.trim()}
           label="Copy setup prompt"
         />
@@ -172,8 +172,8 @@ function Install() {
     <section class="install" id="install" aria-labelledby="install-title">
       <div>
         <h2 id="install-title">Install the CLI</h2>
-        <p>Run this command if you have Cargo. You can also download a ready-to-run binary.</p>
-        <a class="inline-link" href={repository + "/releases/latest"}>Download the CLI</a>
+        <p>Install from source with Cargo.</p>
+        <a class="inline-link" href={repository + "/releases"}>View releases</a>
       </div>
       <div class="install-shell">
         <div class="install-command">
@@ -194,9 +194,9 @@ export default function Home() {
       <a class="skip-link" href="#main">Skip to content</a>
       <header class="site-header" id="top">
         <div class="section-width header-content">
-          <a class="wordmark" href="/" aria-label="privacy-hygiene home">
+          <a class="wordmark" href="/" aria-label="redakt home">
             <span class="brand-mark" aria-hidden="true"><i /><i /><i /></span>
-            privacy-hygiene
+            redakt
           </a>
           <nav aria-label="Primary">
             <a href="#workflow">How it works</a>
@@ -229,7 +229,7 @@ export default function Home() {
             <p class="workflow-command">
               <code>
                 <span aria-hidden="true">$</span>
-                {" privacy-hygiene < support.log > support.redacted.log"}
+                {" redakt < support.log > support.redacted.log"}
               </code>
             </p>
             <div class="capabilities">
@@ -250,7 +250,7 @@ export default function Home() {
       </main>
       <footer class="site-footer">
         <div class="section-width footer-content">
-          <a href="#top">privacy-hygiene</a>
+          <a href="#top">redakt</a>
           <nav aria-label="Project">
             <a href="/about">About</a>
             <a href="/contact">Contact</a>

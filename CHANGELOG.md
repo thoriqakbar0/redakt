@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Add a privacy-hygiene website with CLI install instructions, an interactive redaction example,
+- Add a redakt website with CLI install instructions, an interactive redaction example,
   and copyable prompts for Codex and Claude Code. The site serves Markdown on request and
   publishes a sitemap and agent guide. Thanks @thoriqakbar0.
 - Rename the crate and CLI from `privacy-hygiene` to `redakt`.
