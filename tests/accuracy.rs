@@ -202,7 +202,7 @@ fn evaluate_accuracy() {
         .map(|case| format!("{}\n", json!({"id": case.id, "text": case.text})))
         .collect();
 
-    let mut child = Command::new(env!("CARGO_BIN_EXE_privacy-hygiene"))
+    let mut child = Command::new(env!("CARGO_BIN_EXE_redakt"))
         .arg("--jsonl")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())

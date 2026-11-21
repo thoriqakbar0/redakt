@@ -1,21 +1,21 @@
-# privacy-hygiene
+# redakt
 
 > Offline Rust CLI for replacing supported sensitive values with numbered labels.
 
 ## When to use this
 
-Use privacy-hygiene to prepare a local support log, error report, or text document before including it in an LLM prompt or sharing it. Use JSONL mode for multiple documents or when you need match offsets. The website documents the CLI and shows synthetic examples.
+Use redakt to prepare a local support log, error report, or text document before including it in an LLM prompt or sharing it. Use JSONL mode for multiple documents or when you need match offsets. The website documents the CLI and shows synthetic examples.
 
 ## How to use it
 
-- Install with `cargo install privacy-hygiene --locked`.
-- Pipe a local file into `privacy-hygiene` and redirect stdout to a fresh file with access limited to the current account. The source stays untouched.
-- For batches, use `privacy-hygiene --jsonl`, with one object containing `id` and `text` per input line.
+- Install with `cargo install --git https://github.com/thoriqakbar0/redakt --locked`.
+- Pipe a local file into `redakt` and redirect stdout to a fresh file with access limited to the current account. The source stays untouched.
+- For batches, use `redakt --jsonl`, with one object containing `id` and `text` per input line.
 - Keep file contents out of chat, tool output, and external services. Give the user the output path so they can review the redacted copy locally. The CLI can miss private data.
 
 ## Documentation
 
 - [Homepage and copyable prompts](/)
-- [Usage and detection coverage](https://github.com/thoriqakbar0/privacy-hygiene#try-it)
-- [JSONL mode](https://github.com/thoriqakbar0/privacy-hygiene#process-multiple-documents)
+- [Usage and detection coverage](https://github.com/thoriqakbar0/redakt#try-it)
+- [JSONL mode](https://github.com/thoriqakbar0/redakt#process-multiple-documents)
 - [Data handling](/privacy)

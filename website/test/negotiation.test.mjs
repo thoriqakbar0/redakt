@@ -24,7 +24,7 @@ test("the same homepage URL serves HTML and Markdown", async () => {
   const document = await request("/", markdown);
   assert.equal(document.status, 200);
   assertFormat(document, markdown);
-  assert.match(await document.text(), /^# privacy-hygiene/);
+  assert.match(await document.text(), /^# redakt/);
 });
 
 test("a missing URL keeps its 404 status in either format", async () => {

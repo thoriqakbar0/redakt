@@ -11,7 +11,7 @@ interface Props {
 }
 
 const { frontmatter, noindex } = Astro.props;
-const title = Astro.props.title ?? frontmatter?.title ?? "privacy-hygiene";
+const title = Astro.props.title ?? frontmatter?.title ?? "redakt";
 const description = Astro.props.description ?? frontmatter?.description;
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, "") || "/", Astro.site);
 const socialImage = new URL("/share.png", Astro.site);
@@ -36,7 +36,7 @@ const socialImage = new URL("/share.png", Astro.site);
   <body>
     {frontmatter ? (
       <main class="section-width reference">
-        <a class="inline-link" href="/">← privacy-hygiene</a>
+        <a class="inline-link" href="/">← redakt</a>
         <slot />
       </main>
     ) : <slot />}

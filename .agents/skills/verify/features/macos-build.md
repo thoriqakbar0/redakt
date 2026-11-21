@@ -23,12 +23,12 @@ source target/macos-toolchain/bin/activate
   python -m ziglang version
   uv pip list --python target/macos-toolchain/bin/python
   cargo zigbuild --release --locked --target x86_64-apple-darwin --target aarch64-apple-darwin
-  file "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/privacy-hygiene"
-  file "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/privacy-hygiene"
-  sha256sum "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/privacy-hygiene" "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/privacy-hygiene"
+  file "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/redakt"
+  file "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/redakt"
+  sha256sum "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/redakt" "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/redakt"
 ) >"$evidence/macos-build.log" 2>&1
-file "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/privacy-hygiene" | tee "$evidence/macos-intel.txt" | grep -q 'Mach-O 64-bit x86_64 executable'
-file "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/privacy-hygiene" | tee "$evidence/macos-arm.txt" | grep -q 'Mach-O 64-bit arm64 executable'
+file "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/redakt" | tee "$evidence/macos-intel.txt" | grep -q 'Mach-O 64-bit x86_64 executable'
+file "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/redakt" | tee "$evidence/macos-arm.txt" | grep -q 'Mach-O 64-bit arm64 executable'
 deactivate
 ```
 

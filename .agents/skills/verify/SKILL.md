@@ -1,9 +1,9 @@
 ---
 name: verify
-description: Verify privacy-hygiene's real Rust CLI, JSONL streaming, alternate weights, and Linux-to-macOS compilation after behavior or build changes.
+description: Verify redakt's real Rust CLI, JSONL streaming, alternate weights, and Linux-to-macOS compilation after behavior or build changes.
 ---
 
-# Verify privacy-hygiene
+# Verify redakt
 
 Run from the repository root. Read [the feature map](features/README.md) and drive every affected entry. The primary interface is text on stdin and redacted text on stdout. Library behavior also has Rust unit tests. No server, credentials, ports, or seed data are needed. Use synthetic inputs only.
 
@@ -27,7 +27,7 @@ printf '%s\n' "$evidence"
   git status --short
   cargo build --release --locked
 ) >"$evidence/build.log" 2>&1
-binary="$CARGO_TARGET_DIR/release/privacy-hygiene"
+binary="$CARGO_TARGET_DIR/release/redakt"
 ```
 
 Require a zero build exit status and a successful Doctor check before driving. No process stays running between CLI invocations. On failure, retain the logs and clean up scratch.
@@ -37,9 +37,9 @@ Require a zero build exit status and a successful Doctor check before driving. N
 Run this read-only check when the binary looks stale or behaves unexpectedly.
 
 ```bash
-expected_version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "privacy-hygiene") | .version')
+expected_version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "redakt") | .version')
 "$binary" --version >"$evidence/version.txt"
-test "$(cat "$evidence/version.txt")" = "privacy-hygiene $expected_version"
+test "$(cat "$evidence/version.txt")" = "redakt $expected_version"
 ```
 
 ## Drive
@@ -49,7 +49,7 @@ Exercise the real stdin path and verify the redacted text byte for byte, includi
 ```bash
 printf '🦊 123-45-6789\r\n' >"$evidence/stdin.txt"
 printf '🦊 [SSN_1]\r\n' >"$evidence/expected.txt"
-printf '%s\n' 'privacy-hygiene < stdin.txt > stdout.txt' >"$evidence/action.txt"
+printf '%s\n' 'redakt < stdin.txt > stdout.txt' >"$evidence/action.txt"
 "$binary" <"$evidence/stdin.txt" >"$evidence/stdout.txt" 2>"$evidence/stderr.txt"
 cmp "$evidence/expected.txt" "$evidence/stdout.txt"
 test ! -s "$evidence/stderr.txt"

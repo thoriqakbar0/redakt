@@ -2,23 +2,21 @@
 import Home from "../components/Home";
 import Page from "../layouts/Page.astro";
 
-const title = "privacy-hygiene | Local log redaction CLI";
+const title = "redakt | Local log redaction CLI";
 const description =
   "Redact logs and documents on your machine before sending them to a language model.";
 const software = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "privacy-hygiene",
+  name: "redakt",
   description,
   url: Astro.site?.href,
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Linux, macOS, Windows",
   keywords: ["log redaction CLI", "local text redaction"],
   license: "https://www.apache.org/licenses/LICENSE-2.0",
-  downloadUrl: "https://github.com/thoriqakbar0/privacy-hygiene/releases/latest",
   sameAs: [
-    "https://github.com/thoriqakbar0/privacy-hygiene",
-    "https://crates.io/crates/privacy-hygiene",
+    "https://github.com/thoriqakbar0/redakt",
   ],
   offers: { "@type": "Offer", price: 0, priceCurrency: "USD" },
 };

@@ -5,8 +5,8 @@ The CLI automatically runs deterministic, cue-based recognition alongside the em
 ## Examples
 
 ```bash
-printf 'API_KEY=synthetic_example_key_123456' | privacy-hygiene
-printf '%s\n' '{"id":"one","text":"Date of birth: 1990-04-12"}' | privacy-hygiene --jsonl
+printf 'API_KEY=synthetic_example_key_123456' | redakt
+printf '%s\n' '{"id":"one","text":"Date of birth: 1990-04-12"}' | redakt --jsonl
 ```
 
 JSONL responses include spans with Unicode code-point offsets into the original text. Redaction replaces overlapping model and cue-based spans with one numbered label. Exact duplicate spans appear once in the response.

@@ -55,13 +55,13 @@ The Rust runtime and model are byte-identical to the measured source snapshot. B
 
 ## Reproduce outside the default tree
 
-The full compiler, original rules, Python reference, fixed corpus, predictions, pinned baseline setup and benchmark programs are preserved at [reproduction commit 6ba3e585](https://github.com/thoriqakbar0/privacy-hygiene/tree/6ba3e5850af6b2b13a22b81f27bd9df619df30d5), on `thor/ternary-benchmark-reproduction`. They are intentionally excluded from the default tree.
+The full compiler, original rules, Python reference, fixed corpus, predictions, pinned baseline setup and benchmark programs are preserved at [reproduction commit 6ba3e585](https://github.com/thoriqakbar0/redakt/tree/6ba3e5850af6b2b13a22b81f27bd9df619df30d5), on `thor/ternary-benchmark-reproduction`. They are intentionally excluded from the default tree.
 
 Clone that source separately rather than copying Python tools into this Rust-only checkout.
 
 ```bash
-git clone --branch thor/ternary-benchmark-reproduction --single-branch https://github.com/thoriqakbar0/privacy-hygiene.git ../privacy-hygiene-benchmark
-cd ../privacy-hygiene-benchmark
+git clone --branch thor/ternary-benchmark-reproduction --single-branch https://github.com/thoriqakbar0/redakt.git ../redakt-benchmark
+cd ../redakt-benchmark
 git checkout 6ba3e5850af6b2b13a22b81f27bd9df619df30d5
 cargo build --release --locked
 python3 -m experiments.benchmark_detectors --output results/new-paired.json

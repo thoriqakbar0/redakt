@@ -1,11 +1,11 @@
 [package]
-name = "privacy-hygiene"
+name = "redakt"
 version = "0.0.4"
 edition = "2021"
 description = "Native compiled ternary-gated PII rules detector"
 include = ["/src/**", "/tests/**", "/models/weights.bin", "/assets/logo.svg", "/Cargo.lock", "/README.md", "/LICENSE", "/NOTICE"]
 license = "Apache-2.0"
-repository = "https://github.com/thoriqakbar0/privacy-hygiene"
+repository = "https://github.com/thoriqakbar0/redakt"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

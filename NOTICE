@@ -1,5 +1,5 @@
-privacy-hygiene
-Copyright 2026 privacy-hygiene contributors
+redakt
+Copyright 2026 redakt contributors
 
 The artifact in models/weights.bin contains compiled ternary circuit weights.
 It is not an OpenAI Privacy Filter checkpoint.

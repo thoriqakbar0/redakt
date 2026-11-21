@@ -94,8 +94,8 @@ jobs:
 
           target = os.environ['TARGET']
           tag = os.environ['TAG']
-          name = f'privacy-hygiene-{tag}-{target}'
-          binary = 'privacy-hygiene.exe' if 'windows' in target else 'privacy-hygiene'
+          name = f'redakt-{tag}-{target}'
+          binary = 'redakt.exe' if 'windows' in target else 'redakt'
           folder = Path(name)
           folder.mkdir()
           shutil.copy2(Path('target') / target / 'release' / binary, folder / binary)
@@ -124,7 +124,7 @@ jobs:
           version = subprocess.check_output(
               [str(executable), '--version'], encoding='utf-8',
           ).strip()
-          assert version == f'privacy-hygiene {tag.removeprefix("v")}', version
+          assert version == f'redakt {tag.removeprefix("v")}', version
 
           result = subprocess.run(
               [str(executable)], input='SSN 123-45-6789', encoding='utf-8',

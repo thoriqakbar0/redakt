@@ -1,7 +1,7 @@
-Set up privacy-hygiene for this project. Check whether the CLI is already on PATH. If it’s missing and Cargo is available, run `cargo install privacy-hygiene --locked`.
+Set up redakt for this project. Check whether the CLI is already on PATH. If it’s missing and Cargo is available, run `cargo install --git https://github.com/thoriqakbar0/redakt --locked`.
 
 Add a short rule to this project’s existing assistant instructions. Use AGENTS.md for Codex or CLAUDE.md for Claude Code. Preserve the instructions already there.
 
-The rule: When I ask you to share or analyze a potentially sensitive log or text file, send it directly to the local privacy-hygiene CLI through stdin before opening it. Save stdout to a new file readable only by my account and leave the original untouched. Keep both files out of chat and tool output. Give me the redacted file path so I can review it and decide what to share.
+The rule: When I ask you to share or analyze a potentially sensitive log or text file, send it directly to the local redakt CLI through stdin before opening it. Save stdout to a new file readable only by my account and leave the original untouched. Keep both files out of chat and tool output. Give me the redacted file path so I can review it and decide what to share.
 
 Verify the setup with a synthetic email address. Tell me which instruction file you updated and whether the test passed.

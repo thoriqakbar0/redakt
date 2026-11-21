@@ -3,7 +3,7 @@ use std::io::Write;
 use std::process::{Command, Output, Stdio};
 
 fn invoke(text: &str, arguments: &[&str]) -> Output {
-    let mut child = Command::new(env!("CARGO_BIN_EXE_privacy-hygiene"))
+    let mut child = Command::new(env!("CARGO_BIN_EXE_redakt"))
         .args(arguments)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())

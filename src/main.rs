@@ -1,10 +1,10 @@
-use privacy_hygiene::{redact, Detector, Span};
+use redakt::{redact, Detector, Span};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::io::{self, BufRead, Read, Write};
 
 const HELP: &str = concat!(
-    "privacy-hygiene [--weights PATH] [--jsonl]\n",
+    "redakt [--weights PATH] [--jsonl]\n",
     "Read UTF-8 stdin and write plain redacted text to stdout.\n",
     "Replaces private values with numbered labels such as [EMAIL_1].\n",
     "Detects email, phone, SSN, card, IBAN, and cued private values.\n",
@@ -54,24 +54,27 @@ fn stream(model: &Detector) -> Result<(), String> {
     Ok(())
 }
 
+fn write_info(message: &str) -> Result<(), String> {
+    let mut output = io::stdout().lock();
+    writeln!(output, "{message}")
+        .and_then(|()| output.flush())
+        .map_err(|_| "Could not write command information".into())
+}
+
 fn run() -> Result<(), String> {
-    let mut arguments = std::env::args().skip(1);
+    let mut arguments = std::env::args_os().skip(1);
     let mut weights = None;
     let mut jsonl = false;
     while let Some(argument) = arguments.next() {
-        match argument.as_str() {
-            "--help" | "-h" => {
-                println!("{HELP}");
-                return Ok(());
+        match argument.to_str() {
+            Some("--help" | "-h") => return write_info(HELP),
+            Some("--version" | "-V") => {
+                return write_info(concat!("redakt ", env!("CARGO_PKG_VERSION")));
             }
-            "--version" | "-V" => {
-                println!("privacy-hygiene {}", env!("CARGO_PKG_VERSION"));
-                return Ok(());
-            }
-            "--weights" if weights.is_none() => {
+            Some("--weights") if weights.is_none() => {
                 weights = Some(arguments.next().ok_or("--weights requires a path")?);
             }
-            "--jsonl" if !jsonl => jsonl = true,
+            Some("--jsonl") if !jsonl => jsonl = true,
             _ => return Err("Unknown or repeated argument; use --help".into()),
         }
     }
@@ -102,7 +105,7 @@ fn run() -> Result<(), String> {
 
 fn main() {
     if let Err(error) = run() {
-        eprintln!("privacy-hygiene: {error}");
+        eprintln!("redakt: {error}");
         std::process::exit(1);
     }
 }

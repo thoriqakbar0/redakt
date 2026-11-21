@@ -1,4 +1,4 @@
-# privacy-hygiene website
+# redakt website
 
 Astro builds the homepage and SolidJS renders it. The terminal displays
 synthetic input and output from the Rust CLI.

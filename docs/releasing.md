@@ -25,7 +25,7 @@ Linux binaries target Ubuntu 24.04's glibc, not musl. Both macOS architectures b
 Perform these steps only after the owner explicitly authorizes publication.
 
 1. From a clean checkout of the tagged commit, run `cargo publish --locked` with your authenticated crates.io account. Cargo publication is manual. No crates.io credential is stored in GitHub Actions.
-2. In a temporary directory, run `cargo install privacy-hygiene --version <version> --locked --root <temporary-install-directory>`. Run the installed executable with `--version` and synthetic stdin to verify the registry package.
+2. In a temporary directory, run `cargo install redakt --version <version> --locked --root <temporary-install-directory>`. Run the installed executable with `--version` and synthetic stdin to verify the registry package.
 3. Publish the reviewed GitHub draft release. Confirm that its tag, archives, checksums, and notes match the version in `Cargo.toml` and `CHANGELOG.md`.
 4. Update the README installation introduction to identify the published version instead of stating that publication is pending. Preserve the supported platform restrictions.
 5. Verify that `Unreleased` follows the repository convention and that the published notes match the finalized changelog.

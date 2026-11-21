@@ -16,7 +16,7 @@ const markdownPages = new Map([
 const notFound = [
   "# Page not found",
   "",
-  "This address does not point to a page on the privacy-hygiene site.",
+  "This address does not point to a page on the redakt site.",
   "",
   "Use the [homepage](/), [sitemap](/sitemap.xml), or [agent guide](/llms.txt).",
   "",
