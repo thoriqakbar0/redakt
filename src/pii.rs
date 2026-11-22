@@ -92,7 +92,8 @@ pub struct PiiTagger {
 impl PiiTagger {
     /// Load the embedded model only when broad PII detection is requested.
     pub fn embedded() -> Result<Self, String> {
-        let mut source = Cursor::new(include_bytes!("../models/pii.bin").as_slice());
+        let bundle = crate::embedded_model::EmbeddedModel::load()?;
+        let mut source = Cursor::new(bundle.tagger);
         if bytes::<6>(&mut source)? != *b"RPII01" {
             return Err("invalid PII model header".into());
         }
@@ -134,7 +135,7 @@ impl PiiTagger {
             labels,
             vocabulary,
             directions,
-            cues: cues::Cues::load(include_bytes!("../models/pii-cues.bin"))?,
+            cues: cues::Cues::load(bundle.cues)?,
         })
     }
 

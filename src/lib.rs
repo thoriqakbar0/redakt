@@ -1,4 +1,5 @@
 mod contextual;
+mod embedded_model;
 mod pii;
 pub use pii::PiiTagger;
 
@@ -247,7 +248,7 @@ fn starting_masks(instructions: &[Instruction], entry: usize) -> Vec<usize> {
 
 impl Detector {
     pub fn embedded() -> Result<Self, String> {
-        Self::from_bytes(include_bytes!("../models/weights.bin"))
+        Self::from_bytes(embedded_model::EmbeddedModel::load()?.rules)
     }
 
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, String> {

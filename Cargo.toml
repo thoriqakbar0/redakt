@@ -3,7 +3,7 @@ name = "redakt"
 version = "0.0.7"
 edition = "2021"
 description = "Offline PII redaction with trained and rule-based detectors"
-include = ["/src/**", "/tests/**", "/examples/openai_filter.py", "/models/weights.bin", "/models/pii.bin", "/models/pii-cues.bin", "/assets/logo.svg", "/Cargo.lock", "/README.md", "/LICENSE", "/NOTICE"]
+include = ["/src/**", "/tests/**", "/examples/openai_filter.py", "/models/weights.bin", "/models/redakt.bin", "/assets/logo.svg", "/Cargo.lock", "/README.md", "/LICENSE", "/NOTICE"]
 license = "Apache-2.0"
 repository = "https://github.com/thoriqakbar0/redakt"
 
