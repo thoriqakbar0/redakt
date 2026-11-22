@@ -3,8 +3,8 @@
 Astro builds the homepage and SolidJS renders it. The terminal displays
 synthetic input and output from the Rust CLI.
 
-The homepage demos repeat when motion is enabled. Use **Pause animations**
-to stop them. Selecting a terminal example keeps that example on screen.
+The homepage demos repeat unless your system is set to reduce motion.
+Selecting a terminal example keeps that example on screen.
 The setup prompt works with Codex, Claude Code, Cursor, and Gemini CLI.
 Open **Windows and Cargo** to copy either install command.
 
