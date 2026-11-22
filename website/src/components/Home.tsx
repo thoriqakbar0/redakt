@@ -329,9 +329,7 @@ function Faq() {
 }
 
 export default function Home() {
-  const [allowsMotion, setAllowsMotion] = createSignal(false);
-  const [paused, setPaused] = createSignal(false);
-  const playing = () => allowsMotion() && !paused();
+  const [playing, setPlaying] = createSignal(false);
   let stamp: HTMLIFrameElement | undefined;
 
   const syncStamp = () => {
@@ -340,7 +338,7 @@ export default function Home() {
 
   onMount(() => {
     const motion = matchMedia("(prefers-reduced-motion: no-preference)");
-    const syncMotion = () => setAllowsMotion(motion.matches);
+    const syncMotion = () => setPlaying(motion.matches);
     syncMotion();
     motion.addEventListener("change", syncMotion);
     onCleanup(() => motion.removeEventListener("change", syncMotion));
@@ -372,15 +370,6 @@ export default function Home() {
               <div class="hero-actions">
                 <a class="button primary" href="#install">Install redakt</a>
                 <a class="inline-link" href="#workflow">See how it works</a>
-                <Show when={allowsMotion()}>
-                  <button
-                    type="button"
-                    class="button ghost"
-                    onClick={() => setPaused(!paused())}
-                  >
-                    {paused() ? "Resume animations" : "Pause animations"}
-                  </button>
-                </Show>
               </div>
             </div>
             <Terminal playing={playing()} />

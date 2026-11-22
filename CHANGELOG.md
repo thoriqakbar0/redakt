@@ -5,7 +5,7 @@
 - Bundle the rules, sequence tagger, and cue table in one embedded model file. Thanks @thoriqakbar0.
 
 - Clarify how to redact a file before sharing it and restore private details in an AI reply on the redakt homepage. Thanks @thoriqakbar0.
-- Loop the homepage demos, add a pause control, and add copy buttons for Windows and Cargo install commands. The setup prompt button now shows the OpenAI, Claude, Cursor, and Gemini logos. Thanks @thoriqakbar0.
+- Loop the homepage demos and add copy buttons for Windows and Cargo install commands. The setup prompt button now shows the OpenAI, Claude, Cursor, and Gemini logos. Thanks @thoriqakbar0.
 - Bring the local model, recovery workflow, installation, privacy, and support together on the redakt homepage. Thanks @thoriqakbar0.
 
 ## 0.0.7 - 2026-11-21
