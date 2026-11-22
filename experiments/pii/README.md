@@ -34,8 +34,8 @@ target/release/examples/train_pii "$data/train.jsonl" "$data/forward.json" 4
 target/release/examples/train_pii "$data/train.jsonl" "$data/reverse.json" 4 reverse
 python3 experiments/pii/pack.py "$data/pii.bin" "$data/forward.json" "$data/reverse.json"
 target/release/examples/train_cues train "$data/train.jsonl" "$data/pii-cues.bin"
-cmp "$data/pii.bin" models/pii.bin
-cmp "$data/pii-cues.bin" models/pii-cues.bin
+python3 experiments/pii/bundle.py models/weights.bin "$data/pii.bin" "$data/pii-cues.bin" "$data/redakt.bin"
+cmp "$data/redakt.bin" models/redakt.bin
 cargo build --release --locked
 python3 experiments/pii/evaluate.py "$data/test.jsonl" --binary target/release/redakt
 ```
