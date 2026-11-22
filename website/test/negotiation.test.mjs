@@ -20,7 +20,7 @@ test("the same homepage URL serves HTML and Markdown", async () => {
   assert.equal(page.status, 200);
   assertFormat(page, html);
   const markup = await page.text();
-  assert.match(markup, /<h1[^>]*><span[^>]*>redakt<\/span> before you prompt\./);
+  assert.match(markup, /<h1[^>]*><span[^>]*>redakt<\/span> before you share\./);
   assert.match(markup, /src="\/redaction-stamp\.html"/);
   assert.match(markup, /id="local-model"/);
   assert.match(markup, /100,000 synthetic English documents/);

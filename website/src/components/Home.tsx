@@ -37,7 +37,8 @@ function HeroCopy(props: { playing: boolean }) {
         <span ref={rollingText}>{sensitiveValues[0]}</span>
       </span>
       <span class="hero-types">passwords, access tokens, names, addresses, and card numbers</span>
-      {" "}in logs, .env files, and prompts on your machine before sharing.
+      {" "}in logs, .env files, and prompts before you share them.
+      Redakt runs on your machine.
     </p>
   );
 }
@@ -88,7 +89,7 @@ const promptFlow = [
 function PromptFlow() {
   return (
     <figure class="prompt-flow">
-      <figcaption>From prompt to reply</figcaption>
+      <figcaption>Restore private details in an AI reply</figcaption>
       <ol>
         <For each={promptFlow}>
           {(step) => (
@@ -100,9 +101,10 @@ function PromptFlow() {
         </For>
       </ol>
       <p>
-        Hide private details with <code>redakt --recovery session.recovery &lt; prompt.txt</code>.
-        To restore the reply, run <code>redakt --reverse --recovery session.recovery &lt; reply.txt</code>.
-        Keep both recovery files private. The example shows a shortened placeholder.
+        Use <code>redakt --recovery session.recovery &lt; prompt.txt</code> to mask the prompt.
+        Review the output before sending it. Save the reply as <code>reply.txt</code> and run{" "}
+        <code>redakt --reverse --recovery session.recovery &lt; reply.txt</code> locally.
+        Keep the recovery file and its separate code private. The example shortens the placeholder.
       </p>
     </figure>
   );
@@ -207,9 +209,11 @@ function Prompts() {
   return (
     <section class="prompts" id="prompts" aria-labelledby="prompts-title">
       <div class="workflow-intro">
-        <h2 id="prompts-title">Set up redakt in your coding assistant</h2>
+        <h2 id="prompts-title">Ask your coding assistant to redact files first</h2>
         <p>
-          Paste this prompt into Codex, Claude Code, Cursor, or Gemini CLI.
+          Paste the setup prompt into Codex, Claude Code, Cursor, or Gemini CLI
+          to add a project rule for handling sensitive files. Review the redacted
+          copy before sharing it.
         </p>
       </div>
       <div class="prompt-action" id="setup-prompt">
@@ -258,8 +262,8 @@ function Install() {
       <div>
         <h2 id="install-title">Install redakt</h2>
         <p>
-          Run this in your terminal on macOS or Linux with glibc. The installer
-          checks the download before it installs redakt.
+          Run this in your terminal on macOS or glibc-based Linux. The installer
+          verifies the download's SHA-256 checksum.
         </p>
         <a class="inline-link" href={repository + "/releases"}>Browse GitHub releases</a>
       </div>
@@ -268,7 +272,7 @@ function Install() {
         <details class="install-options">
           <summary>Windows and Cargo</summary>
           <p>
-            On 64 bit x86 Windows, download <a href={repository + "/blob/main/install.ps1"}>
+            On x86-64 Windows, download <a href={repository + "/blob/main/install.ps1"}>
               install.ps1
             </a> and run this from its folder in PowerShell.
           </p>
@@ -294,7 +298,7 @@ const questions = [
   },
   {
     question: "Should I review the output before sharing?",
-    answer: "Yes. Check for private details redakt missed before you share the copy.",
+    answer: "Yes. Check for private details redakt missed and ordinary text it masked by mistake.",
   },
   {
     question: "What if I only need a copy to share?",
@@ -363,11 +367,11 @@ export default function Home() {
         <div class="section-width">
           <section class="hero" aria-labelledby="hero-title" data-playing={playing()}>
             <div class="hero-copy">
-              <h1 id="hero-title"><span class="hero-strike">redakt</span> before you prompt.</h1>
+              <h1 id="hero-title"><span class="hero-strike">redakt</span> before you share.</h1>
               <HeroCopy playing={playing()} />
               <div class="hero-actions">
                 <a class="button primary" href="#install">Install redakt</a>
-                <a class="inline-link" href="#local-model">How the local model works</a>
+                <a class="inline-link" href="#workflow">See how it works</a>
                 <Show when={allowsMotion()}>
                   <button
                     type="button"
@@ -392,15 +396,13 @@ export default function Home() {
           </section>
           <section class="model" id="local-model" aria-labelledby="model-title">
             <div>
-              <h2 id="model-title">The model runs on your machine.</h2>
+              <h2 id="model-title">Detect sensitive text offline</h2>
               <p>
-                Redakt comes with a small model that runs on your CPU, even offline.
-                Rules catch patterns like card numbers. The model reads nearby words
-                to help spot names and addresses in English sentences.
+                Redakt runs on your CPU. Rules look for patterns such as card numbers.
+                A trained detector uses nearby words to spot names and addresses in English sentences.
               </p>
               <p>
-                It learned from 100,000 synthetic English documents.
-                Always check the copy for details it may have missed.
+                The detector trained on 100,000 synthetic English documents.
               </p>
               <a class="inline-link" href={repository + "/tree/main/experiments/pii"}>
                 Training and results
@@ -415,10 +417,11 @@ export default function Home() {
           </section>
           <section class="workflow" id="workflow" aria-labelledby="workflow-title">
             <div class="workflow-intro">
-              <h2 id="workflow-title">Redact before you share.</h2>
+              <h2 id="workflow-title">Make a redacted copy</h2>
               <p>
-                This command saves a copy of your .env file with private details hidden.
-                Open the copy and check it before sharing.
+                This command leaves your <code>.env</code> intact and prints the path
+                to a private copy. It replaces detected values with labels such as{" "}
+                <code>[SECRET_1]</code> and saves no recovery files. Review the copy before sharing it.
               </p>
             </div>
             <p class="workflow-command">
@@ -437,8 +440,8 @@ export default function Home() {
             <div id="privacy">
               <h2>Privacy</h2>
               <p>
-                Your files stay on your machine. Keep the encrypted recovery file and its
-                separate code private. Review redacted copies before sharing them.
+                Redakt processes your text locally. For reversible redaction, keep the
+                encrypted recovery file and its separate code private.
               </p>
               <p>
                 When the CLI checks GitHub for an update, it asks for release information
