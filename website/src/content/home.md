@@ -1,16 +1,16 @@
 # redakt
 
-Keep secrets out of AI prompts. Use redakt to mask sensitive data in logs, .env files, and prompts on your machine before sharing. The built-in model runs offline on your CPU.
+Redact secrets and personal data before you share logs, `.env` files, or AI prompts. Redakt replaces detected values with placeholders on your machine. Use encrypted recovery to put private details back into an AI reply.
 
 ## Install
 
-On macOS or Linux, run the shell installer.
+On macOS or glibc-based Linux, run the shell installer. It verifies the download's SHA-256 checksum.
 
 ```sh
 curl -fsSL https://redakt.ta-0.com/install.sh -o install.sh && sh install.sh
 ```
 
-On 64 bit x86 Windows, download [install.ps1](https://github.com/thoriqakbar0/redakt/blob/main/install.ps1) and run this from its folder in PowerShell.
+On x86-64 Windows, download [install.ps1](https://github.com/thoriqakbar0/redakt/blob/main/install.ps1) and run this from its folder in PowerShell.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
@@ -30,9 +30,9 @@ Redakt's built-in model runs offline on your CPU. Rules catch patterns like card
 
 ## How it works
 
-### Prepare a copy to share
+### Make a redacted copy
 
-Use `--irreversible` to replace matches with numbered labels such as `[SECRET_1]` without saving recovery files. This command saves the output in a private file and prints its path.
+This command leaves your `.env` intact and prints the path to a private copy. The `--irreversible` flag replaces detected values with labels such as `[SECRET_1]` and saves no recovery files.
 
 ```sh
 copy=$(mktemp .env.redacted.XXXXXX) && redakt --irreversible < .env > "$copy" && printf '%s\n' "$copy"
@@ -40,7 +40,7 @@ copy=$(mktemp .env.redacted.XXXXXX) && redakt --irreversible < .env > "$copy" &&
 
 Review the copy for missed or unintended redactions before sharing it. Repeated matches for the same value and category share a label within a document.
 
-### Restore values in an AI reply
+### Restore private details in an AI reply
 
 Plain-text redaction saves an encrypted recovery file and a separate code by default. Use the same recovery file for the prompt and the reply.
 
@@ -49,7 +49,7 @@ redakt --recovery session.recovery < prompt.txt > masked.txt
 redakt --reverse --recovery session.recovery < reply.txt > restored.txt
 ```
 
-Review `masked.txt` before sending it. Save the AI's reply as `reply.txt`. Redakt can put private details back when the AI leaves their placeholders unchanged. Keep `session.recovery` and `session.recovery.code` private.
+After the first command, review `masked.txt` before sending it. Save the AI's reply as `reply.txt` before running the second command locally. Redakt restores private details wherever the AI leaves their placeholders unchanged. Keep `session.recovery` and `session.recovery.code` private.
 
 ## Process JSONL
 
