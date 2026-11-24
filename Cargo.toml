@@ -17,5 +17,5 @@ ureq = { version = "3", default-features = false, features = ["rustls"] }
 
 [target.'cfg(unix)'.dependencies]
 flate2 = "1"
-sha2 = "0.10"
+sha2 = "0.11"
 tar = { version = "0.4.46", default-features = false }
